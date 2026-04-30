@@ -4,13 +4,72 @@
     <meta charset="UTF-8">
     <title>Sign Up</title>
     <style>
-        body { display:flex; justify-content:center; align-items:center; height:100vh; margin:0; }
-        .box { text-align:center; width:300px; }
-        .box input, .box button { width:100%; margin:8px 0; padding:10px; }
+        body {
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+            margin:0;
+            background:#f5f5f5;
+            font-family: Arial, sans-serif;
+        }
+        .signup-box {
+            width: 350px;
+            padding: 30px;
+            background-color: black;              /* solid white background */
+            border: 1px solid #ddd;        /* light border */
+            border-radius: 8px;            /* smooth corners */
+            text-align: center;
+
+            /* Shadow for depth */
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .signup-box h2 {
+            margin-bottom: 20px;
+        }
+        .signup-box input {
+            width: 100%;
+            margin: 10px 0;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+        .signup-box button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background: #1db954;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .signup-box p {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .signup-box a {
+            color: #1db954;
+            text-decoration: none;
+        }
+        .login-box h2 {
+            color: #ffffff;   /* makes the "Login" heading white */
+        }
+
+        .login-box p {
+            color: #ffffff;   /* makes the "Don’t have an account?" text white */
+        }
+
+        .login-box a {
+            color: #ffffff;   /* makes the link white too */
+            text-decoration: underline; /* optional */
+        }
+
     </style>
 </head>
 <body>
-    <div class="box">
+    <div class="signup-box">
         <h2>Sign Up</h2>
         <form method="POST">
             <input type="text" name="username" placeholder="Username" required>

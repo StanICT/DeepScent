@@ -122,7 +122,6 @@ body {
 .hero {
     position: relative;
     text-align: center;
-    background: black;
     height: 500px;
     display: flex;
     flex-direction: column;
@@ -240,4 +239,19 @@ body {
 
 .dropdown-menu li {
   margin: 5px 0;
+}
+
+.brand-page.prmnky {
+    background: url("/static/images/prmnky-bg.jpg") no-repeat center center;
+    background-size: cover;
+}
+
+.brand-page.cotidiano {
+    background: url("/static/images/cotidiano-bg.jpg") no-repeat center center;
+    background-size: cover;
+}
+
+.brand-page.enzo {
+    background: url("/static/images/enzo-bg.jpg") no-repeat center center;
+    background-size: cover;
 }

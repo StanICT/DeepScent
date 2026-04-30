@@ -11,8 +11,21 @@ def home():
 @views.route('/perfumes/<brand>')
 def perfumes(brand):
     products = Product.query.filter_by(brand=brand).all()
-    print(products)
-    return render_template('perfumes.html', products=products, brand=brand)
+
+    brand_backgrounds = {
+        "PRMNKY": "prmnky-bg.jpg",
+        "Cotidiano": "cotidiano-bg.jpg",
+        "Enzo Scents": "enzo-bg.jpg"
+    }
+
+    bg_image = brand_backgrounds.get(brand, "default-bg.jpg")
+
+    return render_template("perfumes.html",
+                           products=products,
+                           brand=brand,
+                           bg_image=bg_image)
+
+
 
 @views.route('/product')
 def product():

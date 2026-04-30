@@ -1,28 +1,31 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="perfumes">
-    <!-- Banner -->
-    <div class="banner">
-        <div class="banner-placeholder">1920 x 952</div>
-        <h2>{{ brand }} Fragrances</h2>
-        <p>The perfect blend of bold and refined scents.</p>
-    </div>
 
-    <!-- Product section -->
-    <div class="product-grid">
+<!-- Hero section with brand background -->
+<style>
+  .brand-hero { background: url("{{ url_for('static', filename='images/' ~ bg_image) }}") no-repeat center center / cover; }
+</style>
+<div class="brand-hero">
+    <div class="overlay">
+        <h2>{{ brand }} Perfumes</h2>
+        <p>The perfect blend of bold and refined.</p>
+    </div>
+</div>
+
+<!-- Product list below -->
+<section class="product-list">
+    {% if products %}
         {% for product in products %}
         <div class="product-card">
             <img src="{{ url_for('static', filename='images/' ~ product.image) }}" alt="{{ product.name }}">
             <h3>{{ product.name }}</h3>
             <p>{{ product.description }}</p>
-            <p class="price">${{ "%.2f"|format(product.price) }}</p>
+            <p>${{ "%.2f"|format(product.price) }}</p>
         </div>
         {% endfor %}
-    </div>
-
-    <!-- Footer -->
-    <footer>
-        <p>© 2026 DEEPSCENT. All rights reserved.</p>
-    </footer>
+    {% else %}
+        <p>No perfumes found for {{ brand }}.</p>
+    {% endif %}
 </section>
+
 {% endblock %}
