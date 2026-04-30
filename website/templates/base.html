@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/all.min.css') }}">
+    <script src="{{ url_for('static', filename='js/all.min.js') }}"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title>DEEPSCENT  {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/all.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">DEEPSCENT</div>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('views.home') }}" 
+                class="{% if request.endpoint == 'views.home' %}active{% endif %}">HOME</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" id="perfumes-link">
+                    PERFUMES <span class="arrow">&#9662;</span>
+                </a>
+                <ul class="dropdown-menu" id="perfumes-menu">
+                    <li><a href="{{ url_for('views.perfumes', brand='PRMNKY') }}">PRMNKY</a></li>
+                    <li><a href="{{ url_for('views.perfumes', brand='Cotidiano') }}">Cotidiano</a></li>
+                    <li><a href="{{ url_for('views.perfumes', brand='Enzo Scents') }}">Enzo Scents</a></li>
+                </ul>
+            </li>
+            <li><a href="{{ url_for('views.product') }}" 
+                class="{% if request.endpoint == 'views.product' %}active{% endif %}">PRODUCT</a></li>
+            <li><a href="{{ url_for('views.featured') }}" 
+                class="{% if request.endpoint == 'views.featured' %}active{% endif %}">FEATURED</a></li>
+        </ul>
+        <div class="icons">
+            <a href="#"><i class="fas fa-search"></i></a>
+            <a href="#"><i class="fas fa-user"></i></a>
+            <a href="#"><i class="fas fa-heart"></i><span class="badge">0</span></a>
+            <a href="#"><i class="fas fa-shopping-cart"></i><span class="badge">0</span></a>
+        </div>
+
+
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-image">
+            <h1>1920 x 952</h1>
+        </div>
+        <div class="hero-text">
+            <h2>VALOR INSTINCT V2</h2>
+            <p>The perfect blend of bold and refined modern masterpiece.</p>
+        </div>
+    </section>
+
+    <!-- Page Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+        <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 DEEPSCENT. All rights reserved.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const perfumesLink = document.getElementById("perfumes-link");
+        const dropdown = perfumesLink.parentElement;
+
+        perfumesLink.addEventListener("click", function(e) {
+            e.preventDefault();
+            dropdown.classList.toggle("open");
+        });
+
+        // Optional: close if clicking outside
+        document.addEventListener("click", function(e) {
+            if (!dropdown.contains(e.target)) {
+                dropdown.classList.remove("open");
+            }
+        });
+    });
+    </script>
+
+</body>
+</html>
+

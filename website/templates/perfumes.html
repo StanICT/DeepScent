@@ -1,0 +1,8 @@
+{% for product in products %}
+<div class="product-card">
+    <img src="{{ url_for('static', filename='images/' ~ product.image) }}" alt="{{ product.name }}">
+    <h3>{{ product.name }}</h3>
+    <p>{{ product.description }}</p>
+    <p>${{ "%.2f"|format(product.price) }}</p>
+</div>
+{% endfor %}
