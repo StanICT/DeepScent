@@ -11,7 +11,8 @@ def create_app():
     app.config['SECRET_KEY'] = 'your-secret-key'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///shop.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
+    from .admin import admin
+    app.register_blueprint(admin, url_prefix="/admin")
     # initialize db with app
     db.init_app(app)
 
@@ -37,7 +38,6 @@ def create_app():
     # register blueprints
     from .views import views
     from .auth import auth
-    from .admin import admin
 
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/auth')

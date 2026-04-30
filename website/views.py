@@ -23,3 +23,5 @@ def product():
 @views.route('/featured')
 def featured():
     return render_template('featured.html')
+
+

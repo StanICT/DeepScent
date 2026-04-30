@@ -8,9 +8,11 @@ class User(UserMixin, db.Model):
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
-    price = db.Column(db.Float)
-    image = db.Column(db.String(100))
-    description = db.Column(db.String(200))
-    brand = db.Column(db.String(50))
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    stock = db.Column(db.Integer, default=0)   # new field
+    image = db.Column(db.String(100), nullable=False)
+    brand = db.Column(db.String(50), nullable=False)
+
 
