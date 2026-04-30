@@ -241,17 +241,61 @@ body {
   margin: 5px 0;
 }
 
+.brand-top {
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #fff;
+}
+
+/* Brand-specific backgrounds */
+.brand-top.prmnky {
+    background: url("/static/images/prmnky-bg.jpg") no-repeat center top;
+    background-size: cover;
+}
+
+.brand-top.cotidiano {
+    background: url("/static/images/cotidiano-bg.jpg") no-repeat center top;
+    background-size: cover;
+}
+
+.brand-top.enzo {
+    background: url("/static/images/enzo-bg.jpg") no-repeat center top;
+    background-size: cover;
+}
+
+.brand-page {
+    position: relative;
+    height: 100vh; /* full screen */
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-size: cover;
+    display: flex;
+    justify-content: flex-start; /* align at top */
+    align-items: center;
+    flex-direction: column;
+    padding-top: 40px; /* push down a bit */
+}
+
+.brand-title {
+    font-family: 'Anton', sans-serif;
+    font-size: 70px;
+    color: white;
+    font-style: italic;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.7); /* readable on image */
+}
+
+
 .brand-page.prmnky {
-    background: url("/static/images/prmnky-bg.jpg") no-repeat center center;
-    background-size: cover;
+    background-image: url("/static/images/prmnky-bg.jpg");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;     /* fills the box */
+    height: 100vh;              /* full viewport height */
 }
 
-.brand-page.cotidiano {
-    background: url("/static/images/cotidiano-bg.jpg") no-repeat center center;
-    background-size: cover;
-}
 
-.brand-page.enzo {
-    background: url("/static/images/enzo-bg.jpg") no-repeat center center;
-    background-size: cover;
-}
+

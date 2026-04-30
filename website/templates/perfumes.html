@@ -1,31 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
 
-<!-- Hero section with brand background -->
-<style>
-  .brand-hero { background: url("{{ url_for('static', filename='images/' ~ bg_image) }}") no-repeat center center / cover; }
-</style>
-<div class="brand-hero">
-    <div class="overlay">
-        <h2>{{ brand }} Perfumes</h2>
-        <p>The perfect blend of bold and refined.</p>
-    </div>
-</div>
+<section class="brand-page prmnky">
+    <h1 class="brand-title">PRMNKY</h1>
+</section>
 
-<!-- Product list below -->
 <section class="product-list">
-    {% if products %}
-        {% for product in products %}
-        <div class="product-card">
-            <img src="{{ url_for('static', filename='images/' ~ product.image) }}" alt="{{ product.name }}">
-            <h3>{{ product.name }}</h3>
-            <p>{{ product.description }}</p>
-            <p>${{ "%.2f"|format(product.price) }}</p>
-        </div>
-        {% endfor %}
-    {% else %}
-        <p>No perfumes found for {{ brand }}.</p>
-    {% endif %}
+    {% for product in products %}
+    <div class="product-card">
+        <img src="{{ url_for('static', filename='images/' ~ product.image) }}" alt="{{ product.name }}">
+        <h3>{{ product.name }}</h3>
+        <p>{{ product.description }}</p>
+        <p>${{ "%.2f"|format(product.price) }}</p>
+    </div>
+    {% endfor %}
 </section>
 
 {% endblock %}
