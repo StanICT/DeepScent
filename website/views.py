@@ -11,6 +11,7 @@ def home():
 @views.route('/perfumes/<brand>')
 def perfumes(brand):
     products = Product.query.filter_by(brand=brand).all()
+    print(products)
     return render_template('perfumes.html', products=products, brand=brand)
 
 @views.route('/product')

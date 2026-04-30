@@ -68,10 +68,6 @@
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         const perfumesLink = document.getElementById("perfumes-link");
-        if (!perfumesLink) {
-            console.error("perfumes-link not found!");
-            return;
-        }
         const dropdown = perfumesLink.parentElement;
 
         perfumesLink.addEventListener("click", function(e) {
@@ -86,6 +82,7 @@
         });
     });
     </script>
+
 
 
 </body>
