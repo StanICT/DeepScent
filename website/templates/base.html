@@ -22,7 +22,7 @@
                 <a href="#" class="dropdown-toggle" id="perfumes-link">
                     PERFUMES <span class="arrow">&#9662;</span>
                 </a>
-                <ul class="dropdown-menu" id="perfumes-menu">
+                <ul class="dropdown-menu">
                     <li><a href="{{ url_for('views.perfumes', brand='PRMNKY') }}">PRMNKY</a></li>
                     <li><a href="{{ url_for('views.perfumes', brand='Cotidiano') }}">Cotidiano</a></li>
                     <li><a href="{{ url_for('views.perfumes', brand='Enzo Scents') }}">Enzo Scents</a></li>
@@ -68,6 +68,10 @@
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         const perfumesLink = document.getElementById("perfumes-link");
+        if (!perfumesLink) {
+            console.error("perfumes-link not found!");
+            return;
+        }
         const dropdown = perfumesLink.parentElement;
 
         perfumesLink.addEventListener("click", function(e) {
@@ -75,7 +79,6 @@
             dropdown.classList.toggle("open");
         });
 
-        // Optional: close if clicking outside
         document.addEventListener("click", function(e) {
             if (!dropdown.contains(e.target)) {
                 dropdown.classList.remove("open");
@@ -83,6 +86,7 @@
         });
     });
     </script>
+
 
 </body>
 </html>

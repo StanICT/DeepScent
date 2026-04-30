@@ -195,21 +195,6 @@ body {
     transform: rotate(180deg);
 }
 
-.dropdown-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: white;
-    list-style: none;
-    padding: 10px 0;
-    margin: 0;
-    min-width: 150px;
-    opacity: 0;
-    transform: translateY(-10px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
 .dropdown-menu.show {
     display: block;
     opacity: 1;
@@ -248,6 +233,7 @@ body {
 .dropdown.open .dropdown-menu {
   display: block;
 }
+
 
 .arrow {
   transition: transform 0.3s ease;

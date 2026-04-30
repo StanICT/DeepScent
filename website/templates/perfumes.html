@@ -1,8 +1,23 @@
-{% for product in products %}
-<div class="product-card">
-    <img src="{{ url_for('static', filename='images/' ~ product.image) }}" alt="{{ product.name }}">
-    <h3>{{ product.name }}</h3>
-    <p>{{ product.description }}</p>
-    <p>${{ "%.2f"|format(product.price) }}</p>
-</div>
-{% endfor %}
+{% extends "base.html" %}
+{% block content %}
+<section class="perfumes">
+    <!-- Banner -->
+    <div class="banner">
+        <div class="banner-placeholder">1920 x 952</div>
+        <h2>{{ brand }} Fragrances</h2>
+        <p>Discover the perfect blend of bold and refined scents.</p>
+    </div>
+
+    <!-- Product grid -->
+    <div class="product-grid">
+        {% for product in products %}
+        <div class="product-card">
+            <img src="{{ url_for('static', filename='images/' ~ product.image) }}" alt="{{ product.name }}">
+            <h3>{{ product.name }}</h3>
+            <p>{{ product.description }}</p>
+            <p class="price">${{ "%.2f"|format(product.price) }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
