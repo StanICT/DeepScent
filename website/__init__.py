@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -16,7 +16,6 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
 
-    # create tables if they don’t exist
     with app.app_context():
         db.create_all()
 
@@ -25,7 +24,7 @@ def create_app():
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
 
-    from .models import User   # import AFTER db is initialized
+    from .models import User
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -38,6 +37,12 @@ def create_app():
 
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/auth')
-    app.register_blueprint(admin, url_prefix='/admin')  # only once
+    app.register_blueprint(admin, url_prefix='/admin')
+
+    # error handler for forbidden access
+    @app.errorhandler(403)
+    def forbidden(e):
+        return render_template("403.html"), 403
 
     return app
+
