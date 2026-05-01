@@ -3,22 +3,18 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
 
-db = SQLAlchemy()   # define db first
-migrate = None      # placeholder, will be initialized later
+db = SQLAlchemy()   # define db here
+migrate = Migrate() # define migrate here
 
 def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'your-secret-key'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///shop.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    from .admin import admin
-    app.register_blueprint(admin, url_prefix="/admin")
-    # initialize db with app
-    db.init_app(app)
 
-    # initialize migrations AFTER db and app are ready
-    global migrate
-    migrate = Migrate(app, db)
+    # initialize db and migrate
+    db.init_app(app)
+    migrate.init_app(app, db)
 
     # create tables if they don’t exist
     with app.app_context():
@@ -29,7 +25,7 @@ def create_app():
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
 
-    from .models import User
+    from .models import User   # import AFTER db is initialized
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -38,9 +34,10 @@ def create_app():
     # register blueprints
     from .views import views
     from .auth import auth
+    from .admin import admin
 
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/auth')
-    app.register_blueprint(admin, url_prefix='/')
+    app.register_blueprint(admin, url_prefix='/admin')  # only once
 
     return app
