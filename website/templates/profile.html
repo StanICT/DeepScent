@@ -1,20 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>My Profile</title>
-  <style>
-    body { display:flex; justify-content:center; align-items:center; height:100vh; margin:0; }
-    .box { text-align:center; width:300px; }
-    .box input, .box button { width:100%; margin:8px 0; padding:10px; }
-  </style>
-</head>
-<body>
-  <div class="box">
-    <h2>My Profile</h2>
-    <p><strong>Username:</strong> {{ user.username }}</p>
-    <p><strong>Admin:</strong> {{ 'Yes' if user.is_admin else 'No' }}</p>
-    <a href="{{ url_for('auth.logout') }}">Log out</a>
-  </div>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="container mt-5">
+  <h2>Profile Page</h2>
+  <p>This page exists, but the actual profile panel now slides in from <code>base.html</code>.</p>
+  <p><strong>Username:</strong> {{ current_user.username }}</p>
+  <p><strong>Admin:</strong> {{ 'Yes' if current_user.is_admin else 'No' }}</p>
+</div>
+{% endblock %}

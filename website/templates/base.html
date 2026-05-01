@@ -6,7 +6,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
-    <title>DEEPSCENT  {% block title %}{% endblock %}</title>
+    <title>DEEPSCENT {% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/all.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -37,18 +37,19 @@
             <a href="#"><i class="fas fa-search"></i></a>
 
             {% if current_user.is_authenticated %}
-                <a href="{{ url_for('auth.profile') }}"><i class="fa fa-user"></i></a>
+                <!-- Trigger profile panel instead of new page -->
+                <a href="javascript:void(0);" onclick="openProfile()">
+                    <i class="fa fa-user"></i>
+                </a>
             {% else %}
-                <a href="{{ url_for('auth.login') }}"><i class="fa fa-user"></i></a>
+                <a href="{{ url_for('auth.login') }}">
+                    <i class="fa fa-user"></i>
+                </a>
             {% endif %}
 
             <a href="#"><i class="fas fa-heart"></i><span class="badge">0</span></a>
             <a href="#"><i class="fas fa-shopping-cart"></i><span class="badge">0</span></a>
         </div>
-
-
-
-
     </nav>
 
     <!-- Page Content -->
@@ -56,13 +57,24 @@
         {% block content %}{% endblock %}
     </main>
 
-        <!-- Footer -->
+    <!-- Footer -->
     <footer>
         <p>&copy; 2026 DEEPSCENT. All rights reserved.</p>
     </footer>
 
+    <!-- Overlay + Profile Panel -->
+    <div class="overlay" style="display:none;"></div>
+    <div class="profile-panel" style="display:none;">
+        <button class="btn-close-custom" onclick="closeProfile()" aria-label="Close"></button>
+        <h2>My Profile</h2>
+        <p><strong>Username:</strong> {{ current_user.username }}</p>
+        <p><strong>Admin:</strong> {{ 'Yes' if current_user.is_admin else 'No' }}</p>
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-danger mt-3">Log out</a>
+    </div>
+
     <!-- Scripts -->
     <script>
+    // Dropdown toggle
     document.addEventListener("DOMContentLoaded", function() {
         const perfumesLink = document.getElementById("perfumes-link");
         const dropdown = perfumesLink.parentElement;
@@ -78,10 +90,27 @@
             }
         });
     });
+
+    // Profile panel functions
+    function openProfile() {
+      document.querySelector('.overlay').style.display = 'block';
+      document.querySelector('.profile-panel').style.display = 'block';
+      document.querySelector('.profile-panel').style.animation = 'slideIn 0.4s ease forwards';
+    }
+
+    function closeProfile() {
+      const panel = document.querySelector('.profile-panel');
+      const overlay = document.querySelector('.overlay');
+
+      panel.style.animation = 'slideOut 0.4s ease forwards';
+      overlay.style.opacity = '0';
+
+      setTimeout(() => {
+        panel.style.display = 'none';
+        overlay.style.display = 'none';
+        overlay.style.opacity = '1'; // reset
+      }, 400);
+    }
     </script>
-
-
-
 </body>
 </html>
-

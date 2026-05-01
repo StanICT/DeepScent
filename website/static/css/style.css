@@ -297,5 +297,65 @@ body {
     height: 100vh;              /* full viewport height */
 }
 
+.overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: transparent;   /* keep PRMNKY background visible */
+  z-index: 998;
+}
+
+.profile-panel {
+  position: fixed;
+  top: 0; right: 0;
+  width: 350px;
+  height: 100%;
+  background: #fff;
+  box-shadow: -2px 0 8px rgba(0,0,0,0.2);
+  z-index: 999;
+  padding: 20px;
+  overflow-y: auto;
+  display: none;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+  from { transform: translateX(0); opacity: 1; }
+  to   { transform: translateX(100%); opacity: 0; }
+}
+
+/* Close button styling */
+.btn-close-custom {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border: 2px solid lightgray;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.4s ease;
+}
+.btn-close-custom::before,
+.btn-close-custom::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 1px;
+  background: black;
+  transition: transform 0.4s ease;
+}
+.btn-close-custom::before { transform: rotate(45deg); }
+.btn-close-custom::after { transform: rotate(-45deg); }
+.btn-close-custom:hover { border-color: transparent; }
+.btn-close-custom:hover::before,
+.btn-close-custom:hover::after { transform: rotate(0deg); }
 
 
