@@ -1,18 +1,26 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Manage Products</h2>
+<h1>Admin - Products</h1>
 <a href="{{ url_for('admin.add_product') }}">Add New Product</a>
 <table>
-  <tr>
-    <th>Name</th><th>Price</th><th>Stock</th><th>Brand</th>
-  </tr>
-  {% for product in products %}
-  <tr>
-    <td>{{ product.name }}</td>
-    <td>${{ "%.2f"|format(product.price) }}</td>
-    <td>{{ product.stock }}</td>
-    <td>{{ product.brand }}</td>
-  </tr>
-  {% endfor %}
+    <tr>
+        <th>Name</th>
+        <th>Brand</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th>Actions</th>
+    </tr>
+    {% for product in products %}
+    <tr>
+        <td>{{ product.name }}</td>
+        <td>{{ product.brand }}</td>
+        <td>${{ "%.2f"|format(product.price) }}</td>
+        <td>{{ product.stock }}</td>
+        <td>
+            <a href="{{ url_for('admin.edit_product', id=product.id) }}">Edit</a>
+            <a href="{{ url_for('admin.delete_product', id=product.id) }}">Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
 </table>
 {% endblock %}

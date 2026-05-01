@@ -27,3 +27,24 @@ def add_product():
         return redirect(url_for("admin.admin_products"))
 
     return render_template("add_product.html")
+
+@admin.route("/products/edit/<int:id>", methods=["GET","POST"])
+def edit_product(id):
+    product = Product.query.get_or_404(id)
+    if request.method == "POST":
+        product.name = request.form["name"]
+        product.description = request.form["description"]
+        product.price = float(request.form["price"])
+        product.stock = int(request.form["stock"])
+        product.image = request.form["image"]
+        product.brand = request.form["brand"]
+        db.session.commit()
+        return redirect(url_for("admin.admin_products"))
+    return render_template("edit_product.html", product=product)
+
+@admin.route("/products/delete/<int:id>")
+def delete_product(id):
+    product = Product.query.get_or_404(id)
+    db.session.delete(product)
+    db.session.commit()
+    return redirect(url_for("admin.admin_products"))
