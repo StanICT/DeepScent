@@ -111,6 +111,11 @@
         overlay.style.opacity = '1'; // reset
       }, 400);
     }
+
+    document.addEventListener("DOMContentLoaded", () => {
+  const overlay = document.querySelector('.overlay');
+  overlay.addEventListener("click", closeProfile);});
+
     </script>
 </body>
 </html>
