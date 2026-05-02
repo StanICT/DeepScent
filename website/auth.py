@@ -7,7 +7,7 @@ import os
 
 auth = Blueprint("auth", __name__)
 
-UPLOAD_FOLDER = os.path.join("website", "static", "uploads")
+UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "static", "uploads")
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
 def allowed_file(filename):
@@ -70,27 +70,32 @@ def logout():
 def profile():
     return render_template("profile.html", user=current_user)
 
-# ✅ Upload avatar route
 @auth.route("/upload_avatar", methods=["POST"])
 @login_required
 def upload_avatar():
-    if "avatar" not in request.files:
-        flash("No file part")
+    file = request.files.get("avatar")
+    if not file or file.filename == "":
+        flash("No file selected")
         return redirect(url_for("auth.profile"))
 
-    file = request.files["avatar"]
-    if file.filename == "":
-        flash("No selected file")
-        return redirect(url_for("auth.profile"))
+    if allowed_file(file.filename):
+        # Always save as username_avatar.png so new uploads overwrite old ones
+        filename = secure_filename(f"{current_user.username}_avatar.png")
 
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-        filepath = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(filepath)
+        # make sure uploads folder exists
+        upload_path = os.path.join(os.path.dirname(__file__), "static", "uploads")
+        os.makedirs(upload_path, exist_ok=True)
 
+        # save file
+        file.save(os.path.join(upload_path, filename))
+
+        # save filename in DB
         current_user.avatar = filename
         db.session.commit()
 
-        flash("Profile picture updated!")
-        return redirect(url_for("auth.profile"))
+        print("Saved avatar for:", current_user.username, "->", filename)  # debug log
+
+    return redirect(url_for("views.home"))
+
+
+

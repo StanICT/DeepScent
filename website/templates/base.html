@@ -63,27 +63,30 @@
     </footer>
 
     <!-- Overlay + Profile Panel -->
-    <div class="overlay" style="display:none;"></div> <!-- ✅ Added overlay -->
+    <div class="overlay" style="display:none;"></div>
     <div class="profile-panel" style="display:none;">
-    <button class="btn-close-custom" onclick="closeProfile()" aria-label="Close"></button>
+        <button class="btn-close-custom" onclick="closeProfile()" aria-label="Close"></button>
 
-    <!-- Profile Avatar with heading overlay -->
-    <div class="profile-avatar">
-        <h2 class="profile-title">My Profile</h2>
-        <img id="avatarPreview" src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Profile Picture">
-        <input type="file" id="avatarInput" accept="image/*" style="display:none;">
+        <!-- Profile Avatar with form -->
+        <form id="avatarForm" method="POST" action="{{ url_for('auth.upload_avatar') }}" enctype="multipart/form-data">
+            <div class="profile-avatar">
+                <h2 class="profile-title">My Profile</h2>
+                <img id="avatarPreview" src="{{ url_for('static', filename='uploads/' ~ current_user.avatar) 
+                      if current_user.avatar 
+                      else url_for('static', filename='images/default-avatar.png') }}" alt="Profile Picture">
+                <input type="file" id="avatarInput" name="avatar" accept="image/*" style="display:none;">
+            </div>
+        </form>
+
+        <p><strong>Username:</strong> {{ current_user.username }}</p>
+        <p><strong>Admin:</strong> {{ 'Yes' if current_user.is_admin else 'No' }}</p>
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-danger mt-3">Log out</a>
     </div>
-
-    <p><strong>Username:</strong> {{ current_user.username }}</p>
-    <p><strong>Admin:</strong> {{ 'Yes' if current_user.is_admin else 'No' }}</p>
-    <a href="{{ url_for('auth.logout') }}" class="btn btn-danger mt-3">Log out</a>
-    </div>
-
 
     <!-- Scripts -->
     <script>
-    // Dropdown toggle
     document.addEventListener("DOMContentLoaded", function() {
+        // Dropdown toggle
         const perfumesLink = document.getElementById("perfumes-link");
         const dropdown = perfumesLink.parentElement;
 
@@ -98,7 +101,7 @@
             }
         });
 
-        // 👉 Close profile when clicking overlay
+        // Close profile when clicking overlay
         const overlay = document.querySelector('.overlay');
         overlay.addEventListener("click", function(e) {
             if (e.target === overlay) {
@@ -106,11 +109,12 @@
             }
         });
 
-        // 👉 Avatar upload logic
+        // Avatar upload logic
         const avatarPreview = document.getElementById("avatarPreview");
         const avatarInput = document.getElementById("avatarInput");
+        const avatarForm = document.getElementById("avatarForm");
 
-        if (avatarPreview && avatarInput) {
+        if (avatarPreview && avatarInput && avatarForm) {
             avatarPreview.addEventListener("click", () => {
                 avatarInput.click();
             });
@@ -123,6 +127,9 @@
                         avatarPreview.src = e.target.result;
                     };
                     reader.readAsDataURL(file);
+
+                    // Auto-submit to backend
+                    avatarForm.submit();
                 }
             });
         }

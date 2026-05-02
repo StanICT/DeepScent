@@ -1,10 +1,6 @@
 from flask import Flask, render_template
-from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-from flask_migrate import Migrate
-
-db = SQLAlchemy()   # define db here
-migrate = Migrate() # define migrate here
+from .extensions import db, migrate   # import from extensions
 
 def create_app():
     app = Flask(__name__)
@@ -17,14 +13,13 @@ def create_app():
     migrate.init_app(app, db)
 
     with app.app_context():
+        from .models import User, Product   # import models AFTER db is ready
         db.create_all()
 
     # login manager setup
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
-
-    from .models import User
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -45,4 +40,3 @@ def create_app():
         return render_template("403.html"), 403
 
     return app
-
