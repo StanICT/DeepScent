@@ -75,27 +75,23 @@ def profile():
 def upload_avatar():
     file = request.files.get("avatar")
     if not file or file.filename == "":
-        flash("No file selected")
-        return redirect(url_for("auth.profile"))
+        return "no file", 400
 
     if allowed_file(file.filename):
-        # Always save as username_avatar.png so new uploads overwrite old ones
         filename = secure_filename(f"{current_user.username}_avatar.png")
 
-        # make sure uploads folder exists
         upload_path = os.path.join(os.path.dirname(__file__), "static", "uploads")
         os.makedirs(upload_path, exist_ok=True)
 
-        # save file
         file.save(os.path.join(upload_path, filename))
 
-        # save filename in DB
         current_user.avatar = filename
         db.session.commit()
 
-        print("Saved avatar for:", current_user.username, "->", filename)  # debug log
+        print("Saved avatar for:", current_user.username, "->", filename)
 
-    return redirect(url_for("views.home"))
+    return "ok", 200
+
 
 
 

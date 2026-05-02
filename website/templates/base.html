@@ -67,16 +67,14 @@
     <div class="profile-panel" style="display:none;">
         <button class="btn-close-custom" onclick="closeProfile()" aria-label="Close"></button>
 
-        <!-- Profile Avatar with form -->
-        <form id="avatarForm" method="POST" action="{{ url_for('auth.upload_avatar') }}" enctype="multipart/form-data">
-            <div class="profile-avatar">
-                <h2 class="profile-title">My Profile</h2>
-                <img id="avatarPreview" src="{{ url_for('static', filename='uploads/' ~ current_user.avatar) 
-                      if current_user.avatar 
-                      else url_for('static', filename='images/default-avatar.png') }}" alt="Profile Picture">
-                <input type="file" id="avatarInput" name="avatar" accept="image/*" style="display:none;">
-            </div>
-        </form>
+        <!-- Profile Avatar with AJAX upload -->
+        <div class="profile-avatar">
+            <h2 class="profile-title">My Profile</h2>
+            <img id="avatarPreview" src="{{ url_for('static', filename='uploads/' ~ current_user.avatar) 
+                  if current_user.avatar 
+                  else url_for('static', filename='images/default-avatar.png') }}" alt="Profile Picture">
+            <input type="file" id="avatarInput" name="avatar" accept="image/*" style="display:none;">
+        </div>
 
         <p><strong>Username:</strong> {{ current_user.username }}</p>
         <p><strong>Admin:</strong> {{ 'Yes' if current_user.is_admin else 'No' }}</p>
@@ -109,12 +107,11 @@
             }
         });
 
-        // Avatar upload logic
+        // Avatar upload logic (AJAX)
         const avatarPreview = document.getElementById("avatarPreview");
         const avatarInput = document.getElementById("avatarInput");
-        const avatarForm = document.getElementById("avatarForm");
 
-        if (avatarPreview && avatarInput && avatarForm) {
+        if (avatarPreview && avatarInput) {
             avatarPreview.addEventListener("click", () => {
                 avatarInput.click();
             });
@@ -128,8 +125,16 @@
                     };
                     reader.readAsDataURL(file);
 
-                    // Auto-submit to backend
-                    avatarForm.submit();
+                    // Upload via fetch instead of form.submit()
+                    const formData = new FormData();
+                    formData.append("avatar", file);
+
+                    fetch("{{ url_for('auth.upload_avatar') }}", {
+                        method: "POST",
+                        body: formData
+                    }).then(() => {
+                        console.log("Avatar updated");
+                    });
                 }
             });
         }
