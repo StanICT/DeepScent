@@ -3,8 +3,19 @@
 {% block content %}
 <div class="container mt-5">
   <h2>Profile Page</h2>
-  <p>This page exists, but the actual profile panel now slides in from <code>base.html</code>.</p>
-  <p><strong>Username:</strong> {{ current_user.username }}</p>
-  <p><strong>Admin:</strong> {{ 'Yes' if current_user.is_admin else 'No' }}</p>
+
+  <!-- Avatar upload form -->
+  <form method="POST" action="{{ url_for('auth.upload_avatar') }}" enctype="multipart/form-data">
+    <div class="profile-avatar">
+      <img id="avatarPreview"
+           src="{{ url_for('static', filename='uploads/' ~ user.avatar) if user.avatar else url_for('static', filename='images/default-avatar.png') }}"
+           alt="Profile Picture">
+      <input type="file" id="avatarInput" name="avatar" accept="image/*">
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Save Picture</button>
+  </form>
+
+  <p><strong>Username:</strong> {{ user.username }}</p>
+  <p><strong>Admin:</strong> {{ 'Yes' if user.is_admin else 'No' }}</p>
 </div>
 {% endblock %}

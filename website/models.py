@@ -6,6 +6,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100))
     is_admin = db.Column(db.Boolean, default=False)
+    avatar = db.Column(db.String(150), nullable=True)   # ✅ new field
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)

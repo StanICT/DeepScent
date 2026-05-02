@@ -1,10 +1,17 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import login_user, logout_user
+from flask_login import login_user, logout_user, login_required, current_user
 from website.models import User, db
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_required, current_user
+from werkzeug.utils import secure_filename
+import os
 
 auth = Blueprint("auth", __name__)
+
+UPLOAD_FOLDER = os.path.join("website", "static", "uploads")
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @auth.route("/signup", methods=["GET","POST"])
 def signup():
@@ -62,3 +69,28 @@ def logout():
 @login_required
 def profile():
     return render_template("profile.html", user=current_user)
+
+# ✅ Upload avatar route
+@auth.route("/upload_avatar", methods=["POST"])
+@login_required
+def upload_avatar():
+    if "avatar" not in request.files:
+        flash("No file part")
+        return redirect(url_for("auth.profile"))
+
+    file = request.files["avatar"]
+    if file.filename == "":
+        flash("No selected file")
+        return redirect(url_for("auth.profile"))
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(filepath)
+
+        current_user.avatar = filename
+        db.session.commit()
+
+        flash("Profile picture updated!")
+        return redirect(url_for("auth.profile"))
