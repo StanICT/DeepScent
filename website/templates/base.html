@@ -37,7 +37,7 @@
             <a href="#"><i class="fas fa-search"></i></a>
 
             {% if current_user.is_authenticated %}
-                <!-- Trigger profile panel instead of new page -->
+                <!-- Trigger profile panel -->
                 <a href="javascript:void(0);" onclick="openProfile()">
                     <i class="fa fa-user"></i>
                 </a>
@@ -63,14 +63,22 @@
     </footer>
 
     <!-- Overlay + Profile Panel -->
-    <div class="overlay" style="display:none;"></div>
+    <div class="overlay" style="display:none;"></div> <!-- ✅ Added overlay -->
     <div class="profile-panel" style="display:none;">
-        <button class="btn-close-custom" onclick="closeProfile()" aria-label="Close"></button>
-        <h2>My Profile</h2>
-        <p><strong>Username:</strong> {{ current_user.username }}</p>
-        <p><strong>Admin:</strong> {{ 'Yes' if current_user.is_admin else 'No' }}</p>
-        <a href="{{ url_for('auth.logout') }}" class="btn btn-danger mt-3">Log out</a>
+    <button class="btn-close-custom" onclick="closeProfile()" aria-label="Close"></button>
+
+    <!-- Profile Avatar with heading overlay -->
+    <div class="profile-avatar">
+        <h2 class="profile-title">My Profile</h2>
+        <img id="avatarPreview" src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Profile Picture">
+        <input type="file" id="avatarInput" accept="image/*" style="display:none;">
     </div>
+
+    <p><strong>Username:</strong> {{ current_user.username }}</p>
+    <p><strong>Admin:</strong> {{ 'Yes' if current_user.is_admin else 'No' }}</p>
+    <a href="{{ url_for('auth.logout') }}" class="btn btn-danger mt-3">Log out</a>
+    </div>
+
 
     <!-- Scripts -->
     <script>
@@ -89,6 +97,35 @@
                 dropdown.classList.remove("open");
             }
         });
+
+        // 👉 Close profile when clicking overlay
+        const overlay = document.querySelector('.overlay');
+        overlay.addEventListener("click", function(e) {
+            if (e.target === overlay) {
+                closeProfile();
+            }
+        });
+
+        // 👉 Avatar upload logic
+        const avatarPreview = document.getElementById("avatarPreview");
+        const avatarInput = document.getElementById("avatarInput");
+
+        if (avatarPreview && avatarInput) {
+            avatarPreview.addEventListener("click", () => {
+                avatarInput.click();
+            });
+
+            avatarInput.addEventListener("change", () => {
+                const file = avatarInput.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        avatarPreview.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
     });
 
     // Profile panel functions
@@ -111,11 +148,6 @@
         overlay.style.opacity = '1'; // reset
       }, 400);
     }
-
-    document.addEventListener("DOMContentLoaded", () => {
-  const overlay = document.querySelector('.overlay');
-  overlay.addEventListener("click", closeProfile);});
-
     </script>
 </body>
 </html>
