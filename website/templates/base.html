@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <title>DEEPSCENT {% block title %}{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/all.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -14,7 +15,7 @@
 <body>
     <!-- Navigation -->
     <nav class="navbar">
-        <div class="logo">DEEPSCENT</div>
+        <div class="logo"><img src="{{ url_for('static', filename='images/favicon.png') }}" style="height:64px;width:64px;object-fit:contain;vertical-align:middle;"></div>
         <ul class="nav-links">
             <li><a href="{{ url_for('views.home') }}" class="{% if request.endpoint == 'views.home' %}active{% endif %}">HOME</a></li>
             <li class="dropdown">
@@ -32,9 +33,6 @@
             <a href="#"><i class="fas fa-search"></i></a>
             {% if current_user.is_authenticated %}
                 <a href="javascript:void(0);" onclick="openProfile()"><i class="fa fa-user"></i></a>
-                {% if current_user.is_admin %}
-                <a href="{{ url_for('admin.admin_products') }}" title="Admin"><i class="fas fa-shield-alt"></i></a>
-                {% endif %}
             {% else %}
                 <a href="{{ url_for('auth.login') }}"><i class="fa fa-user"></i></a>
             {% endif %}
