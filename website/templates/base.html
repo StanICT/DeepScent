@@ -32,6 +32,9 @@
             <a href="#"><i class="fas fa-search"></i></a>
             {% if current_user.is_authenticated %}
                 <a href="javascript:void(0);" onclick="openProfile()"><i class="fa fa-user"></i></a>
+                {% if current_user.is_admin %}
+                <a href="{{ url_for('admin.admin_products') }}" title="Admin"><i class="fas fa-shield-alt"></i></a>
+                {% endif %}
             {% else %}
                 <a href="{{ url_for('auth.login') }}"><i class="fa fa-user"></i></a>
             {% endif %}

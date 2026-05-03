@@ -1,6 +1,22 @@
 from flask import Blueprint, render_template, request, redirect, url_for, abort
 from flask_login import login_required, current_user
 from .models import Product, db
+from werkzeug.utils import secure_filename
+import os
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+UPLOAD_PATH = os.path.join(os.path.dirname(__file__), 'static', 'uploads')
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def save_image(file):
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        os.makedirs(UPLOAD_PATH, exist_ok=True)
+        file.save(os.path.join(UPLOAD_PATH, filename))
+        return filename
+    return None
 
 # define ONCE
 admin = Blueprint("admin", __name__)
@@ -23,18 +39,14 @@ def add_product():
         description = request.form["description"]
         price = float(request.form["price"])
         stock = int(request.form["stock"])
-        image = request.form["image"]
         brand = request.form["brand"]
         gender = request.form.get("gender", "UNISEX")
+        image_file = request.files.get("image_file")
+        image = save_image(image_file) or "default.png"
 
         new_product = Product(
-            name=name,
-            description=description,
-            price=price,
-            stock=stock,
-            image=image,
-            brand=brand,
-            gender=gender
+            name=name, description=description, price=price,
+            stock=stock, image=image, brand=brand, gender=gender
         )
         db.session.add(new_product)
         db.session.commit()
@@ -53,9 +65,12 @@ def edit_product(id):
         product.description = request.form["description"]
         product.price = float(request.form["price"])
         product.stock = int(request.form["stock"])
-        product.image = request.form["image"]
         product.brand = request.form["brand"]
         product.gender = request.form.get("gender", "UNISEX")
+        image_file = request.files.get("image_file")
+        new_image = save_image(image_file)
+        if new_image:
+            product.image = new_image
         db.session.commit()
         return redirect(url_for("admin.admin_products"))
     return render_template("edit_product.html", product=product)

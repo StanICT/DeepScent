@@ -1,18 +1,141 @@
 {% extends "base.html" %}
+{% block title %}Edit Product{% endblock %}
 {% block content %}
-<h1>Edit Product</h1>
-<form method="POST">
-    <input type="text" name="name" value="{{ product.name }}">
-    <input type="text" name="brand" value="{{ product.brand }}">
-    <input type="text" name="image" value="{{ product.image }}">
-    <textarea name="description">{{ product.description }}</textarea>
-    <input type="number" step="0.01" name="price" value="{{ product.price }}">
-    <input type="number" name="stock" value="{{ product.stock }}">
-    <select name="gender">
-        <option value="UNISEX" {% if product.gender == 'UNISEX' %}selected{% endif %}>Unisex</option>
-        <option value="MEN" {% if product.gender == 'MEN' %}selected{% endif %}>Men</option>
-        <option value="WOMEN" {% if product.gender == 'WOMEN' %}selected{% endif %}>Women</option>
-    </select>
-    <button type="submit">Save</button>
-</form>
+
+<section class="admin-form-page">
+    <div class="admin-form-header">
+        <p class="section-label">ADMIN PANEL</p>
+        <h1 class="admin-title">Edit Product</h1>
+    </div>
+
+    <div class="admin-form-card">
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" name="name" value="{{ product.name }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Brand</label>
+                    <select name="brand">
+                        <option value="PRMNKY" {% if product.brand == 'PRMNKY' %}selected{% endif %}>PRMNKY</option>
+                        <option value="Cotidiano" {% if product.brand == 'Cotidiano' %}selected{% endif %}>Cotidiano</option>
+                        <option value="Enzo Scents" {% if product.brand == 'Enzo Scents' %}selected{% endif %}>Enzo Scents</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Price (₱)</label>
+                    <input type="number" step="0.01" name="price" value="{{ product.price }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Stock</label>
+                    <input type="number" name="stock" value="{{ product.stock }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select name="gender">
+                        <option value="UNISEX" {% if product.gender == 'UNISEX' %}selected{% endif %}>Unisex</option>
+                        <option value="MEN" {% if product.gender == 'MEN' %}selected{% endif %}>Men</option>
+                        <option value="WOMEN" {% if product.gender == 'WOMEN' %}selected{% endif %}>Women</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Product Image</label>
+                    <img id="imgPreview" src="{{ url_for('static', filename='uploads/' ~ product.image) }}" alt="{{ product.name }}" style="max-height:80px;border-radius:6px;margin-bottom:8px;object-fit:contain;">
+                    <input type="file" name="image_file" accept="image/*" onchange="previewImage(this)">
+                </div>
+                <div class="form-group full-width">
+                    <label>Description</label>
+                    <textarea name="description" rows="4" required>{{ product.description }}</textarea>
+                </div>
+            </div>
+            <div class="form-actions">
+                <a href="{{ url_for('admin.admin_products') }}" class="btn-cancel-form">Cancel</a>
+                <button type="submit" class="btn-save">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<style>
+    .admin-form-page { padding: 60px 80px; background: #f5f5f5; min-height: 100vh; }
+    .admin-form-header { margin-bottom: 32px; }
+    .section-label { font-size: 11px; letter-spacing: 4px; color: #cc0000; font-weight: 600; margin-bottom: 6px; }
+    .admin-title { font-family: 'Anton', sans-serif; font-style: italic; font-size: 42px; color: #111; margin: 0; }
+
+    .admin-form-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 40px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        max-width: 800px;
+    }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px; }
+    .full-width { grid-column: 1 / -1; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+
+    .form-group label { font-size: 11px; letter-spacing: 2px; font-weight: 600; color: #888; text-transform: uppercase; }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 11px 14px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 13px;
+        color: #111;
+        outline: none;
+        transition: border-color 0.2s ease;
+        background: #fff;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { border-color: #cc0000; }
+    .form-group textarea { resize: vertical; }
+
+    .form-actions { display: flex; gap: 12px; justify-content: flex-end; }
+
+    .btn-save {
+        padding: 12px 32px;
+        background: #111;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        letter-spacing: 1px;
+        transition: background 0.2s ease;
+    }
+    .btn-save:hover { background: #cc0000; }
+
+    .btn-cancel-form {
+        padding: 12px 32px;
+        background: #fff;
+        color: #111;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: border-color 0.2s ease;
+    }
+    .btn-cancel-form:hover { border-color: #111; }
+</style>
+
+<script>
+    function previewImage(input) {
+        const preview = document.getElementById('imgPreview');
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => { preview.src = e.target.result; };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+
 {% endblock %}
