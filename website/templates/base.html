@@ -53,15 +53,28 @@
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div id="flash-container" style="position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:9999;text-align:center;">
+            <div id="flash-container" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;text-align:center;">
             {% for category, message in messages %}
-                <div style="background:{% if category == 'success' %}#111{% elif category == 'error' %}#cc0000{% else %}#333{% endif %};color:#fff;padding:12px 28px;border-radius:8px;margin-bottom:8px;font-family:'Poppins',sans-serif;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,0.2);transition:opacity 0.5s ease;">{{ message }}</div>
+                <div style="background:{% if category == 'success' %}#111{% elif category == 'error' %}#cc0000{% else %}#333{% endif %};color:#fff;padding:18px 40px;border-radius:10px;margin-bottom:8px;font-family:'Poppins',sans-serif;font-size:15px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,0.3);animation:flashIn 0.4s ease;">{{ message }}</div>
             {% endfor %}
             </div>
+            <style>
+              @keyframes flashIn {
+                from { opacity:0; transform:scale(0.85); }
+                to   { opacity:1; transform:scale(1); }
+              }
+              @keyframes flashOut {
+                from { opacity:1; transform:scale(1); }
+                to   { opacity:0; transform:scale(0.85); }
+              }
+            </style>
             <script>
               setTimeout(() => {
                 const fc = document.getElementById('flash-container');
-                if (fc) { fc.style.opacity = '0'; setTimeout(() => fc.remove(), 500); }
+                if (fc) {
+                  fc.style.animation = 'flashOut 0.5s ease forwards';
+                  setTimeout(() => fc.remove(), 500);
+                }
               }, 3000);
             </script>
         {% endif %}
@@ -96,11 +109,15 @@
 
     <!-- Edit Profile Screen -->
     <div class="edit-profile">
-        <div class="profile-header">
-        <img src="{{ url_for('static', filename='uploads/' ~ current_user.avatar) 
+        <div class="profile-header" style="cursor:pointer;" onclick="document.getElementById('avatarInput').click()" title="Click to change photo">
+        <img id="editAvatarPreview" src="{{ url_for('static', filename='uploads/' ~ current_user.avatar) 
                 if current_user.avatar 
                 else url_for('static', filename='images/default-avatar.png') }}" alt="Profile Picture">
         </div>
+        <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="uploadAvatar(this)">
+        {% if current_user.avatar %}
+        <div onclick="deleteAvatar()" style="text-align:center;font-size:12px;color:#cc0000;cursor:pointer;margin-bottom:10px;">Remove photo</div>
+        {% endif %}
         <input type="text" placeholder="Username" value="{{ current_user.username }}">
         <input type="password" placeholder="New Password">
         <button class="btn-red">Save Changes</button>
@@ -132,6 +149,36 @@
         });
     });
 
+    function deleteAvatar() {
+      fetch('{{ url_for("auth.delete_avatar") }}', { method: 'POST' })
+        .then(res => {
+          if (res.ok) {
+            const defaultSrc = '{{ url_for("static", filename="images/default-avatar.png") }}';
+            document.getElementById('avatarPreview').src = defaultSrc;
+            document.getElementById('editAvatarPreview').src = defaultSrc;
+            document.querySelector('.remove-avatar')?.remove();
+          }
+        });
+    }
+
+    function uploadAvatar(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const formData = new FormData();
+      formData.append('avatar', file);
+      fetch('{{ url_for("auth.upload_avatar") }}', { method: 'POST', body: formData })
+        .then(res => {
+          if (res.ok) {
+            const reader = new FileReader();
+            reader.onload = e => {
+              document.getElementById('avatarPreview').src = e.target.result;
+              document.getElementById('editAvatarPreview').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+    }
+
     function toggleDarkMode() {
       document.body.classList.toggle('dark-mode');
       const icon = document.querySelector('.settings-icon');
@@ -141,6 +188,8 @@
 
     // Profile panel functions
     function openProfile() {
+      document.querySelector('.my-profile').style.display = 'block';
+      document.querySelector('.edit-profile').style.display = 'none';
       document.querySelector('.overlay').style.display = 'block';
       document.querySelector('.profile-panel').style.display = 'block';
       document.querySelector('.profile-panel').style.animation = 'slideIn 0.4s ease forwards';

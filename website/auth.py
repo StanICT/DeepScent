@@ -69,6 +69,17 @@ def logout():
 def profile():
     return render_template("profile.html", user=current_user)
 
+@auth.route("/delete_avatar", methods=["POST"])
+@login_required
+def delete_avatar():
+    if current_user.avatar:
+        file_path = os.path.join(os.path.dirname(__file__), "static", "uploads", current_user.avatar)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        current_user.avatar = None
+        db.session.commit()
+    return "ok", 200
+
 @auth.route("/upload_avatar", methods=["POST"])
 @login_required
 def upload_avatar():
