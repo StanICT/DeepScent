@@ -7,6 +7,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(150), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     avatar = db.Column(db.String(150), nullable=True)
+    fullname = db.Column(db.String(150), default='')
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -16,3 +17,4 @@ class Product(db.Model):
     stock = db.Column(db.Integer, default=0)
     image = db.Column(db.String(100), nullable=False)
     brand = db.Column(db.String(50), nullable=False)
+    gender = db.Column(db.String(20), default='UNISEX')

@@ -8,6 +8,11 @@
     <textarea name="description">{{ product.description }}</textarea>
     <input type="number" step="0.01" name="price" value="{{ product.price }}">
     <input type="number" name="stock" value="{{ product.stock }}">
+    <select name="gender">
+        <option value="UNISEX" {% if product.gender == 'UNISEX' %}selected{% endif %}>Unisex</option>
+        <option value="MEN" {% if product.gender == 'MEN' %}selected{% endif %}>Men</option>
+        <option value="WOMEN" {% if product.gender == 'WOMEN' %}selected{% endif %}>Women</option>
+    </select>
     <button type="submit">Save</button>
 </form>
 {% endblock %}

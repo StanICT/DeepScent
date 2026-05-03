@@ -18,7 +18,8 @@ def perfumes(brand):
 
 @views.route('/product')
 def product():
-    return render_template('product.html')
+    products = Product.query.all()
+    return render_template('product.html', products=products)
 
 @views.route('/featured')
 def featured():

@@ -25,6 +25,7 @@ def add_product():
         stock = int(request.form["stock"])
         image = request.form["image"]
         brand = request.form["brand"]
+        gender = request.form.get("gender", "UNISEX")
 
         new_product = Product(
             name=name,
@@ -32,7 +33,8 @@ def add_product():
             price=price,
             stock=stock,
             image=image,
-            brand=brand
+            brand=brand,
+            gender=gender
         )
         db.session.add(new_product)
         db.session.commit()
@@ -53,6 +55,7 @@ def edit_product(id):
         product.stock = int(request.form["stock"])
         product.image = request.form["image"]
         product.brand = request.form["brand"]
+        product.gender = request.form.get("gender", "UNISEX")
         db.session.commit()
         return redirect(url_for("admin.admin_products"))
     return render_template("edit_product.html", product=product)
