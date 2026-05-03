@@ -35,7 +35,7 @@
                     <td>{{ product.stock }}</td>
                     <td class="actions-cell">
                         <a href="{{ url_for('admin.edit_product', id=product.id) }}" class="btn-edit">Edit</a>
-                        <a href="{{ url_for('admin.delete_product', id=product.id) }}" class="btn-delete" onclick="return confirm('Delete {{ product.name }}?')">Delete</a>
+                        <a href="#" class="btn-delete" onclick="showDeleteModal('{{ product.name }}', '{{ url_for('admin.delete_product', id=product.id) }}')">Delete</a>
                     </td>
                 </tr>
                 {% else %}
@@ -172,6 +172,118 @@
     .btn-delete:hover { background: #cc0000; color: #fff; }
 
     .empty-row { text-align: center; color: #aaa; padding: 40px; }
+
+    /* Delete Modal */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+    .modal-box {
+        background: #fff;
+        border-radius: 12px;
+        padding: 36px 40px;
+        width: 380px;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        transform: scale(0.9);
+        transition: transform 0.2s ease;
+    }
+    .modal-overlay.active .modal-box { transform: scale(1); }
+
+    .modal-icon {
+        width: 52px;
+        height: 52px;
+        background: #fff0f0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px;
+        font-size: 22px;
+        color: #cc0000;
+    }
+
+    .modal-title {
+        font-size: 17px;
+        font-weight: 700;
+        color: #111;
+        margin-bottom: 8px;
+    }
+
+    .modal-desc {
+        font-size: 13px;
+        color: #999;
+        margin-bottom: 28px;
+        line-height: 1.6;
+    }
+
+    .modal-desc span { color: #111; font-weight: 600; }
+
+    .modal-actions { display: flex; gap: 12px; justify-content: center; }
+
+    .modal-btn-cancel {
+        padding: 10px 28px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background: #fff;
+        font-family: 'Poppins', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: border-color 0.2s ease;
+    }
+    .modal-btn-cancel:hover { border-color: #111; }
+
+    .modal-btn-confirm {
+        padding: 10px 28px;
+        border: none;
+        border-radius: 6px;
+        background: #cc0000;
+        color: #fff;
+        font-family: 'Poppins', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+    .modal-btn-confirm:hover { background: #a00000; }
 </style>
+
+<!-- Delete Modal -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-box">
+        <div class="modal-icon"><i class="fas fa-trash"></i></div>
+        <p class="modal-title">Delete Product</p>
+        <p class="modal-desc">Are you sure you want to delete <span id="modalProductName"></span>? This action cannot be undone.</p>
+        <div class="modal-actions">
+            <button class="modal-btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+            <a id="modalConfirmBtn" href="#" class="modal-btn-confirm">Delete</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showDeleteModal(name, url) {
+        document.getElementById('modalProductName').textContent = name;
+        document.getElementById('modalConfirmBtn').href = url;
+        document.getElementById('deleteModal').classList.add('active');
+    }
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('active');
+    }
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) closeDeleteModal();
+    });
+</script>
 
 {% endblock %}
