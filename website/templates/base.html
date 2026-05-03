@@ -73,11 +73,9 @@
         <div class="menu-item"><i class="fas fa-heart"></i><span>Favorites</span></div>
         <div class="menu-item"><i class="fas fa-shopping-cart"></i><span>Cart</span></div>
         <div class="menu-item"><i class="fas fa-box"></i><span>Orders</span></div>
-        <div class="menu-item" onclick="window.location='{{ url_for('auth.logout') }}'"><i class="fas fa-door-open"></i><span>Logout</span></div>
+        <div class="menu-item" onclick='window.location="{{ url_for("auth.logout") }}"'><i class="fas fa-door-open"></i><span>Logout</span></div>
         </div>
     </div>
-    </div>
-
 
     <!-- Edit Profile Screen -->
     <div class="edit-profile">

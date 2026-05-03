@@ -426,10 +426,10 @@ body {
   display: block;
   width: 100%;
   padding: 12px;
-  background: red;
+  background: #cc0000;
   color: #fff;
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   font-size: 16px;
   font-weight: 600;
   margin: 15px 0;
@@ -449,7 +449,7 @@ body {
   align-items: center;
   gap: 15px;
   background: #fafafa;
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 12px;
   margin-bottom: 12px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
@@ -496,7 +496,7 @@ body {
   padding: 12px;
   margin-bottom: 15px;
   border: 1px solid #ddd;
-  border-radius: 12px;
+  border-radius: 8px;
   font-size: 14px;
 }
 .edit-profile .btn-red {
