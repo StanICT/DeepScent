@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Search{% endblock %}
+{% block content %}
+
+<section class="products-page">
+    <div class="products-header">
+        <p class="section-label">SEARCH RESULTS</p>
+        <h1 class="products-title">{{ results|length }} result{{ 's' if results|length != 1 }} for "{{ query }}"</h1>
+    </div>
+
+    <div class="products-grid">
+        {% for product in results %}
+        <div class="product-card">
+            <div class="product-img-wrap">
+                <img src="{{ url_for('static', filename='uploads/' ~ product.image) }}" alt="{{ product.name }}">
+            </div>
+            <div class="product-info">
+                <div class="product-tags">
+                    <span class="tag tag-gender">{{ product.gender or 'UNISEX' }}</span>
+                    <span class="tag tag-type">EDP</span>
+                </div>
+                <p class="product-brand">{{ product.brand }}</p>
+                <h3 class="product-name">{{ product.name }}</h3>
+                <div class="product-rating">
+                    <span class="stars">★★★★★</span>
+                    <span class="review-count">(24)</span>
+                </div>
+                <div class="product-footer">
+                    <span class="product-price">₱{{ "%.2f"|format(product.price) }}</span>
+                    <button class="product-add-btn"><i class="fas fa-shopping-cart"></i></button>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="no-products">No products found for "{{ query }}".</div>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

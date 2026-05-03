@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
 
 from website.models import Product
 
@@ -20,6 +20,14 @@ def perfumes(brand):
 def product():
     products = Product.query.all()
     return render_template('product.html', products=products)
+
+@views.route('/search')
+def search():
+    q = request.args.get('q', '').strip()
+    results = Product.query.filter(
+        Product.name.ilike(f'%{q}%') | Product.brand.ilike(f'%{q}%')
+    ).all() if q else []
+    return render_template('search.html', results=results, query=q)
 
 @views.route('/featured')
 def featured():
