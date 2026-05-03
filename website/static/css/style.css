@@ -625,3 +625,105 @@ body.dark-mode .edit-profile input {
   color: #f0f0f0;
 }
 body.dark-mode footer { background: #1a1a1a; color: #666; }
+
+/* Search Overlay */
+#searchBar {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,10,0.96);
+    z-index: 9997;
+    align-items: center;
+    justify-content: center;
+    animation: searchFadeIn 0.25s ease;
+}
+
+#searchBar.open { display: flex; }
+
+@keyframes searchFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.search-overlay-inner {
+    width: 100%;
+    max-width: 680px;
+    padding: 0 30px;
+}
+
+.search-label {
+    font-size: 11px;
+    letter-spacing: 5px;
+    color: #cc0000;
+    font-weight: 600;
+    margin-bottom: 24px;
+}
+
+.search-input-wrap {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    padding-bottom: 16px;
+    gap: 16px;
+}
+
+.search-input-wrap i {
+    color: rgba(255,255,255,0.4);
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.search-input-wrap input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'Anton', sans-serif;
+    font-style: italic;
+    font-size: 36px;
+    color: #fff;
+    letter-spacing: 1px;
+}
+
+.search-input-wrap input::placeholder { color: rgba(255,255,255,0.15); }
+
+.search-close {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    font-size: 20px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    flex-shrink: 0;
+}
+.search-close:hover { color: #fff; }
+
+.search-hint {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.2);
+    margin-top: 14px;
+    margin-bottom: 32px;
+}
+
+.search-suggestions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.search-suggestions span {
+    padding: 6px 18px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px;
+    color: rgba(255,255,255,0.4);
+    font-size: 12px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.search-suggestions span:hover {
+    border-color: #cc0000;
+    color: #fff;
+}

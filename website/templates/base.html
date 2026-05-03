@@ -45,16 +45,23 @@
     </nav>
 
     <!-- Search Bar -->
-    <div id="searchBar" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9997;display:none;align-items:center;justify-content:center;">
-        <form action="{{ url_for('views.search') }}" method="GET" style="width:100%;max-width:600px;padding:0 20px;">
-            <div style="display:flex;align-items:center;border-bottom:2px solid #fff;padding-bottom:12px;">
-                <i class="fas fa-search" style="color:#fff;font-size:20px;margin-right:16px;"></i>
-                <input id="searchInput" name="q" type="text" placeholder="Search fragrances..." autocomplete="off"
-                    style="flex:1;background:transparent;border:none;outline:none;font-family:'Poppins',sans-serif;font-size:24px;color:#fff;">
-                <button type="button" onclick="toggleSearch(event)" style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer;"><i class="fas fa-times"></i></button>
+    <div id="searchBar">
+        <div class="search-overlay-inner">
+            <p class="search-label">SEARCH</p>
+            <form action="{{ url_for('views.search') }}" method="GET" class="search-form">
+                <div class="search-input-wrap">
+                    <i class="fas fa-search"></i>
+                    <input id="searchInput" name="q" type="text" placeholder="Search fragrances, brands..." autocomplete="off">
+                    <button type="button" onclick="toggleSearch(event)" class="search-close"><i class="fas fa-times"></i></button>
+                </div>
+                <p class="search-hint">PRESS ENTER TO SEARCH</p>
+            </form>
+            <div class="search-suggestions">
+                <span onclick="document.getElementById('searchInput').value='PRMNKY'">PRMNKY</span>
+                <span onclick="document.getElementById('searchInput').value='Cotidiano'">Cotidiano</span>
+                <span onclick="document.getElementById('searchInput').value='Enzo Scents'">Enzo Scents</span>
             </div>
-            <p style="color:rgba(255,255,255,0.3);font-size:12px;margin-top:12px;letter-spacing:2px;">PRESS ENTER TO SEARCH</p>
-        </form>
+        </div>
     </div>
 
     <!-- Page Content -->
@@ -243,9 +250,8 @@
     function toggleSearch(e) {
       e.preventDefault();
       const bar = document.getElementById('searchBar');
-      const isOpen = bar.style.display === 'flex';
-      bar.style.display = isOpen ? 'none' : 'flex';
-      if (!isOpen) document.getElementById('searchInput').focus();
+      bar.classList.toggle('open');
+      if (bar.classList.contains('open')) document.getElementById('searchInput').focus();
     }
 
     function toggleDarkMode() {
