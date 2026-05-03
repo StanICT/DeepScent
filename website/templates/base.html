@@ -53,11 +53,17 @@
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div style="position:fixed;top:70px;right:20px;z-index:9999;">
+            <div id="flash-container" style="position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:9999;text-align:center;">
             {% for category, message in messages %}
-                <div style="background:{% if category == 'success' %}#111{% elif category == 'error' %}#cc0000{% else %}#333{% endif %};color:#fff;padding:12px 20px;border-radius:8px;margin-bottom:8px;font-family:'Poppins',sans-serif;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,0.2);">{{ message }}</div>
+                <div style="background:{% if category == 'success' %}#111{% elif category == 'error' %}#cc0000{% else %}#333{% endif %};color:#fff;padding:12px 28px;border-radius:8px;margin-bottom:8px;font-family:'Poppins',sans-serif;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,0.2);transition:opacity 0.5s ease;">{{ message }}</div>
             {% endfor %}
             </div>
+            <script>
+              setTimeout(() => {
+                const fc = document.getElementById('flash-container');
+                if (fc) { fc.style.opacity = '0'; setTimeout(() => fc.remove(), 500); }
+              }, 3000);
+            </script>
         {% endif %}
     {% endwith %}
 
