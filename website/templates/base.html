@@ -47,7 +47,48 @@
 
     <!-- Footer -->
     <footer>
-        <p>&copy; 2026 DEEPSCENT. All rights reserved.</p>
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <div class="footer-logo">DEEPSCENT</div>
+                <p>Homegrown scents.<br>DNA built. Made for those<br>who move with purpose.</p>
+            </div>
+            <div class="footer-links">
+                <h4>NAVIGATE</h4>
+                <ul>
+                    <li><a href="{{ url_for('views.home') }}">Home</a></li>
+                    <li><a href="{{ url_for('views.product') }}">Products</a></li>
+                    <li><a href="{{ url_for('views.featured') }}">Notes</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>BRANDS</h4>
+                <ul>
+                    <li><a href="{{ url_for('views.perfumes', brand='PRMNKY') }}">PRMNKY</a></li>
+                    <li><a href="{{ url_for('views.perfumes', brand='Cotidiano') }}">Cotidiano</a></li>
+                    <li><a href="{{ url_for('views.perfumes', brand='Enzo Scents') }}">Enzo Scents</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>ACCOUNT</h4>
+                <ul>
+                    {% if current_user.is_authenticated %}
+                    <li><a href="javascript:void(0);" onclick="openProfile()">My Profile</a></li>
+                    <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+                    {% else %}
+                    <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                    <li><a href="{{ url_for('auth.signup') }}">Sign Up</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 DEEPSCENT — ALL RIGHTS RESERVED</p>
+            <div class="footer-socials">
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-tiktok"></i></a>
+            </div>
+        </div>
     </footer>
 
     <!-- Flash Messages -->
