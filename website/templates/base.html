@@ -50,11 +50,22 @@
         <p>&copy; 2026 DEEPSCENT. All rights reserved.</p>
     </footer>
 
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div style="position:fixed;top:70px;right:20px;z-index:9999;">
+            {% for category, message in messages %}
+                <div style="background:{% if category == 'success' %}#111{% elif category == 'error' %}#cc0000{% else %}#333{% endif %};color:#fff;padding:12px 20px;border-radius:8px;margin-bottom:8px;font-family:'Poppins',sans-serif;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,0.2);">{{ message }}</div>
+            {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
     <!-- Overlay + Profile Panel -->
     <div class="overlay" style="display:none;"></div>
     <div class="profile-panel" style="display:none;">
     <!-- Settings icon top-left -->
-    <i class="fas fa-cog settings-icon"></i>
+    <i class="fas fa-cog settings-icon" onclick="toggleDarkMode()" title="Toggle Dark Mode"></i>
     <!-- Close button top-right -->
     <button class="btn-close-custom" onclick="closeProfile()" aria-label="Close"></button>
 
@@ -84,10 +95,8 @@
                 if current_user.avatar 
                 else url_for('static', filename='images/default-avatar.png') }}" alt="Profile Picture">
         </div>
-        <input type="text" placeholder="Full Name" value="{{ current_user.fullname }}">
-        <input type="text" placeholder="Username" value="@{{ current_user.username }}">
-        <input type="email" placeholder="Email" value="{{ current_user.email }}">
-        <input type="password" placeholder="Password" value="••••••••">
+        <input type="text" placeholder="Username" value="{{ current_user.username }}">
+        <input type="password" placeholder="New Password">
         <button class="btn-red">Save Changes</button>
         <div class="btn-cancel" onclick="showMyProfile()">Cancel</div>
     </div>
@@ -116,6 +125,13 @@
             }
         });
     });
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      const icon = document.querySelector('.settings-icon');
+      icon.classList.toggle('fa-cog');
+      icon.classList.toggle('fa-sun');
+    }
 
     // Profile panel functions
     function openProfile() {
