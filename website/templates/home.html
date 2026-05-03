@@ -1,6 +1,289 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-    <h2>Welcome to PRMNKY</h2>
-    <p>Explore our featured products below.</p>
+
+<!-- Hero Section -->
+<section class="home-hero">
+    <div class="home-hero-content">
+        <p class="home-hero-sub">DISCOVER YOUR SCENT</p>
+        <h1 class="home-hero-title">WEAR YOUR<br>STORY.</h1>
+        <div class="home-hero-line"></div>
+        <p class="home-hero-desc">Local fragrances. DNA built. Crafted from the streets, worn by the bold.</p>
+        <a href="{{ url_for('views.product') }}" class="home-hero-btn">SHOP NOW</a>
+    </div>
+</section>
+
+<!-- Brands Section -->
+<section class="home-brands">
+    <p class="section-label">OUR BRANDS</p>
+    <div class="brands-grid">
+        <a href="{{ url_for('views.perfumes', brand='PRMNKY') }}" class="brand-card">
+            <div class="brand-card-inner">
+                <span class="brand-card-name">PRMNKY</span>
+                <span class="brand-card-arrow">→</span>
+            </div>
+        </a>
+        <a href="{{ url_for('views.perfumes', brand='Cotidiano') }}" class="brand-card">
+            <div class="brand-card-inner">
+                <span class="brand-card-name">COTIDIANO</span>
+                <span class="brand-card-arrow">→</span>
+            </div>
+        </a>
+        <a href="{{ url_for('views.perfumes', brand='Enzo Scents') }}" class="brand-card">
+            <div class="brand-card-inner">
+                <span class="brand-card-name">ENZO SCENTS</span>
+                <span class="brand-card-arrow">→</span>
+            </div>
+        </a>
+    </div>
+</section>
+
+<!-- Why Us Section -->
+<section class="home-why">
+    <p class="section-label">WHY DEEPSCENT</p>
+    <div class="why-grid">
+        <div class="why-card">
+            <i class="fas fa-flask"></i>
+            <h3>Authentic</h3>
+            <p>Every bottle is 100% genuine, sourced directly from the brands.</p>
+        </div>
+        <div class="why-card">
+            <i class="fas fa-shipping-fast"></i>
+            <h3>Fast Delivery</h3>
+            <p>Get your order delivered straight to your door, fast and secure.</p>
+        </div>
+        <div class="why-card">
+            <i class="fas fa-star"></i>
+            <h3>Premium Quality</h3>
+            <p>Only the finest fragrances make it to our collection.</p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="home-cta">
+    <h2>READY TO FIND YOUR SCENT?</h2>
+    <p>Explore our full collection and find the one made for you.</p>
+    <a href="{{ url_for('views.product') }}" class="home-cta-btn">EXPLORE NOW</a>
+</section>
+
+<style>
+    /* Hero */
+    .home-hero {
+        background: #111;
+        min-height: 92vh;
+        display: flex;
+        align-items: center;
+        padding: 0 80px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .home-hero::before {
+        content: "DEEPSCENT";
+        font-family: 'Anton', sans-serif;
+        font-style: italic;
+        font-size: 220px;
+        color: rgba(255,255,255,0.03);
+        position: absolute;
+        right: -20px;
+        bottom: -20px;
+        line-height: 1;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    .home-hero-content {
+        max-width: 600px;
+        z-index: 1;
+    }
+
+    .home-hero-sub {
+        font-size: 12px;
+        letter-spacing: 4px;
+        color: #cc0000;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    .home-hero-title {
+        font-family: 'Anton', sans-serif;
+        font-style: italic;
+        font-size: 90px;
+        color: #fff;
+        line-height: 1;
+        margin: 0 0 24px;
+        letter-spacing: 2px;
+    }
+
+    .home-hero-line {
+        width: 50px;
+        height: 2px;
+        background: #cc0000;
+        margin-bottom: 24px;
+    }
+
+    .home-hero-desc {
+        font-size: 15px;
+        color: rgba(255,255,255,0.5);
+        margin-bottom: 40px;
+        line-height: 1.8;
+    }
+
+    .home-hero-btn {
+        display: inline-block;
+        padding: 14px 40px;
+        background: #cc0000;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background 0.2s ease;
+    }
+
+    .home-hero-btn:hover { background: #fff; color: #111; }
+
+    /* Section label */
+    .section-label {
+        font-size: 11px;
+        letter-spacing: 4px;
+        color: #cc0000;
+        font-weight: 600;
+        margin-bottom: 40px;
+        text-align: center;
+    }
+
+    /* Brands */
+    .home-brands {
+        padding: 80px 80px;
+        background: #fff;
+    }
+
+    .brands-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    .brand-card {
+        display: block;
+        text-decoration: none;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 40px 30px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .brand-card:hover {
+        border-color: #cc0000;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+
+    .brand-card-inner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .brand-card-name {
+        font-family: 'Anton', sans-serif;
+        font-style: italic;
+        font-size: 28px;
+        color: #111;
+        letter-spacing: 2px;
+    }
+
+    .brand-card-arrow {
+        font-size: 20px;
+        color: #ccc;
+        transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .brand-card:hover .brand-card-arrow {
+        color: #cc0000;
+        transform: translateX(4px);
+    }
+
+    /* Why Us */
+    .home-why {
+        padding: 80px 80px;
+        background: #f5f5f5;
+    }
+
+    .why-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+    }
+
+    .why-card {
+        background: #fff;
+        border-radius: 8px;
+        padding: 40px 30px;
+        border: 1px solid #e0e0e0;
+        text-align: center;
+        transition: box-shadow 0.2s ease;
+    }
+
+    .why-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.07); }
+
+    .why-card i {
+        font-size: 28px;
+        color: #cc0000;
+        margin-bottom: 16px;
+    }
+
+    .why-card h3 {
+        font-size: 16px;
+        font-weight: 700;
+        color: #111;
+        margin-bottom: 10px;
+    }
+
+    .why-card p {
+        font-size: 13px;
+        color: #999;
+        line-height: 1.7;
+    }
+
+    /* CTA */
+    .home-cta {
+        background: #111;
+        padding: 100px 80px;
+        text-align: center;
+    }
+
+    .home-cta h2 {
+        font-family: 'Anton', sans-serif;
+        font-style: italic;
+        font-size: 52px;
+        color: #fff;
+        letter-spacing: 2px;
+        margin-bottom: 16px;
+    }
+
+    .home-cta p {
+        font-size: 14px;
+        color: rgba(255,255,255,0.45);
+        margin-bottom: 40px;
+    }
+
+    .home-cta-btn {
+        display: inline-block;
+        padding: 14px 48px;
+        border: 1px solid #cc0000;
+        color: #cc0000;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .home-cta-btn:hover { background: #cc0000; color: #fff; }
+</style>
+
 {% endblock %}

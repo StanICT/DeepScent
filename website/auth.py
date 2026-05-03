@@ -69,6 +69,26 @@ def logout():
 def profile():
     return render_template("profile.html", user=current_user)
 
+@auth.route("/update_profile", methods=["POST"])
+@login_required
+def update_profile():
+    username = request.form.get("username").strip()
+    password = request.form.get("password").strip()
+
+    if username:
+        existing = User.query.filter_by(username=username).first()
+        if existing and existing.id != current_user.id:
+            flash("Username already taken.", "error")
+            return redirect(url_for("views.home"))
+        current_user.username = username
+
+    if password:
+        current_user.password = generate_password_hash(password, method="pbkdf2:sha256")
+
+    db.session.commit()
+    flash("Profile updated!", "success")
+    return redirect(url_for("views.home"))
+
 @auth.route("/delete_avatar", methods=["POST"])
 @login_required
 def delete_avatar():
