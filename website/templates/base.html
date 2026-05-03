@@ -16,37 +16,25 @@
     <nav class="navbar">
         <div class="logo">DEEPSCENT</div>
         <ul class="nav-links">
-            <li><a href="{{ url_for('views.home') }}" 
-                class="{% if request.endpoint == 'views.home' %}active{% endif %}">HOME</a></li>
+            <li><a href="{{ url_for('views.home') }}" class="{% if request.endpoint == 'views.home' %}active{% endif %}">HOME</a></li>
             <li class="dropdown">
-                <a href="#" class="dropdown-toggle" id="perfumes-link">
-                    PERFUMES <span class="arrow">&#9662;</span>
-                </a>
+                <a href="#" class="dropdown-toggle" id="perfumes-link">PERFUMES <span class="arrow">&#9662;</span></a>
                 <ul class="dropdown-menu">
                     <li><a href="{{ url_for('views.perfumes', brand='PRMNKY') }}">PRMNKY</a></li>
                     <li><a href="{{ url_for('views.perfumes', brand='Cotidiano') }}">Cotidiano</a></li>
                     <li><a href="{{ url_for('views.perfumes', brand='Enzo Scents') }}">Enzo Scents</a></li>
                 </ul>
             </li>
-            <li><a href="{{ url_for('views.product') }}" 
-                class="{% if request.endpoint == 'views.product' %}active{% endif %}">PRODUCT</a></li>
-            <li><a href="{{ url_for('views.featured') }}" 
-                class="{% if request.endpoint == 'views.featured' %}active{% endif %}">FEATURED</a></li>
+            <li><a href="{{ url_for('views.product') }}" class="{% if request.endpoint == 'views.product' %}active{% endif %}">PRODUCT</a></li>
+            <li><a href="{{ url_for('views.featured') }}" class="{% if request.endpoint == 'views.featured' %}active{% endif %}">FEATURED</a></li>
         </ul>
         <div class="icons">
             <a href="#"><i class="fas fa-search"></i></a>
-
             {% if current_user.is_authenticated %}
-                <!-- Trigger profile panel -->
-                <a href="javascript:void(0);" onclick="openProfile()">
-                    <i class="fa fa-user"></i>
-                </a>
+                <a href="javascript:void(0);" onclick="openProfile()"><i class="fa fa-user"></i></a>
             {% else %}
-                <a href="{{ url_for('auth.login') }}">
-                    <i class="fa fa-user"></i>
-                </a>
+                <a href="{{ url_for('auth.login') }}"><i class="fa fa-user"></i></a>
             {% endif %}
-
             <a href="#"><i class="fas fa-heart"></i><span class="badge">0</span></a>
             <a href="#"><i class="fas fa-shopping-cart"></i><span class="badge">0</span></a>
         </div>
@@ -65,79 +53,70 @@
     <!-- Overlay + Profile Panel -->
     <div class="overlay" style="display:none;"></div>
     <div class="profile-panel" style="display:none;">
-        <button class="btn-close-custom" onclick="closeProfile()" aria-label="Close"></button>
+    <!-- Settings icon top-left -->
+    <i class="fas fa-cog settings-icon"></i>
+    <!-- Close button top-right -->
+    <button class="btn-close-custom" onclick="closeProfile()" aria-label="Close"></button>
 
-        <!-- Profile Avatar with AJAX upload -->
-        <div class="profile-avatar">
-            <h2 class="profile-title">My Profile</h2>
-            <img id="avatarPreview" src="{{ url_for('static', filename='uploads/' ~ current_user.avatar) 
-                  if current_user.avatar 
-                  else url_for('static', filename='images/default-avatar.png') }}" alt="Profile Picture">
-            <input type="file" id="avatarInput" name="avatar" accept="image/*" style="display:none;">
+    <!-- My Profile Screen -->
+    <div class="my-profile">
+        <div class="profile-header">
+        <img id="avatarPreview" src="{{ url_for('static', filename='uploads/' ~ current_user.avatar) 
+                if current_user.avatar 
+                else url_for('static', filename='images/default-avatar.png') }}" alt="Profile Picture">
+        <h2>{{ current_user.fullname }}</h2>
+        <p>@{{ current_user.username }}</p>
         </div>
+        <button class="btn-red" onclick="showEditProfile()">Edit Profile</button>
 
-        <p><strong>Username:</strong> {{ current_user.username }}</p>
-        <p><strong>Admin:</strong> {{ 'Yes' if current_user.is_admin else 'No' }}</p>
-        <a href="{{ url_for('auth.logout') }}" class="btn btn-danger mt-3">Log out</a>
+        <div class="menu-list">
+        <div class="menu-item"><i class="fas fa-heart"></i><span>Favorites</span></div>
+        <div class="menu-item"><i class="fas fa-shopping-cart"></i><span>Cart</span></div>
+        <div class="menu-item"><i class="fas fa-box"></i><span>Orders</span></div>
+        <div class="menu-item" onclick="window.location='{{ url_for('auth.logout') }}'"><i class="fas fa-door-open"></i><span>Logout</span></div>
+        </div>
     </div>
+    </div>
+
+
+    <!-- Edit Profile Screen -->
+    <div class="edit-profile">
+        <div class="profile-header">
+        <img src="{{ url_for('static', filename='uploads/' ~ current_user.avatar) 
+                if current_user.avatar 
+                else url_for('static', filename='images/default-avatar.png') }}" alt="Profile Picture">
+        </div>
+        <input type="text" placeholder="Full Name" value="{{ current_user.fullname }}">
+        <input type="text" placeholder="Username" value="@{{ current_user.username }}">
+        <input type="email" placeholder="Email" value="{{ current_user.email }}">
+        <input type="password" placeholder="Password" value="••••••••">
+        <button class="btn-red">Save Changes</button>
+        <div class="btn-cancel" onclick="showMyProfile()">Cancel</div>
+    </div>
+    </div>
+
 
     <!-- Scripts -->
     <script>
+    // Dropdown toggle
     document.addEventListener("DOMContentLoaded", function() {
-        // Dropdown toggle
         const perfumesLink = document.getElementById("perfumes-link");
         const dropdown = perfumesLink.parentElement;
-
         perfumesLink.addEventListener("click", function(e) {
             e.preventDefault();
             dropdown.classList.toggle("open");
         });
-
         document.addEventListener("click", function(e) {
             if (!dropdown.contains(e.target)) {
                 dropdown.classList.remove("open");
             }
         });
-
-        // Close profile when clicking overlay
         const overlay = document.querySelector('.overlay');
         overlay.addEventListener("click", function(e) {
             if (e.target === overlay) {
                 closeProfile();
             }
         });
-
-        // Avatar upload logic (AJAX)
-        const avatarPreview = document.getElementById("avatarPreview");
-        const avatarInput = document.getElementById("avatarInput");
-
-        if (avatarPreview && avatarInput) {
-            avatarPreview.addEventListener("click", () => {
-                avatarInput.click();
-            });
-
-            avatarInput.addEventListener("change", () => {
-                const file = avatarInput.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = e => {
-                        avatarPreview.src = e.target.result;
-                    };
-                    reader.readAsDataURL(file);
-
-                    // Upload via fetch instead of form.submit()
-                    const formData = new FormData();
-                    formData.append("avatar", file);
-
-                    fetch("{{ url_for('auth.upload_avatar') }}", {
-                        method: "POST",
-                        body: formData
-                    }).then(() => {
-                        console.log("Avatar updated");
-                    });
-                }
-            });
-        }
     });
 
     // Profile panel functions
@@ -146,19 +125,24 @@
       document.querySelector('.profile-panel').style.display = 'block';
       document.querySelector('.profile-panel').style.animation = 'slideIn 0.4s ease forwards';
     }
-
     function closeProfile() {
       const panel = document.querySelector('.profile-panel');
       const overlay = document.querySelector('.overlay');
-
       panel.style.animation = 'slideOut 0.4s ease forwards';
       overlay.style.opacity = '0';
-
       setTimeout(() => {
         panel.style.display = 'none';
         overlay.style.display = 'none';
-        overlay.style.opacity = '1'; // reset
+        overlay.style.opacity = '1';
       }, 400);
+    }
+    function showEditProfile() {
+      document.querySelector('.my-profile').style.display = 'none';
+      document.querySelector('.edit-profile').style.display = 'block';
+    }
+    function showMyProfile() {
+      document.querySelector('.edit-profile').style.display = 'none';
+      document.querySelector('.my-profile').style.display = 'block';
     }
     </script>
 </body>

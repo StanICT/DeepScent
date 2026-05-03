@@ -390,3 +390,122 @@ body {
   border-color: black;    /* change color on hover */
 }
 
+/* Modern Profile Panel UI */
+.profile-panel {
+  background: #fff;
+  border-radius: 20px 0 0 20px;
+  box-shadow: -4px 0 12px rgba(0,0,0,0.1);
+  padding: 30px 20px;
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.profile-header img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.profile-header h2 {
+  margin: 10px 0 5px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.profile-header p {
+  color: #666;
+  font-size: 14px;
+}
+
+.btn-red {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background: red;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 15px 0;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+.btn-red:hover {
+  background: #cc0000;
+}
+
+.menu-list {
+  margin-top: 20px;
+}
+/* Menu items spacing */
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.menu-item:hover {
+  transform: translateY(-3px);
+}
+
+.menu-item i {
+  font-size: 18px;
+  color: red;
+  flex-shrink: 0;
+}
+
+.menu-item span {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* Settings icon aligned with close button */
+.settings-icon {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  font-size: 20px;
+  color: black;
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+.settings-icon:hover {
+  color: red;
+  transform: translateY(-3px);
+}
+
+/* Edit Profile screen */
+.edit-profile {
+  display: none;
+}
+.edit-profile input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  font-size: 14px;
+}
+.edit-profile .btn-red {
+  margin-top: 10px;
+}
+.edit-profile .btn-cancel {
+  display: block;
+  text-align: center;
+  margin-top: 10px;
+  color: #666;
+  cursor: pointer;
+}
