@@ -85,6 +85,12 @@ def update_profile():
     if password:
         current_user.password = generate_password_hash(password, method="pbkdf2:sha256")
 
+    if request.form.get('remove_avatar') == '1' and current_user.avatar:
+        file_path = os.path.join(os.path.dirname(__file__), 'static', 'uploads', current_user.avatar)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        current_user.avatar = None
+
     db.session.commit()
     flash("Profile updated!", "success")
     return redirect(url_for("views.home"))

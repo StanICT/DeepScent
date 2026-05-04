@@ -182,8 +182,9 @@
                 else url_for('static', filename='images/default-avatar.png') }}" alt="Profile Picture">
         </div>
         <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="uploadAvatar(this)">
-        <div id="removePhotoBtn" onclick="deleteAvatar()" style="display:{% if current_user.avatar %}block{% else %}none{% endif %};text-align:center;font-size:12px;color:#cc0000;cursor:pointer;margin-bottom:10px;">Remove photo</div>
+        <div id="removePhotoBtn" onclick="markRemoveAvatar()" style="display:{% if current_user.avatar %}block{% else %}none{% endif %};text-align:center;font-size:12px;color:#cc0000;cursor:pointer;margin-bottom:10px;">Remove photo</div>
         <form method="POST" action="{{ url_for('auth.update_profile') }}">
+        <input type="hidden" name="remove_avatar" id="removeAvatarFlag" value="0">
         <input type="text" name="username" placeholder="Username" value="{{ current_user.username }}">
         <input type="password" name="password" placeholder="New Password">
         <button type="submit" class="btn-red">Save Changes</button>
@@ -216,16 +217,11 @@
         });
     });
 
-    function deleteAvatar() {
-      fetch('{{ url_for("auth.delete_avatar") }}', { method: 'POST' })
-        .then(res => {
-          if (res.ok) {
-            const defaultSrc = '{{ url_for("static", filename="images/default-avatar.png") }}';
-            document.getElementById('avatarPreview').src = defaultSrc;
-            document.getElementById('editAvatarPreview').src = defaultSrc;
-            document.getElementById('removePhotoBtn').style.display = 'none';
-          }
-        });
+    function markRemoveAvatar() {
+      const defaultSrc = '{{ url_for("static", filename="images/default-avatar.png") }}';
+      document.getElementById('editAvatarPreview').src = defaultSrc;
+      document.getElementById('removePhotoBtn').style.display = 'none';
+      document.getElementById('removeAvatarFlag').value = '1';
     }
 
     function uploadAvatar(input) {
