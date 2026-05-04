@@ -17,17 +17,8 @@
 <section class="home-brands">
     <p class="section-label">LOCAL BRANDS</p>
     <div class="brands-ticker-wrap">
-        <div class="brands-ticker">
+        <div class="brands-ticker" id="brandsTicker">
             {% set brand_list = brands if brands else [] %}
-            {% for brand in brand_list %}
-            <a href="{{ url_for('views.perfumes', brand=brand.name) }}" class="ticker-item">
-                {% if brand.logo %}
-                <img src="{{ url_for('static', filename='uploads/' ~ brand.logo) }}" alt="{{ brand.name }}">
-                {% else %}
-                <span class="ticker-name">{{ brand.name | upper }}</span>
-                {% endif %}
-            </a>
-            {% endfor %}
             {% for brand in brand_list %}
             <a href="{{ url_for('views.perfumes', brand=brand.name) }}" class="ticker-item">
                 {% if brand.logo %}
@@ -39,6 +30,23 @@
             {% endfor %}
         </div>
     </div>
+
+    <script>
+    (function() {
+        const ticker = document.getElementById('brandsTicker');
+        const wrap = ticker.parentElement;
+        function setupTicker() {
+            const tickerWidth = ticker.scrollWidth;
+            const wrapWidth = wrap.offsetWidth;
+            if (tickerWidth < wrapWidth * 2) {
+                const clone = ticker.innerHTML;
+                let copies = Math.ceil((wrapWidth * 2) / tickerWidth);
+                for (let i = 0; i < copies; i++) ticker.innerHTML += clone;
+            }
+        }
+        setupTicker();
+    })();
+    </script>
 </section>
 
 <!-- Why Us Section -->

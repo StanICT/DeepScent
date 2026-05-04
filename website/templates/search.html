@@ -25,7 +25,7 @@
             </div>
             <div class="product-info">
                 <div class="product-tags">
-                    <span class="tag tag-gender">{{ product.gender or 'UNISEX' }}</span>
+                    <span class="tag tag-gender" data-gender="{{ product.gender or 'UNISEX' }}">{{ product.gender or 'UNISEX' }}</span>
                     <span class="tag tag-type">EDP</span>
                 </div>
                 <p class="product-brand">{{ product.brand }}</p>

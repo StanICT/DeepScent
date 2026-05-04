@@ -17,7 +17,7 @@
             </div>
             <div class="product-info">
                 <div class="product-tags">
-                    <span class="tag tag-gender">{{ product.gender if product.gender else 'UNISEX' }}</span>
+                    <span class="tag tag-gender" data-gender="{{ product.gender if product.gender else 'UNISEX' }}">{{ product.gender if product.gender else 'UNISEX' }}</span>
                     <span class="tag tag-type">EDP</span>
                 </div>
                 <p class="product-brand">{{ product.brand }}</p>

@@ -727,3 +727,8 @@ body.dark-mode footer { background: #1a1a1a; color: #666; }
     border-color: #cc0000;
     color: #fff;
 }
+
+/* Gender tag colors */
+.tag-gender { background: #e8f0fe; color: #4a6fa5; }
+.tag-gender[data-gender="WOMEN"] { background: #fde8f0; color: #c2185b; }
+.tag-gender[data-gender="UNISEX"] { background: #f0f4f0; color: #555; }
