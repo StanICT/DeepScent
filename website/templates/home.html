@@ -16,25 +16,16 @@
 <!-- Brands Section -->
 <section class="home-brands">
     <p class="section-label">LOCAL BRANDS</p>
-    <div class="brands-grid">
-        <a href="{{ url_for('views.perfumes', brand='PRMNKY') }}" class="brand-card">
-            <div class="brand-card-inner">
-                <span class="brand-card-name">PRMNKY</span>
-                <span class="brand-card-arrow">→</span>
-            </div>
-        </a>
-        <a href="{{ url_for('views.perfumes', brand='Cotidiano') }}" class="brand-card">
-            <div class="brand-card-inner">
-                <span class="brand-card-name">COTIDIANO</span>
-                <span class="brand-card-arrow">→</span>
-            </div>
-        </a>
-        <a href="{{ url_for('views.perfumes', brand='Enzo Scents') }}" class="brand-card">
-            <div class="brand-card-inner">
-                <span class="brand-card-name">ENZO SCENTS</span>
-                <span class="brand-card-arrow">→</span>
-            </div>
-        </a>
+    <div class="brands-ticker-wrap">
+        <div class="brands-ticker">
+            <a href="{{ url_for('views.perfumes', brand='PRMNKY') }}" class="ticker-item">PRMNKY <span>→</span></a>
+            <a href="{{ url_for('views.perfumes', brand='Cotidiano') }}" class="ticker-item">COTIDIANO <span>→</span></a>
+            <a href="{{ url_for('views.perfumes', brand='Enzo Scents') }}" class="ticker-item">ENZO SCENTS <span>→</span></a>
+            <!-- Duplicate for seamless loop -->
+            <a href="{{ url_for('views.perfumes', brand='PRMNKY') }}" class="ticker-item">PRMNKY <span>→</span></a>
+            <a href="{{ url_for('views.perfumes', brand='Cotidiano') }}" class="ticker-item">COTIDIANO <span>→</span></a>
+            <a href="{{ url_for('views.perfumes', brand='Enzo Scents') }}" class="ticker-item">ENZO SCENTS <span>→</span></a>
+        </div>
     </div>
 </section>
 
@@ -155,55 +146,64 @@
         text-align: center;
     }
 
-    /* Brands */
+    /* Brands Ticker */
     .home-brands {
-        padding: 80px 80px;
+        padding: 60px 0;
         background: #fff;
+        overflow: hidden;
     }
 
-    .brands-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
+    .home-brands .section-label {
+        padding: 0 80px;
     }
 
-    .brand-card {
-        display: block;
-        text-decoration: none;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 40px 30px;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    .brands-ticker-wrap {
+        overflow: hidden;
+        border-top: 1px solid #e0e0e0;
+        border-bottom: 1px solid #e0e0e0;
     }
 
-    .brand-card:hover {
-        border-color: #cc0000;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-
-    .brand-card-inner {
+    .brands-ticker {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        width: max-content;
+        animation: tickerScroll 6s linear infinite;
     }
 
-    .brand-card-name {
+    .brands-ticker:hover { animation-play-state: paused; }
+
+    @keyframes tickerScroll {
+        0%   { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+
+    .ticker-item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 28px 60px;
         font-family: 'Anton', sans-serif;
         font-style: italic;
-        font-size: 28px;
+        font-size: 36px;
         color: #111;
-        letter-spacing: 2px;
+        letter-spacing: 3px;
+        text-decoration: none;
+        border-right: 1px solid #e0e0e0;
+        white-space: nowrap;
+        transition: color 0.2s ease;
     }
 
-    .brand-card-arrow {
-        font-size: 20px;
+    .ticker-item:hover { color: #cc0000; }
+
+    .ticker-item span {
+        font-size: 24px;
         color: #ccc;
         transition: color 0.2s ease, transform 0.2s ease;
+        display: inline-block;
     }
 
-    .brand-card:hover .brand-card-arrow {
+    .ticker-item:hover span {
         color: #cc0000;
-        transform: translateX(4px);
+        transform: translateX(6px);
     }
 
     /* Why Us */
