@@ -1,12 +1,12 @@
 from flask import Blueprint, render_template, request
-
-from website.models import Product
+from website.models import Product, Brand
 
 views = Blueprint('views', __name__)
 
 @views.route('/')
 def home():
-    return render_template('home.html')
+    brands = Brand.query.all()
+    return render_template('home.html', brands=brands)
 
 @views.route('/perfumes/<brand>')
 def perfumes(brand):

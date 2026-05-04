@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, abort
 from flask_login import login_required, current_user
-from .models import Product, db
+from .models import Product, Brand, db
 from werkzeug.utils import secure_filename
 import os
 
@@ -84,3 +84,54 @@ def delete_product(id):
     db.session.delete(product)
     db.session.commit()
     return redirect(url_for("admin.admin_products"))
+
+# --- Brand CRUD ---
+
+@admin.route("/brands")
+@login_required
+def admin_brands():
+    if not current_user.is_admin:
+        abort(403)
+    brands = Brand.query.all()
+    return render_template("admin_brands.html", brands=brands)
+
+@admin.route("/brands/add", methods=["GET", "POST"])
+@login_required
+def add_brand():
+    if not current_user.is_admin:
+        abort(403)
+    if request.method == "POST":
+        name = request.form["name"].strip()
+        logo_file = request.files.get("logo_file")
+        logo = save_image(logo_file)
+        brand = Brand(name=name, logo=logo)
+        db.session.add(brand)
+        db.session.commit()
+        return redirect(url_for("admin.admin_brands"))
+    return render_template("add_brand.html")
+
+@admin.route("/brands/edit/<int:id>", methods=["GET", "POST"])
+@login_required
+def edit_brand(id):
+    if not current_user.is_admin:
+        abort(403)
+    brand = Brand.query.get_or_404(id)
+    if request.method == "POST":
+        brand.name = request.form["name"].strip()
+        logo_file = request.files.get("logo_file")
+        new_logo = save_image(logo_file)
+        if new_logo:
+            brand.logo = new_logo
+        db.session.commit()
+        return redirect(url_for("admin.admin_brands"))
+    return render_template("edit_brand.html", brand=brand)
+
+@admin.route("/brands/delete/<int:id>")
+@login_required
+def delete_brand(id):
+    if not current_user.is_admin:
+        abort(403)
+    brand = Brand.query.get_or_404(id)
+    db.session.delete(brand)
+    db.session.commit()
+    return redirect(url_for("admin.admin_brands"))

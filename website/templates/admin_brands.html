@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Admin - Brands{% endblock %}
+{% block content %}
+
+<section class="admin-page">
+    <div class="admin-header">
+        <div>
+            <p class="section-label">ADMIN PANEL</p>
+            <h1 class="admin-title">Brands</h1>
+        </div>
+        <div style="display:flex;gap:12px;">
+            <a href="{{ url_for('admin.admin_products') }}" class="admin-btn-secondary">Products</a>
+            <a href="{{ url_for('admin.add_brand') }}" class="admin-btn-add">+ Add Brand</a>
+        </div>
+    </div>
+
+    <div class="admin-table-wrap">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Logo</th>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for brand in brands %}
+                <tr>
+                    <td>
+                        {% if brand.logo %}
+                        <img src="{{ url_for('static', filename='uploads/' ~ brand.logo) }}" alt="{{ brand.name }}" class="admin-thumb">
+                        {% else %}
+                        <div style="width:50px;height:50px;background:#f0f0f0;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:20px;"><i class="fas fa-image"></i></div>
+                        {% endif %}
+                    </td>
+                    <td class="product-name-cell">{{ brand.name }}</td>
+                    <td class="actions-cell">
+                        <a href="{{ url_for('admin.edit_brand', id=brand.id) }}" class="btn-edit">Edit</a>
+                        <a href="#" class="btn-delete" onclick="showDeleteModal('{{ brand.name }}', '{{ url_for('admin.delete_brand', id=brand.id) }}')">Delete</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="3" class="empty-row">No brands yet. Add one!</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<style>
+    .admin-page { padding: 60px 80px; background: #f5f5f5; min-height: 100vh; }
+    .admin-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 36px; }
+    .section-label { font-size: 11px; letter-spacing: 4px; color: #cc0000; font-weight: 600; margin-bottom: 6px; }
+    .admin-title { font-family: 'Anton', sans-serif; font-style: italic; font-size: 42px; color: #111; margin: 0; }
+    .admin-btn-add { background: #111; color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; letter-spacing: 1px; transition: background 0.2s ease; }
+    .admin-btn-add:hover { background: #cc0000; }
+    .admin-btn-secondary { background: #fff; color: #111; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; border: 1px solid #ddd; transition: border-color 0.2s ease; }
+    .admin-btn-secondary:hover { border-color: #111; }
+    .admin-table-wrap { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
+    .admin-table { width: 100%; border-collapse: collapse; }
+    .admin-table thead tr { background: #111; color: #fff; }
+    .admin-table th { padding: 14px 18px; font-size: 11px; letter-spacing: 2px; font-weight: 600; text-align: left; }
+    .admin-table td { padding: 14px 18px; font-size: 13px; color: #333; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+    .admin-table tbody tr:last-child td { border-bottom: none; }
+    .admin-table tbody tr:hover { background: #fafafa; }
+    .admin-thumb { width: 50px; height: 50px; object-fit: contain; border-radius: 6px; background: #f5f5f5; }
+    .product-name-cell { font-weight: 600; color: #111; }
+    .actions-cell { display: flex; gap: 8px; align-items: center; }
+    .btn-edit { padding: 6px 16px; background: #111; color: #fff; border-radius: 4px; font-size: 12px; font-weight: 600; text-decoration: none; transition: background 0.2s ease; }
+    .btn-edit:hover { background: #444; }
+    .btn-delete { padding: 6px 16px; background: #fff; color: #cc0000; border: 1px solid #cc0000; border-radius: 4px; font-size: 12px; font-weight: 600; text-decoration: none; transition: all 0.2s ease; }
+    .btn-delete:hover { background: #cc0000; color: #fff; }
+    .empty-row { text-align: center; color: #aaa; padding: 40px; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+    .modal-box { background: #fff; border-radius: 12px; padding: 36px 40px; width: 380px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.2s ease; }
+    .modal-overlay.active .modal-box { transform: scale(1); }
+    .modal-icon { width: 52px; height: 52px; background: #fff0f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 22px; color: #cc0000; }
+    .modal-title { font-size: 17px; font-weight: 700; color: #111; margin-bottom: 8px; }
+    .modal-desc { font-size: 13px; color: #999; margin-bottom: 28px; line-height: 1.6; }
+    .modal-desc span { color: #111; font-weight: 600; }
+    .modal-actions { display: flex; gap: 12px; justify-content: center; }
+    .modal-btn-cancel { padding: 10px 28px; border: 1px solid #ddd; border-radius: 6px; background: #fff; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .modal-btn-confirm { padding: 10px 28px; border: none; border-radius: 6px; background: #cc0000; color: #fff; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
+</style>
+
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-box">
+        <div class="modal-icon"><i class="fas fa-trash"></i></div>
+        <p class="modal-title">Delete Brand</p>
+        <p class="modal-desc">Are you sure you want to delete <span id="modalProductName"></span>?</p>
+        <div class="modal-actions">
+            <button class="modal-btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+            <a id="modalConfirmBtn" href="#" class="modal-btn-confirm">Delete</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showDeleteModal(name, url) {
+        document.getElementById('modalProductName').textContent = name;
+        document.getElementById('modalConfirmBtn').href = url;
+        document.getElementById('deleteModal').classList.add('active');
+    }
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('active');
+    }
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) closeDeleteModal();
+    });
+</script>
+
+{% endblock %}

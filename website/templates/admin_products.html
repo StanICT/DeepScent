@@ -8,7 +8,10 @@
             <p class="section-label">ADMIN PANEL</p>
             <h1 class="admin-title">Products</h1>
         </div>
-        <a href="{{ url_for('admin.add_product') }}" class="admin-btn-add">+ Add Product</a>
+        <div style="display:flex;gap:12px;">
+            <a href="{{ url_for('admin.admin_brands') }}" class="admin-btn-secondary">Brands</a>
+            <a href="{{ url_for('admin.add_product') }}" class="admin-btn-add">+ Add Product</a>
+        </div>
     </div>
 
     <div class="admin-table-wrap">
@@ -88,6 +91,9 @@
         transition: background 0.2s ease;
     }
     .admin-btn-add:hover { background: #cc0000; }
+
+    .admin-btn-secondary { background: #fff; color: #111; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; border: 1px solid #ddd; transition: border-color 0.2s ease; }
+    .admin-btn-secondary:hover { border-color: #111; }
 
     .admin-table-wrap {
         background: #fff;

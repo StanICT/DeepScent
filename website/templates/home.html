@@ -8,7 +8,7 @@
         <p class="home-hero-sub">DISCOVER YOUR SCENT</p>
         <h1 class="home-hero-title">WEAR YOUR<br>STORY.</h1>
         <div class="home-hero-line"></div>
-        <p class="home-hero-desc">Homegrown scents. Built from local DNA. Made for those who move with purpose.</p>
+        <p class="home-hero-desc">DNA of the greats. Spirit of the relentless.</p>
         <a href="{{ url_for('views.product') }}" class="home-hero-btn">SHOP NOW</a>
     </div>
 </section>
@@ -18,13 +18,23 @@
     <p class="section-label">LOCAL BRANDS</p>
     <div class="brands-ticker-wrap">
         <div class="brands-ticker">
-            <a href="{{ url_for('views.perfumes', brand='PRMNKY') }}" class="ticker-item">PRMNKY <span>→</span></a>
-            <a href="{{ url_for('views.perfumes', brand='Cotidiano') }}" class="ticker-item">COTIDIANO <span>→</span></a>
-            <a href="{{ url_for('views.perfumes', brand='Enzo Scents') }}" class="ticker-item">ENZO SCENTS <span>→</span></a>
-            <!-- Duplicate for seamless loop -->
-            <a href="{{ url_for('views.perfumes', brand='PRMNKY') }}" class="ticker-item">PRMNKY <span>→</span></a>
-            <a href="{{ url_for('views.perfumes', brand='Cotidiano') }}" class="ticker-item">COTIDIANO <span>→</span></a>
-            <a href="{{ url_for('views.perfumes', brand='Enzo Scents') }}" class="ticker-item">ENZO SCENTS <span>→</span></a>
+            {% set brand_list = brands if brands else [] %}
+            {% for brand in brand_list %}
+            <a href="{{ url_for('views.perfumes', brand=brand.name) }}" class="ticker-item">
+                {% if brand.logo %}
+                <img src="{{ url_for('static', filename='uploads/' ~ brand.logo) }}" alt="{{ brand.name }}">
+                {% endif %}
+                {{ brand.name | upper }} <span>→</span>
+            </a>
+            {% endfor %}
+            {% for brand in brand_list %}
+            <a href="{{ url_for('views.perfumes', brand=brand.name) }}" class="ticker-item">
+                {% if brand.logo %}
+                <img src="{{ url_for('static', filename='uploads/' ~ brand.logo) }}" alt="{{ brand.name }}">
+                {% endif %}
+                {{ brand.name | upper }} <span>→</span>
+            </a>
+            {% endfor %}
         </div>
     </div>
 </section>
@@ -148,13 +158,14 @@
 
     /* Brands Ticker */
     .home-brands {
-        padding: 60px 0;
+        padding: 80px 0;
         background: #fff;
         overflow: hidden;
     }
 
     .home-brands .section-label {
         padding: 0 80px;
+        margin-bottom: 40px;
     }
 
     .brands-ticker-wrap {
@@ -166,7 +177,7 @@
     .brands-ticker {
         display: flex;
         width: max-content;
-        animation: tickerScroll 6s linear infinite;
+        animation: tickerScroll 8s linear infinite;
     }
 
     .brands-ticker:hover { animation-play-state: paused; }
@@ -180,7 +191,7 @@
         display: flex;
         align-items: center;
         gap: 16px;
-        padding: 28px 60px;
+        padding: 32px 80px;
         font-family: 'Anton', sans-serif;
         font-style: italic;
         font-size: 36px;
@@ -190,6 +201,13 @@
         border-right: 1px solid #e0e0e0;
         white-space: nowrap;
         transition: color 0.2s ease;
+    }
+
+    .ticker-item img {
+        height: 40px;
+        width: 40px;
+        object-fit: contain;
+        border-radius: 4px;
     }
 
     .ticker-item:hover { color: #cc0000; }

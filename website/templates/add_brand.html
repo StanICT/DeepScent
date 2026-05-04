@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Add Brand{% endblock %}
+{% block content %}
+
+<section class="admin-form-page">
+    <div class="admin-form-header">
+        <p class="section-label">ADMIN PANEL</p>
+        <h1 class="admin-title">Add Brand</h1>
+    </div>
+
+    <div class="admin-form-card">
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label>Brand Name</label>
+                    <input type="text" name="name" placeholder="e.g. PRMNKY" required>
+                </div>
+                <div class="form-group full-width">
+                    <label>Brand Logo</label>
+                    <input type="file" name="logo_file" accept="image/*" onchange="previewImage(this)">
+                    <img id="imgPreview" src="" alt="" style="display:none;margin-top:12px;max-height:100px;border-radius:6px;object-fit:contain;">
+                </div>
+            </div>
+            <div class="form-actions">
+                <a href="{{ url_for('admin.admin_brands') }}" class="btn-cancel-form">Cancel</a>
+                <button type="submit" class="btn-save">Save Brand</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<style>
+    .admin-form-page { padding: 60px 80px; background: #f5f5f5; min-height: 100vh; }
+    .admin-form-header { margin-bottom: 32px; }
+    .section-label { font-size: 11px; letter-spacing: 4px; color: #cc0000; font-weight: 600; margin-bottom: 6px; }
+    .admin-title { font-family: 'Anton', sans-serif; font-style: italic; font-size: 42px; color: #111; margin: 0; }
+    .admin-form-card { background: #fff; border-radius: 12px; padding: 40px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); max-width: 500px; }
+    .form-grid { display: grid; grid-template-columns: 1fr; gap: 24px; margin-bottom: 30px; }
+    .full-width { grid-column: 1 / -1; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-group label { font-size: 11px; letter-spacing: 2px; font-weight: 600; color: #888; text-transform: uppercase; }
+    .form-group input { padding: 11px 14px; border: 1px solid #e0e0e0; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 13px; color: #111; outline: none; transition: border-color 0.2s ease; }
+    .form-group input:focus { border-color: #cc0000; }
+    .form-actions { display: flex; gap: 12px; justify-content: flex-end; }
+    .btn-save { padding: 12px 32px; background: #111; color: #fff; border: none; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; letter-spacing: 1px; transition: background 0.2s ease; }
+    .btn-save:hover { background: #cc0000; }
+    .btn-cancel-form { padding: 12px 32px; background: #fff; color: #111; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; font-weight: 600; text-decoration: none; transition: border-color 0.2s ease; }
+    .btn-cancel-form:hover { border-color: #111; }
+</style>
+
+<script>
+    function previewImage(input) {
+        const preview = document.getElementById('imgPreview');
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => { preview.src = e.target.result; preview.style.display = 'block'; };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
+
+{% endblock %}
