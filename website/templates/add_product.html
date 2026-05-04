@@ -3,92 +3,141 @@
 {% block content %}
 
 <section class="admin-form-page">
-    <div class="admin-form-header">
-        <p class="section-label">ADMIN PANEL</p>
-        <h1 class="admin-title">Add Product</h1>
-    </div>
+    <div class="admin-form-layout">
 
-    <div class="admin-form-card">
-        <form method="POST" enctype="multipart/form-data">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>Product Name</label>
-                    <input type="text" name="name" placeholder="e.g. Valor EDP" required>
-                </div>
-                <div class="form-group">
-                    <label>Brand</label>
-                    <select name="brand">
-                        <option value="PRMNKY">PRMNKY</option>
-                        <option value="Cotidiano">Cotidiano</option>
-                        <option value="Enzo Scents">Enzo Scents</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Price (₱)</label>
-                    <input type="number" step="0.01" name="price" placeholder="0.00" required>
-                </div>
-                <div class="form-group">
-                    <label>Stock</label>
-                    <input type="number" name="stock" placeholder="0" required>
-                </div>
-                <div class="form-group">
-                    <label>Gender</label>
-                    <select name="gender">
-                        <option value="UNISEX">Unisex</option>
-                        <option value="MEN">Men</option>
-                        <option value="WOMEN">Women</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Product Image</label>
-                    <input type="file" name="image_file" accept="image/*" onchange="previewImage(this)">
-                    <img id="imgPreview" src="" alt="" style="display:none;margin-top:10px;max-height:100px;border-radius:6px;">
-                </div>
-                <div class="form-group full-width">
-                    <label>Description</label>
-                    <textarea name="description" placeholder="Describe the fragrance..." rows="4" required></textarea>
-                </div>
+        <!-- Left Panel -->
+        <div class="admin-form-side">
+            <p class="side-label">ADMIN PANEL</p>
+            <h2 class="side-title">Add<br>Product</h2>
+            <div class="side-line"></div>
+            <p class="side-desc">Fill in the details to add a new product to the store. Make sure the image is clear and the price is correct.</p>
+            <div class="side-steps">
+                <div class="side-step"><span>01</span> Product Info</div>
+                <div class="side-step"><span>02</span> Pricing & Stock</div>
+                <div class="side-step"><span>03</span> Upload Image</div>
+                <div class="side-step"><span>04</span> Description</div>
             </div>
-            <div class="form-actions">
-                <a href="{{ url_for('admin.admin_products') }}" class="btn-cancel-form">Cancel</a>
-                <button type="submit" class="btn-save">Save Product</button>
-            </div>
-        </form>
+        </div>
+
+        <!-- Right: Form -->
+        <div class="admin-form-card">
+            <form method="POST" enctype="multipart/form-data">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Product Name</label>
+                        <input type="text" name="name" placeholder="e.g. Valor EDP" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Brand</label>
+                        <select name="brand">
+                            {% for brand in g.brands %}
+                            <option value="{{ brand.name }}">{{ brand.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Price (₱)</label>
+                        <input type="number" step="0.01" name="price" placeholder="0.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Stock</label>
+                        <input type="number" name="stock" placeholder="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select name="gender">
+                            <option value="UNISEX">Unisex</option>
+                            <option value="MEN">Men</option>
+                            <option value="WOMEN">Women</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Product Image</label>
+                        <div class="img-upload-box" onclick="document.getElementById('imgInput').click()">
+                            <img id="imgPreview" src="" alt="" style="display:none;max-height:120px;object-fit:contain;border-radius:6px;">
+                            <div id="imgPlaceholder"><i class="fas fa-cloud-upload-alt"></i><span>Click to upload</span></div>
+                        </div>
+                        <input type="file" id="imgInput" name="image_file" accept="image/*" style="display:none;" onchange="previewImage(this)">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Description</label>
+                        <textarea name="description" placeholder="Describe the fragrance..." rows="4" required></textarea>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <a href="{{ url_for('admin.admin_products') }}" class="btn-cancel-form">Cancel</a>
+                    <button type="submit" class="btn-save">Save Product</button>
+                </div>
+            </form>
+        </div>
     </div>
 </section>
 
 <style>
     .admin-form-page { padding: 60px 80px; background: #f5f5f5; min-height: 100vh; }
-    .admin-form-header { margin-bottom: 32px; }
-    .section-label { font-size: 11px; letter-spacing: 4px; color: #cc0000; font-weight: 600; margin-bottom: 6px; }
-    .admin-title { font-family: 'Anton', sans-serif; font-style: italic; font-size: 42px; color: #111; margin: 0; }
 
+    .admin-form-layout {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 32px;
+        align-items: stretch;
+    }
+
+    /* Left Panel */
+    .admin-form-side {
+        background: #111;
+        border-radius: 12px;
+        padding: 40px 32px;
+    }
+
+    .side-label { font-size: 10px; letter-spacing: 4px; color: #cc0000; font-weight: 600; margin-bottom: 16px; }
+
+    .side-title {
+        font-family: 'Anton', sans-serif;
+        font-style: italic;
+        font-size: 48px;
+        color: #fff;
+        line-height: 1;
+        margin: 0 0 20px;
+        letter-spacing: 1px;
+    }
+
+    .side-line { width: 30px; height: 2px; background: #cc0000; margin-bottom: 20px; }
+
+    .side-desc { font-size: 12px; color: rgba(255,255,255,0.35); line-height: 1.8; margin-bottom: 32px; }
+
+    .side-steps { display: flex; flex-direction: column; gap: 14px; }
+
+    .side-step {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 12px;
+        color: rgba(255,255,255,0.4);
+        font-weight: 600;
+        letter-spacing: 1px;
+    }
+
+    .side-step span {
+        font-family: 'Anton', sans-serif;
+        font-style: italic;
+        font-size: 22px;
+        color: rgba(255,255,255,0.1);
+        line-height: 1;
+    }
+
+    /* Right Form */
     .admin-form-card {
         background: #fff;
         border-radius: 12px;
         padding: 40px;
         box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-        max-width: 800px;
     }
 
-    .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 24px;
-        margin-bottom: 30px;
-    }
-
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 30px; }
     .full-width { grid-column: 1 / -1; }
-
     .form-group { display: flex; flex-direction: column; gap: 8px; }
-
-    .form-group label {
-        font-size: 11px;
-        letter-spacing: 2px;
-        font-weight: 600;
-        color: #888;
-        text-transform: uppercase;
-    }
+    .form-group label { font-size: 11px; letter-spacing: 2px; font-weight: 600; color: #888; text-transform: uppercase; }
 
     .form-group input,
     .form-group select,
@@ -103,50 +152,54 @@
         transition: border-color 0.2s ease;
         background: #fff;
     }
-
     .form-group input:focus,
     .form-group select:focus,
     .form-group textarea:focus { border-color: #cc0000; }
-
     .form-group textarea { resize: vertical; }
+
+    /* Image upload box */
+    .img-upload-box {
+        border: 2px dashed #e0e0e0;
+        border-radius: 6px;
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: border-color 0.2s ease;
+        overflow: hidden;
+    }
+    .img-upload-box:hover { border-color: #cc0000; }
+
+    #imgPlaceholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        color: #ccc;
+    }
+    #imgPlaceholder i { font-size: 24px; }
+    #imgPlaceholder span { font-size: 11px; letter-spacing: 1px; }
 
     .form-actions { display: flex; gap: 12px; justify-content: flex-end; }
 
-    .btn-save {
-        padding: 12px 32px;
-        background: #111;
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        font-family: 'Poppins', sans-serif;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        letter-spacing: 1px;
-        transition: background 0.2s ease;
-    }
+    .btn-save { padding: 12px 32px; background: #111; color: #fff; border: none; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; letter-spacing: 1px; transition: background 0.2s ease; }
     .btn-save:hover { background: #cc0000; }
-
-    .btn-cancel-form {
-        padding: 12px 32px;
-        background: #fff;
-        color: #111;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 13px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: border-color 0.2s ease;
-    }
+    .btn-cancel-form { padding: 12px 32px; background: #fff; color: #111; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; font-weight: 600; text-decoration: none; transition: border-color 0.2s ease; }
     .btn-cancel-form:hover { border-color: #111; }
 </style>
 
 <script>
     function previewImage(input) {
         const preview = document.getElementById('imgPreview');
+        const placeholder = document.getElementById('imgPlaceholder');
         if (input.files && input.files[0]) {
             const reader = new FileReader();
-            reader.onload = e => { preview.src = e.target.result; preview.style.display = 'block'; };
+            reader.onload = e => {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                placeholder.style.display = 'none';
+            };
             reader.readAsDataURL(input.files[0]);
         }
     }
