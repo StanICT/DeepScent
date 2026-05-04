@@ -23,16 +23,18 @@
             <a href="{{ url_for('views.perfumes', brand=brand.name) }}" class="ticker-item">
                 {% if brand.logo %}
                 <img src="{{ url_for('static', filename='uploads/' ~ brand.logo) }}" alt="{{ brand.name }}">
+                {% else %}
+                <span class="ticker-name">{{ brand.name | upper }}</span>
                 {% endif %}
-                {{ brand.name | upper }} <span>→</span>
             </a>
             {% endfor %}
             {% for brand in brand_list %}
             <a href="{{ url_for('views.perfumes', brand=brand.name) }}" class="ticker-item">
                 {% if brand.logo %}
                 <img src="{{ url_for('static', filename='uploads/' ~ brand.logo) }}" alt="{{ brand.name }}">
+                {% else %}
+                <span class="ticker-name">{{ brand.name | upper }}</span>
                 {% endif %}
-                {{ brand.name | upper }} <span>→</span>
             </a>
             {% endfor %}
         </div>
@@ -190,38 +192,32 @@
     .ticker-item {
         display: flex;
         align-items: center;
-        gap: 16px;
-        padding: 32px 80px;
+        justify-content: center;
+        padding: 32px 0;
+        width: calc(100vw / 3);
+        text-decoration: none;
+        border-right: 1px solid #e0e0e0;
+        white-space: nowrap;
+        transition: background 0.2s ease;
+    }
+
+    .ticker-item:hover { background: #fafafa; }
+
+    .ticker-item img {
+        height: 80px;
+        width: 80px;
+        object-fit: contain;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .ticker-item:hover img { transform: scale(1.1); opacity: 0.7; }
+
+    .ticker-name {
         font-family: 'Anton', sans-serif;
         font-style: italic;
         font-size: 36px;
         color: #111;
         letter-spacing: 3px;
-        text-decoration: none;
-        border-right: 1px solid #e0e0e0;
-        white-space: nowrap;
-        transition: color 0.2s ease;
-    }
-
-    .ticker-item img {
-        height: 40px;
-        width: 40px;
-        object-fit: contain;
-        border-radius: 4px;
-    }
-
-    .ticker-item:hover { color: #cc0000; }
-
-    .ticker-item span {
-        font-size: 24px;
-        color: #ccc;
-        transition: color 0.2s ease, transform 0.2s ease;
-        display: inline-block;
-    }
-
-    .ticker-item:hover span {
-        color: #cc0000;
-        transform: translateX(6px);
     }
 
     /* Why Us */

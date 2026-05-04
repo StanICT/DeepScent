@@ -21,9 +21,9 @@
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle" id="perfumes-link">PERFUMES <span class="arrow">&#9662;</span></a>
                 <ul class="dropdown-menu">
-                    <li><a href="{{ url_for('views.perfumes', brand='PRMNKY') }}">PRMNKY</a></li>
-                    <li><a href="{{ url_for('views.perfumes', brand='Cotidiano') }}">Cotidiano</a></li>
-                    <li><a href="{{ url_for('views.perfumes', brand='Enzo Scents') }}">Enzo Scents</a></li>
+                    {% for brand in g.brands %}
+                    <li><a href="{{ url_for('views.perfumes', brand=brand.name) }}">{{ brand.name }}</a></li>
+                    {% endfor %}
                 </ul>
             </li>
             <li><a href="{{ url_for('views.product') }}" class="{% if request.endpoint == 'views.product' %}active{% endif %}">PRODUCT</a></li>
@@ -57,9 +57,9 @@
                 <p class="search-hint">PRESS ENTER TO SEARCH</p>
             </form>
             <div class="search-suggestions">
-                <span onclick="document.getElementById('searchInput').value='PRMNKY'">PRMNKY</span>
-                <span onclick="document.getElementById('searchInput').value='Cotidiano'">Cotidiano</span>
-                <span onclick="document.getElementById('searchInput').value='Enzo Scents'">Enzo Scents</span>
+                {% for brand in g.brands %}
+                <span onclick="document.getElementById('searchInput').value='{{ brand.name }}'">{{ brand.name }}</span>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -87,9 +87,9 @@
             <div class="footer-links">
                 <h4>BRANDS</h4>
                 <ul>
-                    <li><a href="{{ url_for('views.perfumes', brand='PRMNKY') }}">PRMNKY</a></li>
-                    <li><a href="{{ url_for('views.perfumes', brand='Cotidiano') }}">Cotidiano</a></li>
-                    <li><a href="{{ url_for('views.perfumes', brand='Enzo Scents') }}">Enzo Scents</a></li>
+                    {% for brand in g.brands %}
+                    <li><a href="{{ url_for('views.perfumes', brand=brand.name) }}">{{ brand.name }}</a></li>
+                    {% endfor %}
                 </ul>
             </div>
             <div class="footer-links">

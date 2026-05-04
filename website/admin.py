@@ -81,6 +81,10 @@ def delete_product(id):
     if not current_user.is_admin:
         abort(403)
     product = Product.query.get_or_404(id)
+    if product.image:
+        file_path = os.path.join(UPLOAD_PATH, product.image)
+        if os.path.exists(file_path):
+            os.remove(file_path)
     db.session.delete(product)
     db.session.commit()
     return redirect(url_for("admin.admin_products"))
@@ -132,6 +136,10 @@ def delete_brand(id):
     if not current_user.is_admin:
         abort(403)
     brand = Brand.query.get_or_404(id)
+    if brand.logo:
+        file_path = os.path.join(UPLOAD_PATH, brand.logo)
+        if os.path.exists(file_path):
+            os.remove(file_path)
     db.session.delete(brand)
     db.session.commit()
     return redirect(url_for("admin.admin_brands"))

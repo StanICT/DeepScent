@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, g
 from flask_login import LoginManager
 from .extensions import db, migrate   # import from extensions
 
@@ -13,8 +13,13 @@ def create_app():
     migrate.init_app(app, db)
 
     with app.app_context():
-        from .models import User, Product   # import models AFTER db is ready
+        from .models import User, Product, Brand   # import models AFTER db is ready
         db.create_all()
+
+    @app.before_request
+    def load_globals():
+        from .models import Brand
+        g.brands = Brand.query.all()
 
     # login manager setup
     login_manager = LoginManager()
