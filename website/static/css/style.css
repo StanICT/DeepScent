@@ -93,7 +93,12 @@ body {
 .fa-shopping-cart { font-size: 20px; }
 .fa-shield-alt { font-size: 20px; }
 
-.icons a i { font-size: 20px; }
+.icons a i,
+.icons a svg { 
+    font-size: 20px !important;
+    width: 20px !important;
+    height: 20px !important;
+}
 
 .icons a:hover {
     color: red;               
