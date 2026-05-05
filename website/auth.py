@@ -90,6 +90,14 @@ def update_profile():
         if os.path.exists(file_path):
             os.remove(file_path)
         current_user.avatar = None
+    else:
+        avatar_file = request.files.get('avatar_file')
+        if avatar_file and avatar_file.filename:
+            filename = secure_filename(f"{current_user.username}_avatar.{avatar_file.filename.rsplit('.', 1)[-1]}")
+            upload_path = os.path.join(os.path.dirname(__file__), 'static', 'uploads')
+            os.makedirs(upload_path, exist_ok=True)
+            avatar_file.save(os.path.join(upload_path, filename))
+            current_user.avatar = filename
 
     db.session.commit()
     flash("Profile updated!", "success")

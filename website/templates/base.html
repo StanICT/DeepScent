@@ -181,10 +181,11 @@
                 if current_user.avatar 
                 else url_for('static', filename='images/default-avatar.png') }}" alt="Profile Picture">
         </div>
-        <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="uploadAvatar(this)">
+        <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="previewAvatar(this)">
         <div id="removePhotoBtn" onclick="markRemoveAvatar()" style="display:{% if current_user.avatar %}block{% else %}none{% endif %};text-align:center;font-size:12px;color:#cc0000;cursor:pointer;margin-bottom:10px;">Remove photo</div>
-        <form method="POST" action="{{ url_for('auth.update_profile') }}">
+        <form method="POST" action="{{ url_for('auth.update_profile') }}" enctype="multipart/form-data">
         <input type="hidden" name="remove_avatar" id="removeAvatarFlag" value="0">
+        <input type="file" name="avatar_file" id="avatarFileInput" style="display:none;">
         <input type="text" name="username" placeholder="Username" value="{{ current_user.username }}">
         <input type="password" name="password" placeholder="New Password">
         <button type="submit" class="btn-red">Save Changes</button>
@@ -222,25 +223,22 @@
       document.getElementById('editAvatarPreview').src = defaultSrc;
       document.getElementById('removePhotoBtn').style.display = 'none';
       document.getElementById('removeAvatarFlag').value = '1';
+      document.getElementById('avatarFileInput').value = '';
+      document.getElementById('avatarInput').value = '';
     }
 
-    function uploadAvatar(input) {
+    function previewAvatar(input) {
       const file = input.files[0];
       if (!file) return;
-      const formData = new FormData();
-      formData.append('avatar', file);
-      fetch('{{ url_for("auth.upload_avatar") }}', { method: 'POST', body: formData })
-        .then(res => {
-          if (res.ok) {
-            const reader = new FileReader();
-            reader.onload = e => {
-              document.getElementById('avatarPreview').src = e.target.result;
-              document.getElementById('editAvatarPreview').src = e.target.result;
-              document.getElementById('removePhotoBtn').style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-          }
-        });
+      const reader = new FileReader();
+      reader.onload = e => {
+        document.getElementById('editAvatarPreview').src = e.target.result;
+        document.getElementById('removePhotoBtn').style.display = 'block';
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        document.getElementById('avatarFileInput').files = dt.files;
+      };
+      reader.readAsDataURL(file);
     }
 
     function toggleSearch(e) {
@@ -279,8 +277,20 @@
     function showEditProfile() {
       document.querySelector('.my-profile').style.display = 'none';
       document.querySelector('.edit-profile').style.display = 'block';
+      // Save original avatar src so cancel can revert
+      const editPreview = document.getElementById('editAvatarPreview');
+      editPreview.dataset.original = document.getElementById('avatarPreview').src;
+      editPreview.src = document.getElementById('avatarPreview').src;
     }
     function showMyProfile() {
+      // Revert any unsaved changes
+      const editPreview = document.getElementById('editAvatarPreview');
+      editPreview.src = editPreview.dataset.original || editPreview.src;
+      document.getElementById('removeAvatarFlag').value = '0';
+      document.getElementById('avatarFileInput').value = '';
+      document.getElementById('avatarInput').value = '';
+      const removeBtn = document.getElementById('removePhotoBtn');
+      removeBtn.style.display = editPreview.dataset.original && !editPreview.dataset.original.includes('default-avatar') ? 'block' : 'none';
       document.querySelector('.edit-profile').style.display = 'none';
       document.querySelector('.my-profile').style.display = 'block';
     }
