@@ -38,7 +38,7 @@
                     <td>{{ product.stock }}</td>
                     <td class="actions-cell">
                         <a href="{{ url_for('admin.edit_product', id=product.id) }}" class="btn-edit">Edit</a>
-                        <a href="#" class="btn-delete" onclick="showDeleteModal('{{ product.name }}', '{{ url_for('admin.delete_product', id=product.id) }}')">Delete</a>
+                        <a href="#" class="btn-delete" onclick="showDeleteModal(this.dataset.name, this.dataset.url)" data-name="{{ product.name }}" data-url="{{ url_for('admin.delete_product', id=product.id) }}">Delete</a>
                     </td>
                 </tr>
                 {% else %}

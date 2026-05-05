@@ -150,49 +150,42 @@
     <!-- Overlay + Profile Panel -->
     <div class="overlay" style="display:none;"></div>
     <div class="profile-panel" style="display:none;">
-    <!-- Settings icon top-left -->
-    <i class="fas fa-cog settings-icon" onclick="toggleDarkMode()" title="Toggle Dark Mode"></i>
-    <!-- Close button top-right -->
-    <button class="btn-close-custom" onclick="closeProfile()" aria-label="Close"></button>
+        <i class="fas fa-cog settings-icon" onclick="toggleDarkMode()" title="Toggle Dark Mode"></i>
+        <button class="btn-close-custom" onclick="closeProfile()" aria-label="Close"></button>
 
-    <!-- My Profile Screen -->
-    <div class="my-profile">
-        <div class="profile-header">
-        <img id="avatarPreview" src="{{ url_for('static', filename='uploads/' ~ current_user.avatar) 
-                if current_user.avatar 
-                else url_for('static', filename='images/default-avatar.png') }}" alt="Profile Picture">
-        <h2>{{ current_user.fullname }}</h2>
-        <p>@{{ current_user.username }}</p>
+        <!-- My Profile Screen -->
+        <div class="my-profile">
+            <div class="profile-header">
+                <img id="avatarPreview" src="{{ url_for('static', filename='uploads/' ~ current_user.avatar) if current_user.avatar else url_for('static', filename='images/default-avatar.png') }}" alt="Profile Picture">
+                <h2>{{ current_user.fullname }}</h2>
+                <p>@{{ current_user.username }}</p>
+            </div>
+            <button class="btn-red" onclick="showEditProfile()">Edit Profile</button>
+            <div class="menu-list">
+                <div class="menu-item"><i class="fas fa-heart"></i><span>Favorites</span></div>
+                <div class="menu-item"><i class="fas fa-shopping-cart"></i><span>Cart</span></div>
+                <div class="menu-item"><i class="fas fa-box"></i><span>Orders</span></div>
+                <div class="menu-item" onclick="doLogout()"><i class="fas fa-door-open"></i><span>Logout</span></div>
+            </div>
         </div>
-        <button class="btn-red" onclick="showEditProfile()">Edit Profile</button>
 
-        <div class="menu-list">
-        <div class="menu-item"><i class="fas fa-heart"></i><span>Favorites</span></div>
-        <div class="menu-item"><i class="fas fa-shopping-cart"></i><span>Cart</span></div>
-        <div class="menu-item"><i class="fas fa-box"></i><span>Orders</span></div>
-        <div class="menu-item" onclick='window.location="{{ url_for("auth.logout") }}"'><i class="fas fa-door-open"></i><span>Logout</span></div>
+        <!-- Edit Profile Screen -->
+        <div class="edit-profile">
+            <div class="profile-header" style="cursor:pointer;" onclick="document.getElementById('avatarInput').click()" title="Click to change photo">
+                <img id="editAvatarPreview" src="{{ url_for('static', filename='uploads/' ~ current_user.avatar) if current_user.avatar else url_for('static', filename='images/default-avatar.png') }}" alt="Profile Picture">
+            </div>
+            <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="previewAvatar(this)">
+            <div id="removePhotoBtn" onclick="markRemoveAvatar()" style="display:{% if current_user.avatar %}block{% else %}none{% endif %};text-align:center;font-size:12px;color:#cc0000;cursor:pointer;margin-bottom:10px;">Remove photo</div>
+            <form method="POST" action="{{ url_for('auth.update_profile') }}" enctype="multipart/form-data">
+                <input type="hidden" name="remove_avatar" id="removeAvatarFlag" value="0">
+                <input type="file" name="avatar_file" id="avatarFileInput" style="display:none;">
+                <input type="text" name="username" placeholder="Username" value="{{ current_user.username }}">
+                <input type="password" name="password" placeholder="New Password">
+                <button type="submit" class="btn-red">Save Changes</button>
+            </form>
+            <div class="btn-cancel" onclick="showMyProfile()">Cancel</div>
         </div>
-    </div>
-
-    <!-- Edit Profile Screen -->
-    <div class="edit-profile">
-        <div class="profile-header" style="cursor:pointer;" onclick="document.getElementById('avatarInput').click()" title="Click to change photo">
-        <img id="editAvatarPreview" src="{{ url_for('static', filename='uploads/' ~ current_user.avatar) 
-                if current_user.avatar 
-                else url_for('static', filename='images/default-avatar.png') }}" alt="Profile Picture">
-        </div>
-        <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="previewAvatar(this)">
-        <div id="removePhotoBtn" onclick="markRemoveAvatar()" style="display:{% if current_user.avatar %}block{% else %}none{% endif %};text-align:center;font-size:12px;color:#cc0000;cursor:pointer;margin-bottom:10px;">Remove photo</div>
-        <form method="POST" action="{{ url_for('auth.update_profile') }}" enctype="multipart/form-data">
-        <input type="hidden" name="remove_avatar" id="removeAvatarFlag" value="0">
-        <input type="file" name="avatar_file" id="avatarFileInput" style="display:none;">
-        <input type="text" name="username" placeholder="Username" value="{{ current_user.username }}">
-        <input type="password" name="password" placeholder="New Password">
-        <button type="submit" class="btn-red">Save Changes</button>
-        </form>
-        <div class="btn-cancel" onclick="showMyProfile()">Cancel</div>
-    </div>
-    </div>
+    </div><!-- end profile-panel -->
 
 
     <!-- Scripts -->
@@ -217,6 +210,10 @@
             }
         });
     });
+
+    function doLogout() {
+      window.location = '{{ url_for("auth.logout") }}';
+    }
 
     function markRemoveAvatar() {
       const defaultSrc = '{{ url_for("static", filename="images/default-avatar.png") }}';
