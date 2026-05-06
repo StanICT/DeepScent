@@ -13,6 +13,7 @@
         <div class="cart-items">
             <div class="cart-select-all">
                 <label><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"> Select All</label>
+                <button class="btn-delete-selected" id="deleteSelectedBtn" onclick="deleteSelected()" style="display:none;"><i class="fas fa-trash"></i> Delete Selected</button>
             </div>
             {% for item in items %}
             <div class="cart-item" id="cart-item-{{ item.product_id }}"
@@ -75,9 +76,16 @@
     .cart-select-all {
         background: #fff; border-radius: 12px; padding: 12px 20px;
         box-shadow: 0 2px 10px rgba(0,0,0,0.06); font-size: 13px; font-weight: 600; color: #111;
+        display: flex; justify-content: space-between; align-items: center;
     }
     .cart-select-all label { display: flex; align-items: center; gap: 10px; cursor: pointer; }
     .cart-select-all input[type="checkbox"] { width: 18px; height: 18px; accent-color: #cc0000; cursor: pointer; }
+    .btn-delete-selected {
+        background: none; border: 1px solid #cc0000; color: #cc0000;
+        padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600;
+        cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.2s;
+    }
+    .btn-delete-selected:hover { background: #cc0000; color: #fff; }
 
     .cart-item {
         background: #fff; border-radius: 12px; padding: 16px 20px;
@@ -134,6 +142,7 @@
         document.getElementById('cart-total').textContent = '₱' + total.toFixed(2);
         document.getElementById('selected-count').textContent = checkboxes.length;
         document.querySelector('.btn-checkout').disabled = checkboxes.length === 0;
+        document.getElementById('deleteSelectedBtn').style.display = checkboxes.length > 0 ? 'block' : 'none';
 
         document.querySelectorAll('.cart-item').forEach(item => {
             const cb = item.querySelector('.cart-checkbox');
@@ -147,6 +156,28 @@
     function toggleSelectAll(selectAllCb) {
         document.querySelectorAll('.cart-checkbox').forEach(cb => { cb.checked = selectAllCb.checked; });
         updateSummary();
+    }
+
+    function deleteSelected() {
+        const selected = [...document.querySelectorAll('.cart-checkbox:checked')]
+            .map(cb => cb.closest('.cart-item').dataset.productId);
+        if (!selected.length) return;
+
+        const count = selected.length;
+        if (!confirm(`Delete ${count} item${count > 1 ? 's' : ''} from your cart?`)) return;
+
+        Promise.all(selected.map(id =>
+            fetch(`/cart/remove/${id}`, { method: 'POST' }).then(r => r.json())
+        )).then(results => {
+            selected.forEach(id => {
+                const card = document.getElementById(`cart-item-${id}`);
+                if (card) card.remove();
+            });
+            const lastResult = results[results.length - 1];
+            document.querySelectorAll('.cart-badge').forEach(b => b.textContent = lastResult.cart_count);
+            updateSummary();
+            if (lastResult.cart_count === 0) location.reload();
+        });
     }
 
     function removeFromCart(productId) {
