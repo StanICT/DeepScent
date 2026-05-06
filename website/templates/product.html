@@ -290,7 +290,8 @@
     }
 
     function addToCart(productId, btn) {
-        fetch(`/cart/add/${productId}`, { method: 'POST', headers: { 'X-CSRFToken': '' } })
+        {% if current_user.is_authenticated %}
+        fetch(`/cart/add/${productId}`, { method: 'POST' })
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
@@ -298,8 +299,10 @@
                     btn.style.background = '#cc0000';
                     setTimeout(() => btn.style.background = '#111', 800);
                 }
-            })
-            .catch(() => window.location.href = '/auth/login');
+            });
+        {% else %}
+        window.location.href = '{{ url_for("auth.login") }}';
+        {% endif %}
     }
 </script>
 
