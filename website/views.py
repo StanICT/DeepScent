@@ -43,11 +43,13 @@ def cart_login_required():
 @views.route('/cart/add/<int:product_id>')
 @login_required
 def add_to_cart(product_id):
-    item = CartItem.query.filter_by(user_id=current_user.id, product_id=product_id).first()
+    size = request.args.get('size', '50ml')
+    quantity = int(request.args.get('quantity', 1))
+    item = CartItem.query.filter_by(user_id=current_user.id, product_id=product_id, size=size).first()
     if item:
-        item.quantity += 1
+        item.quantity += quantity
     else:
-        item = CartItem(user_id=current_user.id, product_id=product_id)
+        item = CartItem(user_id=current_user.id, product_id=product_id, size=size, quantity=quantity)
         db.session.add(item)
     db.session.commit()
     flash('Item added to cart!', 'success')
