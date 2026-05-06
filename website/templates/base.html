@@ -39,7 +39,7 @@
             {% else %}
                 <a href="{{ url_for('auth.login') }}"><i class="fa fa-user"></i></a>
             {% endif %}
-            <a href="#"><i class="fas fa-heart"></i><span class="badge">0</span></a>
+            <a href="#"><i class="fas fa-heart"></i><span class="badge fav-badge">{{ current_user.favorites | length if current_user.is_authenticated else 0 }}</span></a>
             <a href="{% if current_user.is_authenticated %}{{ url_for('views.cart') }}{% else %}{{ url_for('views.cart_login_required') }}{% endif %}"><i class="fas fa-shopping-cart"></i><span class="badge cart-badge">{{ current_user.cart_items | sum(attribute='quantity') if current_user.is_authenticated else 0 }}</span></a>
         </div>
     </nav>
@@ -377,6 +377,7 @@
         font-size: 14px; font-weight: 600; text-decoration: none; margin-top: 10px; transition: background 0.2s;
     }
     .modal-add-btn:hover { background: #cc0000; color: #fff; }
+    .heart-btn.favorited { background: #cc0000; color: #fff; }
     </style>
 
     <script>
@@ -419,6 +420,19 @@
     }
     function updateModalLink() {
         document.getElementById('modalAddBtn').href = `/cart/add/${_cartProductId}?size=${_cartSize}&quantity=${_cartQty}`;
+    }
+
+    function toggleFavorite(btn) {
+        if (btn.dataset.auth !== 'yes') {
+            window.location.href = '{{ url_for("views.cart_login_required") }}';
+            return;
+        }
+        fetch(`/favorite/toggle/${btn.dataset.id}`)
+            .then(res => res.json())
+            .then(data => {
+                btn.classList.toggle('favorited', data.favorited);
+                document.querySelectorAll('.fav-badge').forEach(b => b.textContent = data.count);
+            });
     }
     </script>
 </body>

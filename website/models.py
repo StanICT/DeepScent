@@ -9,6 +9,13 @@ class User(db.Model, UserMixin):
     avatar = db.Column(db.String(150), nullable=True)
     fullname = db.Column(db.String(150), default='')
     cart_items = db.relationship('CartItem', backref='user', lazy=True)
+    favorites = db.relationship('Favorite', backref='user', lazy=True)
+
+class Favorite(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+    product = db.relationship('Product')
 
 class CartItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)

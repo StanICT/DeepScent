@@ -46,10 +46,12 @@
                 <div class="product-footer">
                     <span class="product-price">₱{{ "%.2f"|format(product.price) }}</span>
                     <div class="product-actions">
-                        <a href="{% if current_user.is_authenticated %}#{% else %}{{ url_for('views.cart_login_required') }}{% endif %}" 
-                           class="product-action-btn heart-btn" title="Favorites">
+                        <button class="product-action-btn heart-btn {% if current_user.is_authenticated and product.id in favorited_ids %}favorited{% endif %}" 
+                            data-id="{{ product.id }}"
+                            data-auth="{% if current_user.is_authenticated %}yes{% else %}no{% endif %}"
+                            onclick="toggleFavorite(this)" title="Favorites">
                             <i class="fas fa-heart"></i>
-                        </a>
+                        </button>
                         <button class="product-action-btn cart-btn" title="Add to Cart"
                             onclick="openCartModal('{{ product.id }}', '{{ product.name }}', {{ product.price }}, '{% if current_user.is_authenticated %}yes{% else %}no{% endif %}', '{{ url_for('static', filename='uploads/' ~ product.image) }}', '{{ product.brand }}', '{{ product.gender if product.gender else 'UNISEX' }}', {{ product.price_100ml if product.price_100ml else product.price }})">                            
                             <i class="fas fa-shopping-cart"></i>

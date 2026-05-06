@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
 from flask_login import current_user, login_required
-from website.models import Product, Brand, CartItem
+from website.models import Product, Brand, CartItem, Favorite
 from website.extensions import db
 
 views = Blueprint('views', __name__)
@@ -13,15 +13,18 @@ def home():
 @views.route('/perfumes/<brand>')
 def perfumes(brand):
     products = Product.query.filter_by(brand=brand).all()
+    favorited_ids = [f.product_id for f in current_user.favorites] if current_user.is_authenticated else []
     return render_template("perfumes.html",
                            products=products,
                            brand=brand,
-                           bg_image="prmnky-bg.jpg")
+                           bg_image="prmnky-bg.jpg",
+                           favorited_ids=favorited_ids)
 
 @views.route('/product')
 def product():
     products = Product.query.all()
-    return render_template('product.html', products=products)
+    favorited_ids = [f.product_id for f in current_user.favorites] if current_user.is_authenticated else []
+    return render_template('product.html', products=products, favorited_ids=favorited_ids)
 
 @views.route('/search')
 def search():
@@ -39,6 +42,20 @@ def featured():
 def cart_login_required():
     flash('Please log in first.', 'error')
     return redirect(url_for('auth.login'))
+
+@views.route('/favorite/toggle/<int:product_id>')
+@login_required
+def toggle_favorite(product_id):
+    fav = Favorite.query.filter_by(user_id=current_user.id, product_id=product_id).first()
+    if fav:
+        db.session.delete(fav)
+        db.session.commit()
+        return jsonify({'favorited': False, 'count': len(current_user.favorites)})
+    else:
+        fav = Favorite(user_id=current_user.id, product_id=product_id)
+        db.session.add(fav)
+        db.session.commit()
+        return jsonify({'favorited': True, 'count': len(current_user.favorites)})
 
 @views.route('/cart/add/<int:product_id>')
 @login_required
