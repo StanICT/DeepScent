@@ -38,7 +38,9 @@ def add_product():
         name = request.form["name"]
         description = request.form["description"]
         price = float(request.form["price"])
-        stock = int(request.form["stock"])
+        stock_50ml = int(request.form.get("stock_50ml", 0))
+        stock_100ml = int(request.form.get("stock_100ml", 0))
+        price_100ml = float(request.form["price_100ml"]) if request.form.get("price_100ml") else None
         brand = request.form["brand"]
         gender = request.form.get("gender", "UNISEX")
         image_file = request.files.get("image_file")
@@ -46,7 +48,8 @@ def add_product():
 
         new_product = Product(
             name=name, description=description, price=price,
-            stock=stock, image=image, brand=brand, gender=gender
+            stock_50ml=stock_50ml, stock_100ml=stock_100ml,
+            price_100ml=price_100ml, image=image, brand=brand, gender=gender
         )
         db.session.add(new_product)
         db.session.commit()
@@ -64,7 +67,9 @@ def edit_product(id):
         product.name = request.form["name"]
         product.description = request.form["description"]
         product.price = float(request.form["price"])
-        product.stock = int(request.form["stock"])
+        product.stock_50ml = int(request.form.get("stock_50ml", 0))
+        product.stock_100ml = int(request.form.get("stock_100ml", 0))
+        product.price_100ml = float(request.form["price_100ml"]) if request.form.get("price_100ml") else None
         product.brand = request.form["brand"]
         product.gender = request.form.get("gender", "UNISEX")
         image_file = request.files.get("image_file")

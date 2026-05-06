@@ -381,14 +381,17 @@
 
     <script>
     let _cartProductId = null, _cartSize = '50ml', _cartQty = 1;
+    let _price50 = 0, _price100 = 0;
 
-    function openCartModal(productId, productName, productPrice, auth, imgSrc, brand, gender) {
+    function openCartModal(productId, productName, price50, auth, imgSrc, brand, gender, price100) {
         if (auth !== 'yes') { window.location.href = '{{ url_for("views.cart_login_required") }}'; return; }
         _cartProductId = productId;
         _cartSize = '50ml';
         _cartQty = 1;
+        _price50 = price50;
+        _price100 = price100;
         document.getElementById('modalProductName').textContent = productName;
-        document.getElementById('modalProductPrice').textContent = parseFloat(productPrice).toFixed(2);
+        document.getElementById('modalProductPrice').textContent = parseFloat(price50).toFixed(2);
         document.getElementById('modalProductImg').src = imgSrc;
         document.getElementById('modalProductBrand').textContent = brand;
         document.getElementById('modalProductGender').textContent = gender;
@@ -406,6 +409,7 @@
         _cartSize = size;
         document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+        document.getElementById('modalProductPrice').textContent = parseFloat(size === '100ml' ? _price100 : _price50).toFixed(2);
         updateModalLink();
     }
     function changeQty(delta) {
