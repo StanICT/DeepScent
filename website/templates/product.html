@@ -24,11 +24,10 @@
         {% for product in products %}
         <div class="product-card" data-gender="{{ product.gender if product.gender else 'UNISEX' }}">
 
-            {% if loop.first %}
-            <div class="product-badge-save">SAVE 27%</div>
-            {% endif %}
-
             <div class="product-img-wrap">
+                {% if product.discount %}
+                <div class="product-badge-sale">SAVE {{ product.discount }}%</div>
+                {% endif %}
                 <img src="{{ url_for('static', filename='uploads/' ~ product.image) }}" alt="{{ product.name }}">
             </div>
 
@@ -44,7 +43,14 @@
                     <span class="review-count">(24)</span>
                 </div>
                 <div class="product-footer">
-                    <span class="product-price">₱{{ "%.2f"|format(product.price) }}</span>
+                    <div class="product-price-wrap">
+                        {% if product.discount %}
+                        <span class="product-price-old">₱{{ "%.2f"|format(product.price) }}</span>
+                        <span class="product-price">₱{{ "%.2f"|format(product.price * (1 - product.discount / 100)) }}</span>
+                        {% else %}
+                        <span class="product-price">₱{{ "%.2f"|format(product.price) }}</span>
+                        {% endif %}
+                    </div>
                     <div class="product-actions">
                         <button class="product-action-btn heart-btn {% if current_user.is_authenticated and product.id in favorited_ids %}favorited{% endif %}" 
                             data-id="{{ product.id }}"
@@ -174,6 +180,20 @@
         align-items: center;
         justify-content: center;
         padding: 20px;
+        position: relative;
+    }
+
+    .product-badge-sale {
+        position: absolute;
+        top: 14px; left: 14px;
+        background: #cc0000;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 4px 10px;
+        border-radius: 4px;
+        z-index: 1;
     }
 
     .product-img-wrap img {

@@ -41,6 +41,7 @@ def add_product():
         stock_50ml = int(request.form.get("stock_50ml", 0))
         stock_100ml = int(request.form.get("stock_100ml", 0))
         price_100ml = float(request.form["price_100ml"]) if request.form.get("price_100ml") else None
+        discount = int(request.form.get("discount", 0))
         brand = request.form["brand"]
         gender = request.form.get("gender", "UNISEX")
         image_file = request.files.get("image_file")
@@ -49,7 +50,7 @@ def add_product():
         new_product = Product(
             name=name, description=description, price=price,
             stock_50ml=stock_50ml, stock_100ml=stock_100ml,
-            price_100ml=price_100ml, image=image, brand=brand, gender=gender
+            price_100ml=price_100ml, discount=discount, image=image, brand=brand, gender=gender
         )
         db.session.add(new_product)
         db.session.commit()
@@ -70,6 +71,7 @@ def edit_product(id):
         product.stock_50ml = int(request.form.get("stock_50ml", 0))
         product.stock_100ml = int(request.form.get("stock_100ml", 0))
         product.price_100ml = float(request.form["price_100ml"]) if request.form.get("price_100ml") else None
+        product.discount = int(request.form.get("discount", 0))
         product.brand = request.form["brand"]
         product.gender = request.form.get("gender", "UNISEX")
         image_file = request.files.get("image_file")

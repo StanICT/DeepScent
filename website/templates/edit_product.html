@@ -60,6 +60,10 @@
                         </select>
                     </div>
                     <div class="form-group">
+                        <label>Discount (%)</label>
+                        <input type="number" name="discount" min="0" max="100" value="{{ product.discount or 0 }}">
+                    </div>
+                    <div class="form-group">
                         <label>Product Image</label>
                         <div class="img-upload-box" onclick="document.getElementById('imgInput').click()">
                             <img id="imgPreview" src="{{ url_for('static', filename='uploads/' ~ product.image) }}" alt="{{ product.name }}" style="max-height:120px;object-fit:contain;border-radius:6px;">

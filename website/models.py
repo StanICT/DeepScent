@@ -33,6 +33,7 @@ class Product(db.Model):
     stock_50ml = db.Column(db.Integer, default=0)
     stock_100ml = db.Column(db.Integer, default=0)
     price_100ml = db.Column(db.Float, nullable=True)
+    discount = db.Column(db.Integer, default=0)  # percentage e.g. 10 = 10%
     image = db.Column(db.String(100), nullable=False)
     brand = db.Column(db.String(50), nullable=False)
     gender = db.Column(db.String(20), default='UNISEX')

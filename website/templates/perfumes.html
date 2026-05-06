@@ -13,6 +13,9 @@
         {% for product in products %}
         <div class="product-card">
             <div class="product-img-wrap">
+                {% if product.discount %}
+                <div class="product-badge-sale">SAVE {{ product.discount }}%</div>
+                {% endif %}
                 <img src="{{ url_for('static', filename='uploads/' ~ product.image) }}" alt="{{ product.name }}">
             </div>
             <div class="product-info">
@@ -91,6 +94,20 @@
         align-items: center;
         justify-content: center;
         padding: 20px;
+        position: relative;
+    }
+
+    .product-badge-sale {
+        position: absolute;
+        top: 14px; left: 14px;
+        background: #cc0000;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 4px 10px;
+        border-radius: 4px;
+        z-index: 1;
     }
 
     .product-img-wrap img {
