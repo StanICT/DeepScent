@@ -301,7 +301,7 @@
                 }
             });
         {% else %}
-        window.location.href = '{{ url_for("auth.login") }}';
+        window.location.href = '{{ url_for("views.cart_login_required") }}';
         {% endif %}
     }
 </script>

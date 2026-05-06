@@ -35,6 +35,11 @@ def search():
 def featured():
     return render_template('featured.html')
 
+@views.route('/cart/login-required')
+def cart_login_required():
+    flash('Please log in first.', 'error')
+    return redirect(url_for('auth.login'))
+
 @views.route('/cart/add/<int:product_id>', methods=['POST'])
 @login_required
 def add_to_cart(product_id):
