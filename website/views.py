@@ -122,5 +122,5 @@ def remove_from_cart(product_id):
 @login_required
 def cart():
     items = CartItem.query.filter_by(user_id=current_user.id).all()
-    total = sum((i.product.price_100ml if i.size == '100ml' and i.product.price_100ml else i.product.price) * i.quantity for i in items)
+    total = sum((i.price_paid if i.price_paid else i.product.price) * i.quantity for i in items)
     return render_template('cart.html', items=items, total=total)
