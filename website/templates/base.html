@@ -489,7 +489,7 @@
             .then(data => {
                 const el = document.getElementById('favoritesContent');
                 if (!data.items.length) {
-                    el.innerHTML = '<div class="panel-empty"><i class="fas fa-heart"></i>No favorites yet.</div>';
+                    el.innerHTML = '<div class="panel-empty"><i class="fas fa-heart"></i><p>No favorites yet.</p></div>';
                 } else {
                     el.innerHTML = data.items.map(i => `
                         <div class="panel-item">
@@ -522,7 +522,7 @@
             .then(data => {
                 const el = document.getElementById('cartContent');
                 if (!data.items.length) {
-                    el.innerHTML = '<div class="panel-empty"><i class="fas fa-shopping-cart"></i>Your cart is empty.</div>';
+                    el.innerHTML = '<div class="panel-empty"><i class="fas fa-shopping-cart"></i><p>Your cart is empty.</p></div>';
                 } else {
                     const itemsHtml = data.items.map(i => `
                         <div class="panel-item">

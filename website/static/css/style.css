@@ -473,6 +473,8 @@ body {
   font-size: 18px;
   color: red;
   flex-shrink: 0;
+  width: 20px;
+  text-align: center;
 }
 
 .menu-item span {
