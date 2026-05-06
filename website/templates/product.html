@@ -45,7 +45,7 @@
                 </div>
                 <div class="product-footer">
                     <span class="product-price">₱{{ "%.2f"|format(product.price) }}</span>
-                    <button class="product-add-btn"><i class="fas fa-shopping-cart"></i></button>
+                    <button class="product-add-btn" onclick="addToCart({{ product.id }}, this)"><i class="fas fa-shopping-cart"></i></button>
                 </div>
             </div>
         </div>
@@ -287,6 +287,19 @@
         document.querySelectorAll('.product-card').forEach(card => {
             card.style.display = (gender === 'all' || card.dataset.gender === gender) ? 'block' : 'none';
         });
+    }
+
+    function addToCart(productId, btn) {
+        fetch(`/cart/add/${productId}`, { method: 'POST', headers: { 'X-CSRFToken': '' } })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    document.querySelectorAll('.cart-badge').forEach(b => b.textContent = data.cart_count);
+                    btn.style.background = '#cc0000';
+                    setTimeout(() => btn.style.background = '#111', 800);
+                }
+            })
+            .catch(() => window.location.href = '/auth/login');
     }
 </script>
 

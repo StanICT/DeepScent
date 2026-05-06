@@ -8,6 +8,14 @@ class User(db.Model, UserMixin):
     is_admin = db.Column(db.Boolean, default=False)
     avatar = db.Column(db.String(150), nullable=True)
     fullname = db.Column(db.String(150), default='')
+    cart_items = db.relationship('CartItem', backref='user', lazy=True)
+
+class CartItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+    quantity = db.Column(db.Integer, default=1)
+    product = db.relationship('Product')
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
