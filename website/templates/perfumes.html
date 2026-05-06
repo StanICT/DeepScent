@@ -30,7 +30,14 @@
                     <span class="review-count">(24)</span>
                 </div>
                 <div class="product-footer">
-                    <span class="product-price">₱{{ "%.2f"|format(product.price) }}</span>
+                    <div class="product-price-wrap">
+                        {% if product.discount %}
+                        <span class="product-price-old">₱{{ "%.2f"|format(product.price) }}</span>
+                        <span class="product-price">₱{{ "%.2f"|format(product.price * (1 - product.discount / 100)) }}</span>
+                        {% else %}
+                        <span class="product-price">₱{{ "%.2f"|format(product.price) }}</span>
+                        {% endif %}
+                    </div>
                     <div class="product-actions">
                         <button class="product-action-btn heart-btn {% if current_user.is_authenticated and product.id in favorited_ids %}favorited{% endif %}" 
                             data-id="{{ product.id }}"
@@ -149,7 +156,9 @@
     .review-count { font-size: 11px; color: #aaa; }
 
     .product-footer { display: flex; justify-content: space-between; align-items: center; }
-    .product-price { font-size: 17px; font-weight: 700; color: #111; }
+    .product-price-wrap { display: flex; flex-direction: column; gap: 2px; }
+    .product-price { font-size: 17px; font-weight: 700; color: #cc0000; }
+    .product-price-old { font-size: 12px; font-weight: 500; color: #aaa; text-decoration: line-through; }
 
     .product-actions { display: flex; gap: 8px; }
 
