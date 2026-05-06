@@ -16,10 +16,10 @@
             </div>
             {% for item in items %}
             <div class="cart-item" id="cart-item-{{ item.product_id }}"
-                 data-price="{{ (item.product.price_100ml if item.size == '100ml' and item.product.price_100ml else item.product.price) * item.quantity }}"
+                 data-price="{{ item.price_paid * item.quantity if item.price_paid else item.product.price * item.quantity }}"
                  data-product-id="{{ item.product_id }}">
                 <input type="checkbox" class="cart-checkbox" onchange="updateSummary()"
-                       data-subtotal="{{ (item.product.price_100ml if item.size == '100ml' and item.product.price_100ml else item.product.price) * item.quantity }}">
+                       data-subtotal="{{ item.price_paid * item.quantity if item.price_paid else item.product.price * item.quantity }}">
                 <div class="cart-img">
                     <img src="{{ url_for('static', filename='uploads/' ~ item.product.image) }}" alt="{{ item.product.name }}">
                 </div>
@@ -27,13 +27,13 @@
                     <p class="cart-brand">{{ item.product.brand }}</p>
                     <h3 class="cart-name">{{ item.product.name }}</h3>
                     <p class="cart-size">{{ item.size }}</p>
-                    <p class="cart-price">₱{{ "%.2f"|format(item.product.price_100ml if item.size == '100ml' and item.product.price_100ml else item.product.price) }}</p>
+                    <p class="cart-price">₱{{ "%.2f"|format(item.price_paid if item.price_paid else item.product.price) }}</p>
                 </div>
                 <div class="cart-qty">
                     <span>Qty: {{ item.quantity }}</span>
                 </div>
                 <div class="cart-subtotal">
-                    ₱{{ "%.2f"|format((item.product.price_100ml if item.size == '100ml' and item.product.price_100ml else item.product.price) * item.quantity) }}
+                    ₱{{ "%.2f"|format((item.price_paid if item.price_paid else item.product.price) * item.quantity) }}
                 </div>
                 <button class="cart-remove" onclick="removeFromCart({{ item.product_id }})">
                     <i class="fas fa-trash"></i>

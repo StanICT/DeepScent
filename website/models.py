@@ -23,6 +23,7 @@ class CartItem(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     quantity = db.Column(db.Integer, default=1)
     size = db.Column(db.String(10), default='50ml')
+    price_paid = db.Column(db.Float, nullable=True)
     product = db.relationship('Product')
 
 class Product(db.Model):

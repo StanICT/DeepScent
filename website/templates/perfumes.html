@@ -46,7 +46,7 @@
                             <i class="fas fa-heart"></i>
                         </button>
                         <button class="product-action-btn cart-btn" title="Add to Cart"
-                            onclick="openCartModal('{{ product.id }}', '{{ product.name }}', {{ product.price }}, '{% if current_user.is_authenticated %}yes{% else %}no{% endif %}', '{{ url_for('static', filename='uploads/' ~ product.image) }}', '{{ product.brand }}', '{{ product.gender if product.gender else 'UNISEX' }}', {{ product.price_100ml if product.price_100ml else product.price }})">                            
+                            onclick="openCartModal('{{ product.id }}', '{{ product.name }}', {{ product.price * (1 - product.discount / 100) if product.discount else product.price }}, '{% if current_user.is_authenticated %}yes{% else %}no{% endif %}', '{{ url_for('static', filename='uploads/' ~ product.image) }}', '{{ product.brand }}', '{{ product.gender if product.gender else 'UNISEX' }}', {{ (product.price_100ml * (1 - product.discount / 100)) if product.price_100ml and product.discount else (product.price_100ml if product.price_100ml else product.price) }})">                            
                             <i class="fas fa-shopping-cart"></i>
                         </button>
                     </div>

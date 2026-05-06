@@ -94,11 +94,15 @@ def toggle_favorite(product_id):
 def add_to_cart(product_id):
     size = request.args.get('size', '50ml')
     quantity = int(request.args.get('quantity', 1))
+    product = Product.query.get_or_404(product_id)
+    base_price = product.price_100ml if size == '100ml' and product.price_100ml else product.price
+    price_paid = round(base_price * (1 - (product.discount or 0) / 100), 2)
     item = CartItem.query.filter_by(user_id=current_user.id, product_id=product_id, size=size).first()
     if item:
         item.quantity += quantity
+        item.price_paid = price_paid
     else:
-        item = CartItem(user_id=current_user.id, product_id=product_id, size=size, quantity=quantity)
+        item = CartItem(user_id=current_user.id, product_id=product_id, size=size, quantity=quantity, price_paid=price_paid)
         db.session.add(item)
     db.session.commit()
     total = sum(i.quantity for i in current_user.cart_items)
