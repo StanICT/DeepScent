@@ -196,8 +196,8 @@
             </div>
             <button class="btn-red" onclick="showEditProfile()">Edit Profile</button>
             <div class="menu-list">
-                <div class="menu-item"><i class="fas fa-heart"></i><span>Favorites</span></div>
-                <div class="menu-item" onclick="window.location.href='{% if current_user.is_authenticated %}{{ url_for('views.cart') }}{% else %}{{ url_for('views.cart_login_required') }}{% endif %}'"><i class="fas fa-shopping-cart"></i><span>Cart</span></div>
+                <div class="menu-item" onclick="openFavoritesPanel()"><i class="fas fa-heart"></i><span>Favorites</span></div>
+                <div class="menu-item" onclick="openCartPanel()"><i class="fas fa-shopping-cart"></i><span>Cart</span></div>
                 <div class="menu-item"><i class="fas fa-box"></i><span>Orders</span></div>
                 <div class="menu-item" onclick="doLogout()"><i class="fas fa-door-open"></i><span>Logout</span></div>
             </div>
@@ -221,6 +221,20 @@
         </div>
     </div><!-- end profile-panel -->
 
+    <!-- Favorites Panel -->
+    <div class="side-panel" id="favoritesPanel" style="display:none;">
+        <button class="btn-close-custom" onclick="closeFavoritesPanel()" aria-label="Close"></button>
+        <h2 class="panel-title">Favorites</h2>
+        <div id="favoritesContent" class="panel-content"></div>
+    </div>
+
+    <!-- Cart Panel -->
+    <div class="side-panel" id="cartPanel" style="display:none;">
+        <button class="btn-close-custom" onclick="closeCartPanel()" aria-label="Close"></button>
+        <h2 class="panel-title">Cart</h2>
+        <div id="cartContent" class="panel-content"></div>
+    </div>
+
 
     <!-- Scripts -->
     <script>
@@ -241,6 +255,8 @@
         overlay.addEventListener("click", function(e) {
             if (e.target === overlay) {
                 closeProfile();
+                closeFavoritesPanel();
+                closeCartPanel();
             }
         });
     });
@@ -378,6 +394,36 @@
     }
     .modal-add-btn:hover { background: #cc0000; color: #fff; }
     .heart-btn.favorited { background: #cc0000; color: #fff; }
+
+    /* Side Panels */
+    .side-panel {
+        position: fixed; top: 0; right: 0;
+        width: 350px; height: 100%;
+        background: #fff; z-index: 999;
+        padding: 30px 20px;
+        overflow-y: auto;
+        box-shadow: -4px 0 12px rgba(0,0,0,0.1);
+        border-radius: 20px 0 0 20px;
+    }
+    .panel-title {
+        font-size: 20px; font-weight: 700;
+        margin: 30px 0 20px; color: #111;
+    }
+    .panel-item {
+        display: flex; align-items: center; gap: 14px;
+        padding: 12px 0; border-bottom: 1px solid #f0f0f0;
+    }
+    .panel-item img { width: 60px; height: 60px; object-fit: contain; background: #fafafa; border-radius: 8px; padding: 4px; }
+    .panel-item-info { flex: 1; }
+    .panel-item-name { font-size: 13px; font-weight: 700; color: #111; margin: 0 0 2px; }
+    .panel-item-brand { font-size: 10px; color: #aaa; letter-spacing: 1px; text-transform: uppercase; margin: 0 0 4px; }
+    .panel-item-price { font-size: 14px; font-weight: 700; color: #cc0000; margin: 0; }
+    .panel-item-size { font-size: 11px; color: #888; margin: 0; }
+    .panel-empty { text-align: center; color: #aaa; padding: 60px 0; font-size: 14px; }
+    .panel-empty i { font-size: 40px; display: block; margin-bottom: 12px; color: #ddd; }
+    .panel-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; padding: 16px 0; border-top: 2px solid #111; margin-top: 10px; }
+    .panel-btn { display: block; width: 100%; padding: 13px; background: #111; color: #fff; text-align: center; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600; text-decoration: none; margin-top: 10px; transition: background 0.2s; }
+    .panel-btn:hover { background: #cc0000; color: #fff; }
     </style>
 
     <script>
@@ -433,6 +479,76 @@
                 btn.classList.toggle('favorited', data.favorited);
                 document.querySelectorAll('.fav-badge').forEach(b => b.textContent = data.count);
             });
+    }
+
+    function openFavoritesPanel() {
+        closeProfile();
+        fetch('/favorites/panel')
+            .then(res => res.json())
+            .then(data => {
+                const el = document.getElementById('favoritesContent');
+                if (!data.items.length) {
+                    el.innerHTML = '<div class="panel-empty"><i class="fas fa-heart"></i>No favorites yet.</div>';
+                } else {
+                    el.innerHTML = data.items.map(i => `
+                        <div class="panel-item">
+                            <img src="/static/uploads/${i.image}" alt="${i.name}">
+                            <div class="panel-item-info">
+                                <p class="panel-item-brand">${i.brand}</p>
+                                <p class="panel-item-name">${i.name}</p>
+                                <p class="panel-item-price">₱${parseFloat(i.price).toFixed(2)}</p>
+                            </div>
+                        </div>`).join('');
+                }
+                const panel = document.getElementById('favoritesPanel');
+                panel.style.display = 'block';
+                panel.style.animation = 'slideIn 0.4s ease forwards';
+                document.querySelector('.overlay').style.display = 'block';
+            });
+    }
+
+    function closeFavoritesPanel() {
+        const panel = document.getElementById('favoritesPanel');
+        panel.style.animation = 'slideOut 0.4s ease forwards';
+        setTimeout(() => { panel.style.display = 'none'; }, 400);
+        document.querySelector('.overlay').style.display = 'none';
+    }
+
+    function openCartPanel() {
+        closeProfile();
+        fetch('/cart/panel')
+            .then(res => res.json())
+            .then(data => {
+                const el = document.getElementById('cartContent');
+                if (!data.items.length) {
+                    el.innerHTML = '<div class="panel-empty"><i class="fas fa-shopping-cart"></i>Your cart is empty.</div>';
+                } else {
+                    const itemsHtml = data.items.map(i => `
+                        <div class="panel-item">
+                            <img src="/static/uploads/${i.image}" alt="${i.name}">
+                            <div class="panel-item-info">
+                                <p class="panel-item-brand">${i.brand}</p>
+                                <p class="panel-item-name">${i.name}</p>
+                                <p class="panel-item-size">${i.size} &times; ${i.quantity}</p>
+                                <p class="panel-item-price">₱${parseFloat(i.subtotal).toFixed(2)}</p>
+                            </div>
+                        </div>`).join('');
+                    el.innerHTML = itemsHtml + `
+                        <div class="panel-total"><span>Total</span><span>₱${parseFloat(data.total).toFixed(2)}</span></div>
+                        <a href="/cart" class="panel-btn">View Full Cart</a>`;
+                }
+                const panel = document.getElementById('cartPanel');
+                panel.style.display = 'block';
+                panel.style.animation = 'slideIn 0.4s ease forwards';
+                document.querySelector('.overlay').style.display = 'block';
+            });
+    }
+
+    function closeCartPanel() {
+        const panel = document.getElementById('cartPanel');
+        panel.style.animation = 'slideOut 0.4s ease forwards';
+        setTimeout(() => { panel.style.display = 'none'; }, 400);
+        document.querySelector('.overlay').style.display = 'none';
     }
     </script>
 </body>

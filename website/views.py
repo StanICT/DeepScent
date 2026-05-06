@@ -38,11 +38,39 @@ def search():
 def featured():
     return render_template('featured.html')
 
+@views.route('/favorites/panel')
+@login_required
+def favorites_panel():
+    items = Favorite.query.filter_by(user_id=current_user.id).all()
+    return jsonify({'items': [{
+        'id': i.product_id,
+        'name': i.product.name,
+        'brand': i.product.brand,
+        'price': i.product.price,
+        'image': i.product.image
+    } for i in items]})
+
+@views.route('/cart/panel')
+@login_required
+def cart_panel():
+    items = CartItem.query.filter_by(user_id=current_user.id).all()
+    total = sum(i.product.price * i.quantity for i in items)
+    return jsonify({'items': [{
+        'name': i.product.name,
+        'brand': i.product.brand,
+        'image': i.product.image,
+        'size': i.size,
+        'quantity': i.quantity,
+        'subtotal': i.product.price * i.quantity
+    } for i in items], 'total': total})
+
 @views.route('/favorites')
 @login_required
 def favorites():
     items = Favorite.query.filter_by(user_id=current_user.id).all()
     return render_template('favorites.html', items=items)
+
+@views.route('/cart/login-required')
 def cart_login_required():
     flash('Please log in first.', 'error')
     return redirect(url_for('auth.login'))
