@@ -28,7 +28,16 @@
                 </div>
                 <div class="product-footer">
                     <span class="product-price">₱{{ "%.2f"|format(product.price) }}</span>
-                    <button class="product-add-btn"><i class="fas fa-shopping-cart"></i></button>
+                    <div class="product-actions">
+                        <a href="{% if current_user.is_authenticated %}#{% else %}{{ url_for('views.cart_login_required') }}{% endif %}"
+                           class="product-action-btn heart-btn" title="Favorites">
+                            <i class="fas fa-heart"></i>
+                        </a>
+                        <a href="{% if current_user.is_authenticated %}{{ url_for('views.add_to_cart', product_id=product.id) }}{% else %}{{ url_for('views.cart_login_required') }}{% endif %}"
+                           class="product-action-btn cart-btn" title="Add to Cart">
+                            <i class="fas fa-shopping-cart"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -123,21 +132,22 @@
     .product-footer { display: flex; justify-content: space-between; align-items: center; }
     .product-price { font-size: 17px; font-weight: 700; color: #111; }
 
-    .product-add-btn {
+    .product-actions { display: flex; gap: 8px; }
+
+    .product-action-btn {
         width: 36px;
         height: 36px;
         background: #111;
         color: #fff;
-        border: none;
         border-radius: 6px;
-        cursor: pointer;
         font-size: 13px;
-        transition: background 0.2s ease;
         display: flex;
         align-items: center;
         justify-content: center;
+        text-decoration: none;
+        transition: background 0.2s ease;
     }
-    .product-add-btn:hover { background: #cc0000; }
+    .product-action-btn:hover { background: #cc0000; color: #fff; }
 
     .no-products {
         grid-column: 1 / -1;
