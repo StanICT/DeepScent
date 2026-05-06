@@ -71,7 +71,7 @@ def edit_product(id):
         product.stock_50ml = int(request.form.get("stock_50ml", 0))
         product.stock_100ml = int(request.form.get("stock_100ml", 0))
         product.price_100ml = float(request.form["price_100ml"]) if request.form.get("price_100ml") else None
-        product.discount = int(request.form.get("discount", 0))
+        product.discount = int(request.form.get("discount") or 0)
         product.brand = request.form["brand"]
         product.gender = request.form.get("gender", "UNISEX")
         image_file = request.files.get("image_file")
