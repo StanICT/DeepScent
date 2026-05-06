@@ -40,7 +40,7 @@ def cart_login_required():
     flash('Please log in first.', 'error')
     return redirect(url_for('auth.login'))
 
-@views.route('/cart/add/<int:product_id>', methods=['POST'])
+@views.route('/cart/add/<int:product_id>')
 @login_required
 def add_to_cart(product_id):
     item = CartItem.query.filter_by(user_id=current_user.id, product_id=product_id).first()
@@ -50,8 +50,8 @@ def add_to_cart(product_id):
         item = CartItem(user_id=current_user.id, product_id=product_id)
         db.session.add(item)
     db.session.commit()
-    total = sum(i.quantity for i in current_user.cart_items)
-    return jsonify({'success': True, 'cart_count': total})
+    flash('Item added to cart!', 'success')
+    return redirect(url_for('views.product'))
 
 @views.route('/cart/remove/<int:product_id>', methods=['POST'])
 @login_required
