@@ -177,7 +177,7 @@
                     <button type="button" onclick="changeQty(1)">+</button>
                 </div>
             </div>
-            <a id="modalAddBtn" href="#" class="modal-add-btn">Add to Cart</a>
+            <button id="modalAddBtn" class="modal-add-btn" onclick="submitCartModal()">Add to Cart</button>
         </div>
     </div>
 
@@ -467,7 +467,25 @@
         updateModalLink();
     }
     function updateModalLink() {
-        document.getElementById('modalAddBtn').href = `/cart/add/${_cartProductId}?size=${_cartSize}&quantity=${_cartQty}`;
+        // kept for reference, no longer navigates
+    }
+
+    function submitCartModal() {
+        fetch(`/cart/add/${_cartProductId}?size=${_cartSize}&quantity=${_cartQty}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    document.querySelectorAll('.cart-badge').forEach(b => b.textContent = data.cart_count);
+                    document.getElementById('cartModal').classList.remove('open');
+                    const btn = document.getElementById('modalAddBtn');
+                    btn.textContent = 'Added!';
+                    btn.style.background = '#cc0000';
+                    setTimeout(() => {
+                        btn.textContent = 'Add to Cart';
+                        btn.style.background = '#111';
+                    }, 1500);
+                }
+            });
     }
 
     function toggleFavorite(btn) {
