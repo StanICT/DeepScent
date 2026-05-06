@@ -38,7 +38,11 @@ def search():
 def featured():
     return render_template('featured.html')
 
-@views.route('/cart/login-required')
+@views.route('/favorites')
+@login_required
+def favorites():
+    items = Favorite.query.filter_by(user_id=current_user.id).all()
+    return render_template('favorites.html', items=items)
 def cart_login_required():
     flash('Please log in first.', 'error')
     return redirect(url_for('auth.login'))

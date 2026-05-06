@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}Favorites{% endblock %}
+{% block content %}
+
+<section class="fav-page">
+    <div class="fav-header">
+        <p class="section-label">MY FAVORITES</p>
+        <h1 class="fav-title">Wishlist</h1>
+    </div>
+
+    {% if items %}
+    <div class="fav-grid">
+        {% for item in items %}
+        <div class="product-card" id="fav-card-{{ item.product_id }}">
+            <div class="product-img-wrap">
+                <img src="{{ url_for('static', filename='uploads/' ~ item.product.image) }}" alt="{{ item.product.name }}">
+            </div>
+            <div class="product-info">
+                <div class="product-tags">
+                    <span class="tag tag-gender">{{ item.product.gender or 'UNISEX' }}</span>
+                    <span class="tag tag-type">EDP</span>
+                </div>
+                <p class="product-brand">{{ item.product.brand }}</p>
+                <h3 class="product-name">{{ item.product.name }}</h3>
+                <div class="product-footer">
+                    <span class="product-price">₱{{ "%.2f"|format(item.product.price) }}</span>
+                    <div class="product-actions">
+                        <button class="product-action-btn heart-btn favorited"
+                            data-id="{{ item.product_id }}"
+                            data-auth="yes"
+                            onclick="toggleFavorite(this, true)" title="Remove from Favorites">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                        <button class="product-action-btn cart-btn" title="Add to Cart"
+                            onclick="openCartModal('{{ item.product.id }}', '{{ item.product.name }}', {{ item.product.price }}, 'yes', '{{ url_for('static', filename='uploads/' ~ item.product.image) }}', '{{ item.product.brand }}', '{{ item.product.gender or 'UNISEX' }}', {{ item.product.price_100ml if item.product.price_100ml else item.product.price }})">
+                            <i class="fas fa-shopping-cart"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="fav-empty">
+        <i class="fas fa-heart"></i>
+        <p>No favorites yet.</p>
+        <a href="{{ url_for('views.product') }}" class="btn-shop">Browse Products</a>
+    </div>
+    {% endif %}
+</section>
+
+<style>
+    .fav-page { padding: 60px 80px; background: #f5f5f5; min-height: 100vh; }
+    .fav-header { text-align: center; margin-bottom: 40px; }
+    .section-label { font-size: 11px; letter-spacing: 4px; color: #cc0000; font-weight: 600; margin-bottom: 12px; }
+    .fav-title { font-family: 'Anton', sans-serif; font-style: italic; font-size: 48px; color: #111; margin: 0; }
+
+    .fav-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+    }
+
+    .product-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); position: relative; transition: box-shadow 0.2s ease, transform 0.2s ease; }
+    .product-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.1); transform: translateY(-4px); }
+    .product-img-wrap { background: #fafafa; height: 220px; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .product-img-wrap img { max-height: 180px; max-width: 100%; object-fit: contain; }
+    .product-info { padding: 16px 18px 18px; }
+    .product-tags { display: flex; gap: 6px; margin-bottom: 10px; }
+    .tag { font-size: 10px; font-weight: 600; letter-spacing: 1px; padding: 3px 10px; border-radius: 3px; }
+    .tag-gender { background: #e8f0fe; color: #4a6fa5; }
+    .tag-type { background: #f0f0f0; color: #888; }
+    .product-brand { font-size: 10px; letter-spacing: 2px; color: #aaa; text-transform: uppercase; margin-bottom: 4px; }
+    .product-name { font-size: 15px; font-weight: 700; color: #111; margin: 0 0 14px; }
+    .product-footer { display: flex; justify-content: space-between; align-items: center; }
+    .product-price { font-size: 17px; font-weight: 700; color: #111; }
+    .product-actions { display: flex; gap: 8px; }
+    .product-action-btn { width: 36px; height: 36px; background: #111; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: background 0.2s ease; }
+    .product-action-btn:hover { background: #cc0000; color: #fff; }
+    .heart-btn.favorited { background: #cc0000; }
+
+    .fav-empty { text-align: center; padding: 80px 0; color: #aaa; }
+    .fav-empty i { font-size: 60px; margin-bottom: 20px; color: #ddd; }
+    .fav-empty p { font-size: 16px; margin-bottom: 20px; }
+    .btn-shop { padding: 12px 30px; background: #111; color: #fff; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; }
+    .btn-shop:hover { background: #cc0000; color: #fff; }
+
+    @media (max-width: 1100px) { .fav-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 768px) { .fav-page { padding: 40px 20px; } .fav-grid { grid-template-columns: repeat(2, 1fr); } }
+</style>
+
+<script>
+    // Override toggleFavorite on this page to also remove the card
+    function toggleFavorite(btn, removeCard) {
+        fetch(`/favorite/toggle/${btn.dataset.id}`)
+            .then(res => res.json())
+            .then(data => {
+                document.querySelectorAll('.fav-badge').forEach(b => b.textContent = data.count);
+                if (removeCard) {
+                    const card = document.getElementById(`fav-card-${btn.dataset.id}`);
+                    if (card) card.remove();
+                    if (data.count === 0) location.reload();
+                }
+            });
+    }
+</script>
+
+{% endblock %}
