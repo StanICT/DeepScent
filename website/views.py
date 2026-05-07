@@ -13,10 +13,12 @@ def home():
 @views.route('/perfumes/<brand>')
 def perfumes(brand):
     products = Product.query.filter_by(brand=brand).all()
+    brand_obj = Brand.query.filter_by(name=brand).first()
     favorited_ids = [f.product_id for f in current_user.favorites] if current_user.is_authenticated else []
     return render_template("perfumes.html",
                            products=products,
                            brand=brand,
+                           brand_obj=brand_obj,
                            bg_image="prmnky-bg.jpg",
                            favorited_ids=favorited_ids)
 

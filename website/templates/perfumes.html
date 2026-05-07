@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<section class="brand-page prmnky">
+<section class="brand-page" style="background-image: url('{{ url_for('static', filename='images/' ~ brand|lower|replace(' ', '-') ~ '-bg.jpg') }}');">
     <h1 class="brand-title">{{ brand | upper }}</h1>
 </section>
 
@@ -67,6 +67,26 @@
     .brand-products {
         background: #f5f5f5;
         padding: 70px 80px;
+    }
+
+    .brand-page {
+        height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #111 no-repeat center center;
+        background-size: cover;
+        position: relative;
+    }
+    .brand-page::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.45);
+    }
+    .brand-title {
+        position: relative;
+        z-index: 1;
     }
 
     .section-label {

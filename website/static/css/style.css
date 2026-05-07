@@ -297,13 +297,7 @@ body {
 }
 
 
-.brand-page.prmnky {
-    background-image: url("/static/images/prmnky-bg.jpg");
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: cover;     /* fills the box */
-    height: 100vh;              /* full viewport height */
-}
+
 
 .overlay {
   position: fixed;
