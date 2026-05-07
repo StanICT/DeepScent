@@ -20,6 +20,14 @@ def perfumes(brand):
                            bg_image="prmnky-bg.jpg",
                            favorited_ids=favorited_ids)
 
+@views.route('/product/<int:product_id>')
+def product_detail(product_id):
+    product = Product.query.get_or_404(product_id)
+    favorited = False
+    if current_user.is_authenticated:
+        favorited = Favorite.query.filter_by(user_id=current_user.id, product_id=product_id).first() is not None
+    return render_template('product_detail.html', product=product, favorited=favorited)
+
 @views.route('/product')
 def product():
     products = Product.query.all()

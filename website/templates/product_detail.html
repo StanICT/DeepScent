@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block content %}
+
+<section class="detail-page">
+
+    <!-- Breadcrumb -->
+    <div class="detail-breadcrumb">
+        <a href="{{ url_for('views.product') }}">Products</a>
+        <span>/</span>
+        <a href="{{ url_for('views.perfumes', brand=product.brand) }}">{{ product.brand }}</a>
+        <span>/</span>
+        <span>{{ product.name }}</span>
+    </div>
+
+    <div class="detail-container">
+
+        <!-- Left: Image -->
+        <div class="detail-img-wrap">
+            {% if product.discount %}
+            <div class="product-badge-sale">SAVE {{ product.discount }}%</div>
+            {% endif %}
+            <img src="{{ url_for('static', filename='uploads/' ~ product.image) }}" alt="{{ product.name }}">
+        </div>
+
+        <!-- Right: Info -->
+        <div class="detail-info">
+            <div class="detail-tags">
+                <span class="tag tag-gender">{{ product.gender or 'UNISEX' }}</span>
+                <span class="tag tag-type">EDP</span>
+            </div>
+
+            <p class="detail-brand">{{ product.brand }}</p>
+            <h1 class="detail-name">{{ product.name }}</h1>
+
+            <div class="detail-rating">
+                <span class="stars">★★★★★</span>
+                <span class="review-count">(24 reviews)</span>
+            </div>
+
+            <!-- Price -->
+            <div class="detail-price-wrap">
+                {% if product.discount %}
+                <span class="detail-price-old">₱{{ "%.2f"|format(product.price) }}</span>
+                <span class="detail-price" id="displayPrice">₱{{ "%.2f"|format(product.price * (1 - product.discount / 100)) }}</span>
+                {% else %}
+                <span class="detail-price" id="displayPrice">₱{{ "%.2f"|format(product.price) }}</span>
+                {% endif %}
+            </div>
+
+            <!-- Size -->
+            <div class="detail-section">
+                <p class="detail-label">SIZE</p>
+                <div class="detail-sizes">
+                    <button class="size-btn active" onclick="selectDetailSize(this, '50ml', {{ product.price * (1 - product.discount / 100) if product.discount else product.price }})">
+                        50ml
+                        <span class="size-stock {% if (product.stock_50ml or 0) == 0 %}out{% endif %}">
+                            {{ 'Out of stock' if (product.stock_50ml or 0) == 0 else product.stock_50ml ~ ' left' }}
+                        </span>
+                    </button>
+                    {% if product.price_100ml %}
+                    <button class="size-btn" onclick="selectDetailSize(this, '100ml', {{ (product.price_100ml * (1 - product.discount / 100)) if product.discount else product.price_100ml }})">
+                        100ml
+                        <span class="size-stock {% if (product.stock_100ml or 0) == 0 %}out{% endif %}">
+                            {{ 'Out of stock' if (product.stock_100ml or 0) == 0 else product.stock_100ml ~ ' left' }}
+                        </span>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quantity -->
+            <div class="detail-section">
+                <p class="detail-label">QUANTITY</p>
+                <div class="detail-qty">
+                    <button onclick="changeDetailQty(-1)">−</button>
+                    <span id="detailQty">1</span>
+                    <button onclick="changeDetailQty(1)">+</button>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="detail-actions">
+                <button class="btn-detail-cart" onclick="addDetailToCart()">
+                    <i class="fas fa-shopping-cart"></i> Add to Cart
+                </button>
+                <button class="btn-detail-heart {% if favorited %}favorited{% endif %}"
+                    data-id="{{ product.id }}"
+                    data-auth="{% if current_user.is_authenticated %}yes{% else %}no{% endif %}"
+                    onclick="toggleFavorite(this)">
+                    <i class="fas fa-heart"></i>
+                </button>
+            </div>
+
+            <!-- Description -->
+            <div class="detail-section">
+                <p class="detail-label">DESCRIPTION</p>
+                <p class="detail-desc">{{ product.description }}</p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<style>
+    .detail-page { padding: 40px 80px 80px; background: #f5f5f5; min-height: 100vh; }
+
+    .detail-breadcrumb { font-size: 12px; color: #aaa; margin-bottom: 32px; display: flex; gap: 8px; align-items: center; }
+    .detail-breadcrumb a { color: #aaa; text-decoration: none; transition: color 0.2s; }
+    .detail-breadcrumb a:hover { color: #cc0000; }
+    .detail-breadcrumb span { color: #ccc; }
+
+    .detail-container { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+
+    .detail-img-wrap {
+        background: #fff; border-radius: 16px; padding: 40px;
+        display: flex; align-items: center; justify-content: center;
+        min-height: 460px; position: relative;
+        box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+    }
+    .detail-img-wrap img { max-height: 380px; max-width: 100%; object-fit: contain; }
+    .product-badge-sale {
+        position: absolute; top: 20px; left: 20px;
+        background: #cc0000; color: #fff; font-size: 11px;
+        font-weight: 700; letter-spacing: 1px; padding: 5px 12px; border-radius: 4px;
+    }
+
+    .detail-info { padding: 10px 0; }
+    .detail-tags { display: flex; gap: 6px; margin-bottom: 12px; }
+    .tag { font-size: 10px; font-weight: 600; letter-spacing: 1px; padding: 3px 10px; border-radius: 3px; }
+    .tag-gender { background: #e8f0fe; color: #4a6fa5; }
+    .tag-type { background: #f0f0f0; color: #888; }
+
+    .detail-brand { font-size: 11px; letter-spacing: 3px; color: #aaa; text-transform: uppercase; margin: 0 0 8px; }
+    .detail-name { font-family: 'Anton', sans-serif; font-style: italic; font-size: 42px; color: #111; margin: 0 0 12px; line-height: 1.1; }
+
+    .detail-rating { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+    .stars { color: #f5a623; font-size: 16px; }
+    .review-count { font-size: 12px; color: #aaa; }
+
+    .detail-price-wrap { margin-bottom: 28px; }
+    .detail-price-old { font-size: 14px; color: #aaa; text-decoration: line-through; display: block; margin-bottom: 4px; }
+    .detail-price { font-size: 32px; font-weight: 700; color: #cc0000; }
+
+    .detail-section { margin-bottom: 24px; }
+    .detail-label { font-size: 10px; letter-spacing: 3px; font-weight: 600; color: #aaa; margin-bottom: 12px; }
+
+    .detail-sizes { display: flex; gap: 12px; }
+    .size-btn {
+        padding: 12px 20px; border: 1px solid #ddd; background: #fff;
+        border-radius: 8px; font-family: 'Poppins', sans-serif;
+        font-size: 13px; font-weight: 600; cursor: pointer;
+        transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .size-btn.active { background: #111; color: #fff; border-color: #111; }
+    .size-stock { font-size: 10px; font-weight: 400; color: #aaa; }
+    .size-btn.active .size-stock { color: rgba(255,255,255,0.6); }
+    .size-stock.out { color: #cc0000; }
+    .size-btn.active .size-stock.out { color: #ff8080; }
+
+    .detail-qty { display: flex; align-items: center; gap: 16px; }
+    .detail-qty button {
+        width: 36px; height: 36px; border: 1px solid #ddd; background: #fff;
+        border-radius: 8px; font-size: 20px; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    .detail-qty button:hover { background: #111; color: #fff; border-color: #111; }
+    .detail-qty span { font-size: 18px; font-weight: 700; min-width: 30px; text-align: center; }
+
+    .detail-actions { display: flex; gap: 12px; margin-bottom: 32px; }
+    .btn-detail-cart {
+        flex: 1; padding: 15px; background: #111; color: #fff;
+        border: none; border-radius: 10px; font-family: 'Poppins', sans-serif;
+        font-size: 14px; font-weight: 600; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        transition: background 0.2s;
+    }
+    .btn-detail-cart:hover { background: #cc0000; }
+    .btn-detail-heart {
+        width: 52px; height: 52px; border: 1px solid #ddd; background: #fff;
+        border-radius: 10px; font-size: 18px; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.3s; color: #111;
+    }
+    .btn-detail-heart:hover, .btn-detail-heart.favorited { background: #cc0000; color: #fff; border-color: #cc0000; }
+
+    .detail-desc { font-size: 14px; color: #666; line-height: 1.8; }
+
+    @media (max-width: 900px) {
+        .detail-page { padding: 30px 20px 60px; }
+        .detail-container { grid-template-columns: 1fr; gap: 30px; }
+    }
+</style>
+
+<script>
+    let _detailSize = '50ml';
+    let _detailQty = 1;
+    let _detailPrice = {{ product.price * (1 - product.discount / 100) if product.discount else product.price }};
+    const _detailProductId = {{ product.id }};
+    const _detailAuth = '{% if current_user.is_authenticated %}yes{% else %}no{% endif %}';
+    const _detailImg = '{{ url_for("static", filename="uploads/" ~ product.image) }}';
+    const _detailBrand = '{{ product.brand }}';
+    const _detailGender = '{{ product.gender or "UNISEX" }}';
+    const _detailPrice100 = {{ (product.price_100ml * (1 - product.discount / 100)) if product.price_100ml and product.discount else (product.price_100ml if product.price_100ml else product.price) }};
+
+    function selectDetailSize(btn, size, price) {
+        _detailSize = size;
+        _detailPrice = price;
+        document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('displayPrice').textContent = '₱' + price.toFixed(2);
+    }
+
+    function changeDetailQty(delta) {
+        _detailQty = Math.max(1, _detailQty + delta);
+        document.getElementById('detailQty').textContent = _detailQty;
+    }
+
+    function addDetailToCart() {
+        if (_detailAuth !== 'yes') {
+            window.location.href = '{{ url_for("views.cart_login_required") }}';
+            return;
+        }
+        fetch(`/cart/add/${_detailProductId}?size=${_detailSize}&quantity=${_detailQty}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    document.querySelectorAll('.cart-badge').forEach(b => b.textContent = data.cart_count);
+                    showToast('Item added to cart!');
+                }
+            });
+    }
+</script>
+
+{% endblock %}
