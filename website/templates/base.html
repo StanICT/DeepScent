@@ -147,6 +147,9 @@
         {% endif %}
     {% endwith %}
 
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
     <!-- Cart Modal -->
     <div id="cartModal" class="cart-modal-overlay" onclick="closeCartModal(event)">
         <div class="cart-modal-box">
@@ -397,6 +400,19 @@
     .heart-btn.favorited { background: #cc0000; color: #fff; }
     .heart-btn { transition: background 0.3s ease, color 0.3s ease; }
 
+    /* Toast */
+    .toast {
+        position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
+        background: #111; color: #fff; padding: 14px 28px;
+        border-radius: 10px; font-family: 'Poppins', sans-serif;
+        font-size: 14px; font-weight: 600; z-index: 99999;
+        opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease;
+        pointer-events: none; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.toast-success { background: #111; border-left: 4px solid #cc0000; }
+    .toast.toast-error { background: #cc0000; }
+
     /* Side Panels */
     .side-panel {
         position: fixed; top: 0; right: 0;
@@ -477,15 +493,16 @@
                 if (data.success) {
                     document.querySelectorAll('.cart-badge').forEach(b => b.textContent = data.cart_count);
                     document.getElementById('cartModal').classList.remove('open');
-                    const btn = document.getElementById('modalAddBtn');
-                    btn.textContent = 'Added!';
-                    btn.style.background = '#cc0000';
-                    setTimeout(() => {
-                        btn.textContent = 'Add to Cart';
-                        btn.style.background = '#111';
-                    }, 1500);
+                    showToast('Item added to cart!');
                 }
             });
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = 'toast toast-' + type + ' show';
+        setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
     function toggleFavorite(btn) {
