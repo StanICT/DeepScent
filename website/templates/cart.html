@@ -157,13 +157,13 @@
 
     function showConfirm(message, onConfirm) {
         document.getElementById('confirmMessage').textContent = message;
-        document.getElementById('confirmModal').classList.add('open');
+        document.getElementById('confirmModal').classList.add('active');
         document.getElementById('confirmOkBtn').onclick = () => {
-            document.getElementById('confirmModal').classList.remove('open');
+            document.getElementById('confirmModal').classList.remove('active');
             onConfirm();
         };
         document.getElementById('confirmCancelBtn').onclick = () => {
-            document.getElementById('confirmModal').classList.remove('open');
+            document.getElementById('confirmModal').classList.remove('active');
         };
     }
 
@@ -209,14 +209,52 @@
 </script>
 
 <!-- Confirm Modal -->
-<div id="confirmModal" class="cart-modal-overlay" onclick="if(event.target===this)this.classList.remove('open')">
-    <div class="cart-modal-box" style="width:320px;">
-        <p id="confirmMessage" style="font-size:15px;font-weight:600;color:#111;margin:0 0 24px;"></p>
-        <div style="display:flex;gap:10px;">
-            <button id="confirmCancelBtn" style="flex:1;padding:11px;border:1px solid #ddd;background:#fff;border-radius:8px;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
-            <button id="confirmOkBtn" style="flex:1;padding:11px;border:none;background:#cc0000;color:#fff;border-radius:8px;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Delete</button>
+<div class="modal-overlay" id="confirmModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="modal-box">
+        <div class="modal-icon"><i class="fas fa-trash"></i></div>
+        <p class="modal-title">Remove Item</p>
+        <p class="modal-desc" id="confirmMessage"></p>
+        <div class="modal-actions">
+            <button class="modal-btn-cancel" id="confirmCancelBtn">Cancel</button>
+            <button class="modal-btn-confirm" id="confirmOkBtn">Delete</button>
         </div>
     </div>
 </div>
+
+<style>
+    .modal-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+        z-index: 9999; display: flex; align-items: center; justify-content: center;
+        opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+    .modal-box {
+        background: #fff; border-radius: 12px; padding: 36px 40px;
+        width: 380px; text-align: center;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        transform: scale(0.9); transition: transform 0.2s ease;
+    }
+    .modal-overlay.active .modal-box { transform: scale(1); }
+    .modal-icon {
+        width: 52px; height: 52px; background: #fff0f0; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 16px; font-size: 22px; color: #cc0000;
+    }
+    .modal-title { font-size: 17px; font-weight: 700; color: #111; margin-bottom: 8px; }
+    .modal-desc { font-size: 13px; color: #999; margin-bottom: 28px; line-height: 1.6; }
+    .modal-actions { display: flex; gap: 12px; justify-content: center; }
+    .modal-btn-cancel {
+        padding: 10px 28px; border: 1px solid #ddd; border-radius: 6px;
+        background: #fff; font-family: 'Poppins', sans-serif;
+        font-size: 13px; font-weight: 600; cursor: pointer; transition: border-color 0.2s;
+    }
+    .modal-btn-cancel:hover { border-color: #111; }
+    .modal-btn-confirm {
+        padding: 10px 28px; border: none; border-radius: 6px;
+        background: #cc0000; color: #fff; font-family: 'Poppins', sans-serif;
+        font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s;
+    }
+    .modal-btn-confirm:hover { background: #a00000; }
+</style>
 
 {% endblock %}
