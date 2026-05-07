@@ -402,14 +402,15 @@
 
     /* Toast */
     .toast {
-        position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
-        background: #111; color: #fff; padding: 14px 28px;
-        border-radius: 10px; font-family: 'Poppins', sans-serif;
-        font-size: 14px; font-weight: 600; z-index: 99999;
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.85);
+        background: #111; color: #fff; padding: 18px 36px;
+        border-radius: 12px; font-family: 'Poppins', sans-serif;
+        font-size: 15px; font-weight: 600; z-index: 99999;
         opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease;
         pointer-events: none; white-space: nowrap;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
     }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
     .toast.toast-success { background: #111; border-left: 4px solid #cc0000; }
     .toast.toast-error { background: #cc0000; }
 
