@@ -138,6 +138,6 @@ def remove_from_cart(item_id):
 @views.route('/cart')
 @login_required
 def cart():
-    items = CartItem.query.filter_by(user_id=current_user.id).all()
+    items = CartItem.query.filter_by(user_id=current_user.id).order_by(CartItem.id.desc()).all()
     total = sum((i.price_paid if i.price_paid else i.product.price) * i.quantity for i in items)
     return render_template('cart.html', items=items, total=total)
