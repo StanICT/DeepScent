@@ -16,11 +16,12 @@
                 <button class="btn-delete-selected" id="deleteSelectedBtn" onclick="deleteSelected()" style="display:none;"><i class="fas fa-trash"></i> Delete Selected</button>
             </div>
             {% for item in items %}
-            <div class="cart-item" id="cart-item-{{ item.product_id }}"
-                 data-price="{{ item.price_paid * item.quantity if item.price_paid else item.product.price * item.quantity }}"
+            <div class="cart-item" id="cart-item-{{ item.id }}"
+                 data-item-id="{{ item.id }}"
+                 data-price="{{ item.price_paid if item.price_paid else item.product.price }}"
                  data-product-id="{{ item.product_id }}">
                 <input type="checkbox" class="cart-checkbox" onchange="updateSummary()"
-                       data-subtotal="{{ item.price_paid * item.quantity if item.price_paid else item.product.price * item.quantity }}">
+                       data-subtotal="{{ (item.price_paid if item.price_paid else item.product.price) * item.quantity }}">
                 <div class="cart-img">
                     <img src="{{ url_for('static', filename='uploads/' ~ item.product.image) }}" alt="{{ item.product.name }}">
                 </div>
@@ -30,13 +31,15 @@
                     <p class="cart-size">{{ item.size }}</p>
                     <p class="cart-price">₱{{ "%.2f"|format(item.price_paid if item.price_paid else item.product.price) }}</p>
                 </div>
-                <div class="cart-qty">
-                    <span>Qty: {{ item.quantity }}</span>
+                <div class="cart-qty-control">
+                    <button onclick="changeItemQty({{ item.id }}, -1)">-</button>
+                    <span id="qty-{{ item.id }}">{{ item.quantity }}</span>
+                    <button onclick="changeItemQty({{ item.id }}, 1)">+</button>
                 </div>
-                <div class="cart-subtotal">
+                <div class="cart-subtotal" id="subtotal-{{ item.id }}">
                     ₱{{ "%.2f"|format((item.price_paid if item.price_paid else item.product.price) * item.quantity) }}
                 </div>
-                <button class="cart-remove" onclick="removeFromCart({{ item.product_id }})">
+                <button class="cart-remove" onclick="removeFromCart({{ item.id }})">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -107,6 +110,15 @@
     .cart-price { font-size: 13px; color: #666; margin: 0; }
 
     .cart-qty { font-size: 13px; color: #555; min-width: 60px; text-align: center; }
+    .cart-qty-control { display: flex; align-items: center; gap: 8px; min-width: 90px; justify-content: center; }
+    .cart-qty-control button {
+        width: 28px; height: 28px; border: 1px solid #ddd; background: #fff;
+        border-radius: 6px; font-size: 16px; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.2s; font-family: 'Poppins', sans-serif;
+    }
+    .cart-qty-control button:hover { background: #111; color: #fff; border-color: #111; }
+    .cart-qty-control span { font-size: 14px; font-weight: 700; min-width: 20px; text-align: center; }
     .cart-subtotal { font-size: 16px; font-weight: 700; color: #111; min-width: 90px; text-align: right; }
 
     .cart-remove { background: none; border: none; color: #ccc; cursor: pointer; font-size: 15px; transition: color 0.2s; }
@@ -169,7 +181,7 @@
 
     function deleteSelected() {
         const selected = [...document.querySelectorAll('.cart-checkbox:checked')]
-            .map(cb => cb.closest('.cart-item').dataset.productId);
+            .map(cb => cb.closest('.cart-item').dataset.itemId);
         if (!selected.length) return;
         showConfirm(`Delete ${selected.length} item${selected.length > 1 ? 's' : ''} from your cart?`, () => {
             Promise.all(selected.map(id =>
@@ -184,13 +196,35 @@
         });
     }
 
-    function removeFromCart(productId) {
+    function changeItemQty(itemId, delta) {
+        const qtyEl = document.getElementById(`qty-${itemId}`);
+        const cartItem = document.getElementById(`cart-item-${itemId}`);
+        let qty = parseInt(qtyEl.textContent) + delta;
+        if (qty < 1) qty = 1;
+        const unitPrice = parseFloat(cartItem.dataset.price);
+        fetch(`/cart/update/${itemId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ quantity: qty })
+        }).then(res => res.json()).then(data => {
+            if (data.success) {
+                qtyEl.textContent = qty;
+                document.getElementById(`subtotal-${itemId}`).textContent = '\u20b1' + data.subtotal.toFixed(2);
+                const cb = cartItem.querySelector('.cart-checkbox');
+                cb.dataset.subtotal = data.subtotal;
+                document.querySelectorAll('.cart-badge').forEach(b => b.textContent = data.cart_count);
+                updateSummary();
+            }
+        });
+    }
+
+    function removeFromCart(itemId) {
         showConfirm('Remove this item from your cart?', () => {
-            fetch(`/cart/remove/${productId}`, { method: 'POST' })
+            fetch(`/cart/remove/${itemId}`, { method: 'POST' })
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        document.getElementById(`cart-item-${productId}`).remove();
+                        document.getElementById(`cart-item-${itemId}`).remove();
                         document.querySelectorAll('.cart-badge').forEach(b => b.textContent = data.cart_count);
                         updateSummary();
                         if (data.cart_count === 0) location.reload();

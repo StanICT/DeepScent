@@ -98,21 +98,29 @@ def add_to_cart(product_id):
     product = Product.query.get_or_404(product_id)
     base_price = product.price_100ml if size == '100ml' and product.price_100ml else product.price
     price_paid = round(base_price * (1 - (product.discount or 0) / 100), 2)
-    item = CartItem.query.filter_by(user_id=current_user.id, product_id=product_id, size=size).first()
-    if item:
-        item.quantity += quantity
-        item.price_paid = price_paid
-    else:
-        item = CartItem(user_id=current_user.id, product_id=product_id, size=size, quantity=quantity, price_paid=price_paid)
-        db.session.add(item)
+    item = CartItem(user_id=current_user.id, product_id=product_id, size=size, quantity=quantity, price_paid=price_paid)
+    db.session.add(item)
     db.session.commit()
     total = sum(i.quantity for i in current_user.cart_items)
     return jsonify({'success': True, 'cart_count': total})
 
-@views.route('/cart/remove/<int:product_id>', methods=['POST'])
+@views.route('/cart/update/<int:item_id>', methods=['POST'])
 @login_required
-def remove_from_cart(product_id):
-    item = CartItem.query.filter_by(user_id=current_user.id, product_id=product_id).first()
+def update_cart_quantity(item_id):
+    item = CartItem.query.filter_by(id=item_id, user_id=current_user.id).first_or_404()
+    quantity = int(request.json.get('quantity', 1))
+    if quantity < 1:
+        quantity = 1
+    item.quantity = quantity
+    db.session.commit()
+    subtotal = round((item.price_paid if item.price_paid else item.product.price) * quantity, 2)
+    total_count = sum(i.quantity for i in current_user.cart_items)
+    return jsonify({'success': True, 'subtotal': subtotal, 'cart_count': total_count})
+
+@views.route('/cart/remove/<int:item_id>', methods=['POST'])
+@login_required
+def remove_from_cart(item_id):
+    item = CartItem.query.filter_by(id=item_id, user_id=current_user.id).first()
     if item:
         db.session.delete(item)
         db.session.commit()
