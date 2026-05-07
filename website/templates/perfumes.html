@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<section class="brand-page" style="background-image: url('{{ url_for('static', filename='images/' ~ brand|lower|replace(' ', '-') ~ '-bg.jpg') }}');">
+<section class="brand-page" style="background-image: url('{{ url_for('static', filename='images/' ~ brand|lower|replace(' ', '-') ~ '-bg.' ~ ('jpg' if brand|lower == 'prmnky' else 'png')) }}');">
     <h1 class="brand-title">{{ brand | upper }}</h1>
 </section>
 
