@@ -32,7 +32,8 @@ def search():
     results = Product.query.filter(
         Product.name.ilike(f'%{q}%') | Product.brand.ilike(f'%{q}%')
     ).all() if q else []
-    return render_template('search.html', results=results, query=q)
+    favorited_ids = [f.product_id for f in current_user.favorites] if current_user.is_authenticated else []
+    return render_template('search.html', results=results, query=q, favorited_ids=favorited_ids)
 
 @views.route('/featured')
 def featured():

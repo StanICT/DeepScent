@@ -20,7 +20,10 @@
     <div class="products-grid">
         {% for product in results %}
         <div class="product-card">
-            <div class="product-img-wrap">
+            <div class="product-img-wrap" style="position:relative;">
+                {% if product.discount %}
+                <div class="product-badge-sale">SAVE {{ product.discount }}%</div>
+                {% endif %}
                 <img src="{{ url_for('static', filename='uploads/' ~ product.image) }}" alt="{{ product.name }}">
             </div>
             <div class="product-info">
@@ -35,8 +38,26 @@
                     <span class="review-count">(24)</span>
                 </div>
                 <div class="product-footer">
-                    <span class="product-price">₱{{ "%.2f"|format(product.price) }}</span>
-                    <button class="product-add-btn"><i class="fas fa-shopping-cart"></i></button>
+                    <div class="product-price-wrap">
+                        {% if product.discount %}
+                        <span class="product-price-old">₱{{ "%.2f"|format(product.price) }}</span>
+                        <span class="product-price">₱{{ "%.2f"|format(product.price * (1 - product.discount / 100)) }}</span>
+                        {% else %}
+                        <span class="product-price">₱{{ "%.2f"|format(product.price) }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="product-actions">
+                        <button class="product-action-btn heart-btn {% if current_user.is_authenticated and product.id in favorited_ids %}favorited{% endif %}"
+                            data-id="{{ product.id }}"
+                            data-auth="{% if current_user.is_authenticated %}yes{% else %}no{% endif %}"
+                            onclick="toggleFavorite(this)" title="Favorites">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                        <button class="product-action-btn cart-btn" title="Add to Cart"
+                            onclick="openCartModal('{{ product.id }}', '{{ product.name }}', {{ product.price * (1 - product.discount / 100) if product.discount else product.price }}, '{% if current_user.is_authenticated %}yes{% else %}no{% endif %}', '{{ url_for('static', filename='uploads/' ~ product.image) }}', '{{ product.brand }}', '{{ product.gender or 'UNISEX' }}', {{ (product.price_100ml * (1 - product.discount / 100)) if product.price_100ml and product.discount else (product.price_100ml if product.price_100ml else product.price) }})">
+                            <i class="fas fa-shopping-cart"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -49,9 +70,9 @@
         <p>No results for <strong>"{{ query }}"</strong></p>
         <span>Try searching for a brand or fragrance name</span>
         <div class="search-empty-suggestions">
-            <a href="{{ url_for('views.search', q='PRMNKY') }}">PRMNKY</a>
-            <a href="{{ url_for('views.search', q='Cotidiano') }}">Cotidiano</a>
-            <a href="{{ url_for('views.search', q='Enzo Scents') }}">Enzo Scents</a>
+            {% for brand in g.brands %}
+            <a href="{{ url_for('views.search', q=brand.name) }}">{{ brand.name }}</a>
+            {% endfor %}
         </div>
     </div>
     {% endif %}
@@ -109,8 +130,15 @@
         align-items: center;
         justify-content: center;
         padding: 20px;
+        position: relative;
     }
     .product-img-wrap img { max-height: 160px; max-width: 100%; object-fit: contain; }
+    .product-badge-sale {
+        position: absolute; top: 14px; left: 14px;
+        background: #cc0000; color: #fff;
+        font-size: 10px; font-weight: 700; letter-spacing: 1px;
+        padding: 4px 10px; border-radius: 4px; z-index: 1;
+    }
 
     .product-info { padding: 16px 18px 18px; }
     .product-tags { display: flex; gap: 6px; margin-bottom: 10px; }
@@ -124,18 +152,18 @@
     .product-rating { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
     .stars { color: #f5a623; font-size: 13px; }
     .review-count { font-size: 11px; color: #aaa; }
-    .product-footer { display: flex; justify-content: space-between; align-items: center; }
-    .product-price { font-size: 17px; font-weight: 700; color: #111; }
-
-    .product-add-btn {
-        width: 36px; height: 36px;
-        background: #111; color: #fff;
-        border: none; border-radius: 6px;
-        cursor: pointer; font-size: 13px;
-        transition: background 0.2s ease;
+    .product-price-wrap { display: flex; flex-direction: column; gap: 2px; }
+    .product-price { font-size: 17px; font-weight: 700; color: #cc0000; }
+    .product-price-old { font-size: 12px; font-weight: 500; color: #aaa; text-decoration: line-through; }
+    .product-actions { display: flex; gap: 8px; }
+    .product-action-btn {
+        width: 36px; height: 36px; background: #111; color: #fff;
+        border: none; border-radius: 6px; cursor: pointer; font-size: 13px;
         display: flex; align-items: center; justify-content: center;
+        text-decoration: none; transition: background 0.3s ease, color 0.3s ease;
     }
-    .product-add-btn:hover { background: #cc0000; }
+    .product-action-btn:hover { background: #cc0000; color: #fff; }
+    .heart-btn.favorited { background: #cc0000; }
 
     /* Empty state */
     .search-empty {
