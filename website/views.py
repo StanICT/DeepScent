@@ -54,14 +54,14 @@ def favorites_panel():
 @login_required
 def cart_panel():
     items = CartItem.query.filter_by(user_id=current_user.id).all()
-    total = sum(i.product.price * i.quantity for i in items)
+    total = sum((i.price_paid if i.price_paid else i.product.price) * i.quantity for i in items)
     return jsonify({'items': [{
         'name': i.product.name,
         'brand': i.product.brand,
         'image': i.product.image,
         'size': i.size,
         'quantity': i.quantity,
-        'subtotal': i.product.price * i.quantity
+        'subtotal': (i.price_paid if i.price_paid else i.product.price) * i.quantity
     } for i in items], 'total': total})
 
 @views.route('/favorites')
