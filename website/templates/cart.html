@@ -235,8 +235,21 @@
 
     function checkout() {
         const selected = [...document.querySelectorAll('.cart-checkbox:checked')]
-            .map(cb => cb.closest('.cart-item').dataset.productId);
+            .map(cb => cb.closest('.cart-item').dataset.itemId);
         if (!selected.length) return;
+        fetch('/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ item_ids: selected.map(Number) })
+        }).then(res => res.json()).then(data => {
+            if (data.success) {
+                document.querySelectorAll('.cart-badge').forEach(b => b.textContent = data.cart_count);
+                showToast('Order placed successfully!');
+                setTimeout(() => window.location.href = '/orders', 1500);
+            } else {
+                showToast(data.message, 'error');
+            }
+        });
     }
 
     document.querySelector('.btn-checkout').disabled = true;

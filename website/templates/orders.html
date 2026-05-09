@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}My Orders{% endblock %}
+{% block content %}
+
+<section class="orders-page">
+    <div class="orders-header">
+        <p class="section-label">MY ORDERS</p>
+        <h1 class="orders-title">Order History</h1>
+    </div>
+
+    {% if orders %}
+    <div class="orders-list">
+        {% for order in orders %}
+        <div class="order-card">
+            <div class="order-card-header">
+                <div>
+                    <p class="order-id">Order #{{ order.id }}</p>
+                    <p class="order-date">{{ order.created_at.strftime('%B %d, %Y %I:%M %p') }}</p>
+                </div>
+                <div class="order-right">
+                    <span class="order-status status-{{ order.status|lower }}">{{ order.status }}</span>
+                    <span class="order-total">₱{{ "%.2f"|format(order.total) }}</span>
+                </div>
+            </div>
+            <div class="order-items">
+                {% for item in order.items %}
+                <div class="order-item">
+                    <img src="{{ url_for('static', filename='uploads/' ~ item.product.image) }}" alt="{{ item.product.name }}">
+                    <div class="order-item-info">
+                        <p class="order-item-brand">{{ item.product.brand }}</p>
+                        <p class="order-item-name">{{ item.product.name }}</p>
+                        <p class="order-item-meta">{{ item.size }} × {{ item.quantity }}</p>
+                    </div>
+                    <p class="order-item-price">₱{{ "%.2f"|format(item.price_paid * item.quantity) }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="orders-empty">
+        <i class="fas fa-box-open"></i>
+        <p>No orders yet.</p>
+        <a href="{{ url_for('views.product') }}" class="btn-shop">Shop Now</a>
+    </div>
+    {% endif %}
+</section>
+
+<style>
+    .orders-page { padding: 60px 80px; background: #f5f5f5; min-height: 100vh; }
+    .orders-header { text-align: center; margin-bottom: 40px; }
+    .section-label { font-size: 11px; letter-spacing: 4px; color: #cc0000; font-weight: 600; margin-bottom: 12px; }
+    .orders-title { font-family: 'Anton', sans-serif; font-style: italic; font-size: 48px; color: #111; margin: 0; }
+
+    .orders-list { display: flex; flex-direction: column; gap: 20px; max-width: 800px; margin: 0 auto; }
+
+    .order-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+
+    .order-card-header {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 18px 24px; border-bottom: 1px solid #f0f0f0;
+    }
+    .order-id { font-size: 14px; font-weight: 700; color: #111; margin: 0 0 4px; }
+    .order-date { font-size: 12px; color: #aaa; margin: 0; }
+    .order-right { display: flex; align-items: center; gap: 16px; }
+    .order-status {
+        font-size: 11px; font-weight: 700; letter-spacing: 1px;
+        padding: 4px 12px; border-radius: 20px; text-transform: uppercase;
+    }
+    .status-pending { background: #fff8e1; color: #f59e0b; }
+    .status-processing { background: #e8f0fe; color: #4a6fa5; }
+    .status-completed { background: #e8f5e9; color: #2e7d32; }
+    .status-cancelled { background: #fce8e8; color: #cc0000; }
+    .order-total { font-size: 16px; font-weight: 700; color: #111; }
+
+    .order-items { padding: 16px 24px; display: flex; flex-direction: column; gap: 12px; }
+
+    .order-item { display: flex; align-items: center; gap: 16px; }
+    .order-item img { width: 60px; height: 60px; object-fit: contain; background: #fafafa; border-radius: 8px; padding: 4px; }
+    .order-item-info { flex: 1; }
+    .order-item-brand { font-size: 10px; letter-spacing: 2px; color: #aaa; text-transform: uppercase; margin: 0 0 2px; }
+    .order-item-name { font-size: 14px; font-weight: 700; color: #111; margin: 0 0 2px; }
+    .order-item-meta { font-size: 12px; color: #aaa; margin: 0; }
+    .order-item-price { font-size: 14px; font-weight: 700; color: #111; }
+
+    .orders-empty { text-align: center; padding: 80px 0; color: #aaa; }
+    .orders-empty i { font-size: 60px; margin-bottom: 20px; display: block; color: #ddd; }
+    .orders-empty p { font-size: 16px; margin-bottom: 20px; }
+    .btn-shop { padding: 12px 30px; background: #111; color: #fff; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; }
+    .btn-shop:hover { background: #cc0000; color: #fff; }
+
+    @media (max-width: 768px) {
+        .orders-page { padding: 40px 20px; }
+    }
+</style>
+
+{% endblock %}

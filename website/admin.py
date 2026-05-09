@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, abort
 from flask_login import login_required, current_user
-from .models import Product, Brand, db
+from .models import Product, Brand, Order, OrderItem, User, db
+from sqlalchemy import text as db_text
 from werkzeug.utils import secure_filename
 import os
 
@@ -18,8 +19,47 @@ def save_image(file):
         return filename
     return None
 
-# define ONCE
 admin = Blueprint("admin", __name__)
+
+@admin.route("/dashboard")
+@login_required
+def dashboard():
+    if not current_user.is_admin:
+        abort(403)
+    total_orders = Order.query.count()
+    total_revenue = db.session.query(db.func.sum(Order.total)).scalar() or 0
+    total_products = Product.query.count()
+    total_users = User.query.filter_by(is_admin=False).count()
+    recent_orders = Order.query.order_by(Order.created_at.desc()).limit(5).all()
+    top_products = db.session.query(
+        Product.name, db.func.sum(OrderItem.quantity).label('sold')
+    ).join(OrderItem).group_by(Product.id).order_by(db_text('sold DESC')).limit(5).all()
+    return render_template('admin_dashboard.html',
+        total_orders=total_orders,
+        total_revenue=total_revenue,
+        total_products=total_products,
+        total_users=total_users,
+        recent_orders=recent_orders,
+        top_products=top_products
+    )
+
+@admin.route("/orders")
+@login_required
+def admin_orders():
+    if not current_user.is_admin:
+        abort(403)
+    orders = Order.query.order_by(Order.created_at.desc()).all()
+    return render_template('admin_orders.html', orders=orders)
+
+@admin.route("/orders/status/<int:order_id>", methods=['POST'])
+@login_required
+def update_order_status(order_id):
+    if not current_user.is_admin:
+        abort(403)
+    order = Order.query.get_or_404(order_id)
+    order.status = request.form.get('status', 'Pending')
+    db.session.commit()
+    return redirect(url_for('admin.admin_orders'))
 
 @admin.route("/products")
 @login_required

@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
 from flask_login import current_user, login_required
-from website.models import Product, Brand, CartItem, Favorite
+from website.models import Product, Brand, CartItem, Favorite, Order, OrderItem, Review
 from website.extensions import db
 
 views = Blueprint('views', __name__)
@@ -28,7 +28,24 @@ def product_detail(product_id):
     favorited = False
     if current_user.is_authenticated:
         favorited = Favorite.query.filter_by(user_id=current_user.id, product_id=product_id).first() is not None
-    return render_template('product_detail.html', product=product, favorited=favorited)
+    reviews = Review.query.filter_by(product_id=product_id).order_by(Review.created_at.desc()).all()
+    avg_rating = round(sum(r.rating for r in reviews) / len(reviews), 1) if reviews else 0
+    user_reviewed = Review.query.filter_by(user_id=current_user.id, product_id=product_id).first() if current_user.is_authenticated else None
+    return render_template('product_detail.html', product=product, favorited=favorited, reviews=reviews, avg_rating=avg_rating, user_reviewed=user_reviewed)
+
+@views.route('/review/<int:product_id>', methods=['POST'])
+@login_required
+def add_review(product_id):
+    if Review.query.filter_by(user_id=current_user.id, product_id=product_id).first():
+        return jsonify({'success': False, 'message': 'You already reviewed this product.'})
+    rating = int(request.json.get('rating', 5))
+    comment = request.json.get('comment', '').strip()
+    review = Review(user_id=current_user.id, product_id=product_id, rating=rating, comment=comment)
+    db.session.add(review)
+    db.session.commit()
+    reviews = Review.query.filter_by(product_id=product_id).all()
+    avg = round(sum(r.rating for r in reviews) / len(reviews), 1)
+    return jsonify({'success': True, 'username': current_user.username, 'rating': rating, 'comment': comment, 'avg_rating': avg, 'count': len(reviews)})
 
 @views.route('/product')
 def product():
@@ -136,6 +153,57 @@ def remove_from_cart(item_id):
         db.session.commit()
     total = sum(i.quantity for i in current_user.cart_items)
     return jsonify({'success': True, 'cart_count': total})
+
+@views.route('/checkout', methods=['POST'])
+@login_required
+def checkout():
+    item_ids = request.json.get('item_ids', [])
+    if not item_ids:
+        return jsonify({'success': False, 'message': 'No items selected.'})
+
+    items = CartItem.query.filter(CartItem.id.in_(item_ids), CartItem.user_id == current_user.id).all()
+    if not items:
+        return jsonify({'success': False, 'message': 'No valid items found.'})
+
+    # Check stock
+    for item in items:
+        if item.size == '50ml':
+            if (item.product.stock_50ml or 0) < item.quantity:
+                return jsonify({'success': False, 'message': f'{item.product.name} ({item.size}) is out of stock.'})
+        else:
+            if (item.product.stock_100ml or 0) < item.quantity:
+                return jsonify({'success': False, 'message': f'{item.product.name} ({item.size}) is out of stock.'})
+
+    total = sum((i.price_paid if i.price_paid else i.product.price) * i.quantity for i in items)
+    order = Order(user_id=current_user.id, total=total)
+    db.session.add(order)
+    db.session.flush()
+
+    for item in items:
+        order_item = OrderItem(
+            order_id=order.id,
+            product_id=item.product_id,
+            quantity=item.quantity,
+            size=item.size,
+            price_paid=item.price_paid if item.price_paid else item.product.price
+        )
+        db.session.add(order_item)
+        # Decrease stock
+        if item.size == '50ml':
+            item.product.stock_50ml = (item.product.stock_50ml or 0) - item.quantity
+        else:
+            item.product.stock_100ml = (item.product.stock_100ml or 0) - item.quantity
+        db.session.delete(item)
+
+    db.session.commit()
+    cart_count = sum(i.quantity for i in current_user.cart_items)
+    return jsonify({'success': True, 'order_id': order.id, 'cart_count': cart_count})
+
+@views.route('/orders')
+@login_required
+def orders():
+    user_orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.created_at.desc()).all()
+    return render_template('orders.html', orders=user_orders)
 
 @views.route('/cart')
 @login_required
