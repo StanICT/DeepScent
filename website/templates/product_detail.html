@@ -112,7 +112,7 @@
             </div>
         </div>
 
-        {% if current_user.is_authenticated and not user_reviewed %}
+        {% if current_user.is_authenticated and not user_reviewed and can_review %}
         <div class="review-form">
             <p class="detail-label">LEAVE A REVIEW</p>
             <div class="star-input" id="starInput">
@@ -125,6 +125,8 @@
         </div>
         {% elif user_reviewed %}
         <p class="already-reviewed">You already reviewed this product.</p>
+        {% elif current_user.is_authenticated and not can_review %}
+        <p class="already-reviewed">Purchase this product to leave a review.</p>
         {% endif %}
 
         <div class="reviews-list" id="reviewsList">

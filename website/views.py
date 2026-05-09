@@ -15,23 +15,34 @@ def perfumes(brand):
     products = Product.query.filter_by(brand=brand).all()
     brand_obj = Brand.query.filter_by(name=brand).first()
     favorited_ids = [f.product_id for f in current_user.favorites] if current_user.is_authenticated else []
+    ratings = {}
+    for p in products:
+        reviews = Review.query.filter_by(product_id=p.id).all()
+        ratings[p.id] = {'avg': round(sum(r.rating for r in reviews) / len(reviews), 1) if reviews else 0, 'count': len(reviews)}
     return render_template("perfumes.html",
                            products=products,
                            brand=brand,
                            brand_obj=brand_obj,
                            bg_image="prmnky-bg.jpg",
-                           favorited_ids=favorited_ids)
+                           favorited_ids=favorited_ids,
+                           ratings=ratings)
 
 @views.route('/product/<int:product_id>')
 def product_detail(product_id):
     product = Product.query.get_or_404(product_id)
     favorited = False
+    can_review = False
     if current_user.is_authenticated:
         favorited = Favorite.query.filter_by(user_id=current_user.id, product_id=product_id).first() is not None
+        can_review = db.session.query(Order).join(OrderItem).filter(
+            Order.user_id == current_user.id,
+            Order.status == 'Completed',
+            OrderItem.product_id == product_id
+        ).first() is not None
     reviews = Review.query.filter_by(product_id=product_id).order_by(Review.created_at.desc()).all()
     avg_rating = round(sum(r.rating for r in reviews) / len(reviews), 1) if reviews else 0
     user_reviewed = Review.query.filter_by(user_id=current_user.id, product_id=product_id).first() if current_user.is_authenticated else None
-    return render_template('product_detail.html', product=product, favorited=favorited, reviews=reviews, avg_rating=avg_rating, user_reviewed=user_reviewed)
+    return render_template('product_detail.html', product=product, favorited=favorited, reviews=reviews, avg_rating=avg_rating, user_reviewed=user_reviewed, can_review=can_review)
 
 @views.route('/review/<int:product_id>', methods=['POST'])
 @login_required
@@ -51,7 +62,11 @@ def add_review(product_id):
 def product():
     products = Product.query.all()
     favorited_ids = [f.product_id for f in current_user.favorites] if current_user.is_authenticated else []
-    return render_template('product.html', products=products, favorited_ids=favorited_ids)
+    ratings = {}
+    for p in products:
+        reviews = Review.query.filter_by(product_id=p.id).all()
+        ratings[p.id] = {'avg': round(sum(r.rating for r in reviews) / len(reviews), 1) if reviews else 0, 'count': len(reviews)}
+    return render_template('product.html', products=products, favorited_ids=favorited_ids, ratings=ratings)
 
 @views.route('/search')
 def search():
