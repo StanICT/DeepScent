@@ -234,7 +234,7 @@
     .detail-desc { font-size: 14px; color: #666; line-height: 1.8; }
 
     /* Reviews */
-    .reviews-section { margin: 40px 0 0; }
+    .reviews-section { max-width: 800px; margin: 40px auto 0; }
     .reviews-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
     .reviews-summary { display: flex; align-items: center; gap: 8px; }
     .reviews-avg { font-size: 28px; font-weight: 700; color: #111; }
@@ -348,6 +348,8 @@
             }
         });
     }
+
+    function addDetailToCart() {
         if (_detailAuth !== 'yes') {
             window.location.href = '{{ url_for("views.cart_login_required") }}';
             return;
