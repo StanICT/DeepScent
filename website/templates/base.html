@@ -319,10 +319,26 @@
       document.querySelector('.overlay').style.display = 'block';
       setTimeout(() => {
         if (!_locationMap) {
-          _locationMap = L.map('locationMap').setView([14.5995, 120.9842], 12);
+          const defaultCoords = [14.5995, 120.9842];
+          _locationMap = L.map('locationMap').setView(defaultCoords, 12);
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap'
+            attribution: '\u00a9 OpenStreetMap'
           }).addTo(_locationMap);
+
+          // If saved address exists, geocode it and center map there
+          if (_selectedAddress) {
+            fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(_selectedAddress)}&format=json&limit=1`)
+              .then(r => r.json())
+              .then(data => {
+                if (data.length) {
+                  const lat = parseFloat(data[0].lat);
+                  const lon = parseFloat(data[0].lon);
+                  _locationMap.setView([lat, lon], 16);
+                  _locationMarker = L.marker([lat, lon]).addTo(_locationMap);
+                }
+              });
+          }
+
           _locationMap.on('click', function(e) {
             const { lat, lng } = e.latlng;
             if (_locationMarker) _locationMarker.setLatLng([lat, lng]);

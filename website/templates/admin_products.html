@@ -37,7 +37,7 @@
                     <td><span class="tag tag-gender">{{ product.gender or 'UNISEX' }}</span></td>
                     <td>₱{{ "%.2f"|format(product.price) }}</td>
                     <td>
-                        <span class="stock-badge {% if (product.stock_50ml or 0) == 0 %}stock-out{% elif (product.stock_50ml or 0) < 5 %}stock-low{% else %}stock-ok{% endif %}">{{ product.stock_50ml or 0 }} 50ml</span>{% if product.price_100ml %}<span class="stock-badge {% if (product.stock_100ml or 0) == 0 %}stock-out{% elif (product.stock_100ml or 0) < 5 %}stock-low{% else %}stock-ok{% endif %}">{{ product.stock_100ml or 0 }} 100ml</span>{% endif %}
+                        <span class="stock-badge {% if (product.stock_50ml or 0) == 0 %}stock-out{% elif (product.stock_50ml or 0) < 5 %}stock-low{% else %}stock-ok{% endif %}">{{ product.stock_50ml or 0 }} / 50ml</span>{% if product.price_100ml %}<span class="stock-badge {% if (product.stock_100ml or 0) == 0 %}stock-out{% elif (product.stock_100ml or 0) < 5 %}stock-low{% else %}stock-ok{% endif %}">{{ product.stock_100ml or 0 }} / 100ml</span>{% endif %}
                     </td>
                     <td>
                         <a href="{{ url_for('admin.edit_product', id=product.id) }}" class="btn-edit">Edit</a>
