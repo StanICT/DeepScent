@@ -75,7 +75,11 @@ def search():
         Product.name.ilike(f'%{q}%') | Product.brand.ilike(f'%{q}%')
     ).all() if q else []
     favorited_ids = [f.product_id for f in current_user.favorites] if current_user.is_authenticated else []
-    return render_template('search.html', results=results, query=q, favorited_ids=favorited_ids)
+    ratings = {}
+    for p in results:
+        reviews = Review.query.filter_by(product_id=p.id).all()
+        ratings[p.id] = {'avg': round(sum(r.rating for r in reviews) / len(reviews), 1) if reviews else 0, 'count': len(reviews)}
+    return render_template('search.html', results=results, query=q, favorited_ids=favorited_ids, ratings=ratings)
 
 @views.route('/featured')
 def featured():
