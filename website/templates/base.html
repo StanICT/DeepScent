@@ -203,7 +203,7 @@
                 <div class="menu-item" onclick="openFavoritesPanel()"><i class="fas fa-heart"></i><span>Favorites</span></div>
                 <div class="menu-item" onclick="openCartPanel()"><i class="fas fa-shopping-cart"></i><span>Cart</span></div>
                 <div class="menu-item"><i class="fas fa-map-marker-alt"></i><span>Location</span></div>
-                <div class="menu-item" onclick="doOrders()"><i class="fas fa-box"></i><span>Orders</span></div>
+                <div class="menu-item" onclick="openOrdersPanel()"><i class="fas fa-box"></i><span>Orders</span></div>
                 <div class="menu-item" onclick="doLogout()"><i class="fas fa-door-open"></i><span>Logout</span></div>
             </div>
         </div>
@@ -261,13 +261,53 @@
             if (e.target === overlay) {
                 closeProfile();
                 closeFavoritesPanel();
-                closeCartPanel();
+                closeCartPanel(); closeOrdersPanel();
             }
         });
     });
 
     function doOrders() {
       window.location.href = '{{ url_for("views.orders") }}';
+    }
+
+    function openOrdersPanel() {
+      closeProfile();
+      fetch('/orders/panel')
+        .then(res => res.json())
+        .then(data => {
+          const el = document.getElementById('ordersContent');
+          const statusColors = { 'Pending': '#f59e0b', 'Processing': '#4a6fa5', 'Completed': '#2e7d32', 'Cancelled': '#cc0000' };
+          if (!data.orders.length) {
+            el.innerHTML = '<div class="panel-empty"><i class="fas fa-box"></i><p>No orders yet.</p></div>';
+          } else {
+            el.innerHTML = data.orders.map(o => `
+              <div style="border-bottom:1px solid #f0f0f0;padding:14px 0;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                  <span style="font-size:13px;font-weight:700;color:#111;">#${o.id}</span>
+                  <span style="font-size:11px;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:20px;background:${statusColors[o.status]}22;color:${statusColors[o.status]};">${o.status}</span>
+                </div>
+                <div style="display:flex;gap:8px;margin-bottom:8px;">
+                  ${o.items.map(i => `<img src="/static/uploads/${i.image}" style="width:44px;height:44px;object-fit:contain;background:#fafafa;border-radius:6px;padding:3px;border:1px solid #eee;">`).join('')}
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span style="font-size:11px;color:#aaa;">${o.date}</span>
+                  <span style="font-size:14px;font-weight:700;color:#111;">₱${parseFloat(o.total).toFixed(2)}</span>
+                </div>
+              </div>`).join('');
+            el.innerHTML += `<a href="/orders" style="display:block;text-align:center;margin-top:16px;padding:11px;background:#111;color:#fff;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">View All Orders</a>`;
+          }
+          const panel = document.getElementById('ordersPanel');
+          panel.style.display = 'block';
+          panel.style.animation = 'slideIn 0.4s ease forwards';
+          document.querySelector('.overlay').style.display = 'block';
+        });
+    }
+
+    function closeOrdersPanel() {
+      const panel = document.getElementById('ordersPanel');
+      panel.style.animation = 'slideOut 0.4s ease forwards';
+      setTimeout(() => { panel.style.display = 'none'; }, 400);
+      document.querySelector('.overlay').style.display = 'none';
     }
 
     function doLogout() {

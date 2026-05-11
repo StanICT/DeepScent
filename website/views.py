@@ -214,6 +214,18 @@ def checkout():
     cart_count = sum(i.quantity for i in current_user.cart_items)
     return jsonify({'success': True, 'order_id': order.id, 'cart_count': cart_count})
 
+@views.route('/orders/panel')
+@login_required
+def orders_panel():
+    user_orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.created_at.desc()).limit(10).all()
+    return jsonify({'orders': [{
+        'id': o.id,
+        'date': o.created_at.strftime('%b %d, %Y'),
+        'status': o.status,
+        'total': o.total,
+        'items': [{'name': i.product.name, 'image': i.product.image, 'size': i.size, 'quantity': i.quantity} for i in o.items]
+    } for o in user_orders]})
+
 @views.route('/orders')
 @login_required
 def orders():
