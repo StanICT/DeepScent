@@ -199,12 +199,11 @@ def checkout():
 
     # Check stock
     for item in items:
-        if item.size == '50ml':
-            if (item.product.stock_50ml or 0) < item.quantity:
-                return jsonify({'success': False, 'message': f'{item.product.name} ({item.size}) is out of stock.'})
-        else:
-            if (item.product.stock_100ml or 0) < item.quantity:
-                return jsonify({'success': False, 'message': f'{item.product.name} ({item.size}) is out of stock.'})
+        stock = (item.product.stock_50ml or 0) if item.size == '50ml' else (item.product.stock_100ml or 0)
+        if stock == 0:
+            return jsonify({'success': False, 'message': f'{item.product.name} ({item.size}) is currently out of stock.'})
+        if item.quantity > stock:
+            return jsonify({'success': False, 'message': f'{item.product.name} ({item.size}) only has {stock} left.'})
 
     total = sum((i.price_paid if i.price_paid else i.product.price) * i.quantity for i in items)
     order = Order(user_id=current_user.id, total=total)
