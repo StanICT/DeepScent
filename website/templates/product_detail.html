@@ -360,6 +360,8 @@
                 if (data.success) {
                     document.querySelectorAll('.cart-badge').forEach(b => b.textContent = data.cart_count);
                     showToast('Item added to cart!');
+                } else {
+                    showToast(data.message, 'error');
                 }
             });
     }

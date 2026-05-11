@@ -547,6 +547,8 @@
                     document.querySelectorAll('.cart-badge').forEach(b => b.textContent = data.cart_count);
                     document.getElementById('cartModal').classList.remove('open');
                     showToast('Item added to cart!');
+                } else {
+                    showToast(data.message, 'error');
                 }
             });
     }

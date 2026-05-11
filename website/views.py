@@ -142,6 +142,16 @@ def add_to_cart(product_id):
     size = request.args.get('size', '50ml')
     quantity = int(request.args.get('quantity', 1))
     product = Product.query.get_or_404(product_id)
+
+    # Count already in cart for this product+size
+    in_cart = db.session.query(db.func.sum(CartItem.quantity)).filter_by(
+        user_id=current_user.id, product_id=product_id, size=size
+    ).scalar() or 0
+
+    stock = (product.stock_50ml or 0) if size == '50ml' else (product.stock_100ml or 0)
+    if in_cart + quantity > stock:
+        return jsonify({'success': False, 'message': f'Only {stock} in stock ({in_cart} already in cart).'})
+
     base_price = product.price_100ml if size == '100ml' and product.price_100ml else product.price
     price_paid = round(base_price * (1 - (product.discount or 0) / 100), 2)
     item = CartItem(user_id=current_user.id, product_id=product_id, size=size, quantity=quantity, price_paid=price_paid)
