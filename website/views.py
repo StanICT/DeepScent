@@ -150,7 +150,12 @@ def add_to_cart(product_id):
 
     stock = (product.stock_50ml or 0) if size == '50ml' else (product.stock_100ml or 0)
     if in_cart + quantity > stock:
-        msg = f'Only {stock} in stock.' if in_cart == 0 else f'Only {stock} in stock ({in_cart} already in cart).'
+        if stock == 0:
+            msg = f'{product.name} ({size}) is out of stock.'
+        elif in_cart == 0:
+            msg = f'{product.name} ({size}) only has {stock} left.'
+        else:
+            msg = f'{product.name} ({size}) only has {stock} left ({in_cart} already in cart).'
         return jsonify({'success': False, 'message': msg})
 
     base_price = product.price_100ml if size == '100ml' and product.price_100ml else product.price
