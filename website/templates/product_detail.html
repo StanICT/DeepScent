@@ -55,14 +55,14 @@
                     <button class="size-btn active" onclick="selectDetailSize(this, '50ml', {{ product.price * (1 - product.discount / 100) if product.discount else product.price }})">
                         50ml
                         <span class="size-stock {% if (product.stock_50ml or 0) == 0 %}out{% endif %}">
-                            {{ 'Out of stock' if (product.stock_50ml or 0) == 0 else product.stock_50ml ~ ' left' }}
+                            {{ 'Out of stock' if (product.stock_50ml or 0) == 0 else (product.stock_50ml|string ~ ' left') }}
                         </span>
                     </button>
                     {% if product.price_100ml %}
                     <button class="size-btn" onclick="selectDetailSize(this, '100ml', {{ (product.price_100ml * (1 - product.discount / 100)) if product.discount else product.price_100ml }})">
                         100ml
                         <span class="size-stock {% if (product.stock_100ml or 0) == 0 %}out{% endif %}">
-                            {{ 'Out of stock' if (product.stock_100ml or 0) == 0 else product.stock_100ml ~ ' left' }}
+                            {{ 'Out of stock' if (product.stock_100ml or 0) == 0 else (product.stock_100ml|string ~ ' left') }}
                         </span>
                     </button>
                     {% endif %}
