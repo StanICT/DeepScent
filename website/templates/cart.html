@@ -56,6 +56,15 @@
                 <span>Total</span>
                 <span id="cart-total">₱0.00</span>
             </div>
+            <div class="summary-address">
+                <p class="summary-address-label">DELIVERY ADDRESS</p>
+                {% if current_user.address %}
+                <p class="summary-address-text" id="addressDisplay">{{ current_user.address }}</p>
+                {% else %}
+                <p class="summary-address-text no-address" id="addressDisplay">No address set</p>
+                {% endif %}
+                <button class="btn-edit-address" onclick="openAddressModal()">{{ 'Change' if current_user.address else 'Add Address' }}</button>
+            </div>
             <button class="btn-checkout" onclick="checkout()">Checkout</button>
         </div>
     </div>
@@ -132,6 +141,13 @@
     .btn-checkout { width: 100%; padding: 13px; background: #111; color: #fff; border: none; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
     .btn-checkout:hover { background: #cc0000; }
     .btn-checkout:disabled { background: #ccc; cursor: not-allowed; }
+
+    .summary-address { margin: 16px 0; padding: 14px; background: #f5f5f5; border-radius: 8px; }
+    .summary-address-label { font-size: 10px; letter-spacing: 2px; font-weight: 600; color: #aaa; margin: 0 0 6px; }
+    .summary-address-text { font-size: 13px; color: #111; font-weight: 600; margin: 0 0 8px; line-height: 1.5; }
+    .summary-address-text.no-address { color: #aaa; font-weight: 400; }
+    .btn-edit-address { background: none; border: none; color: #cc0000; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; padding: 0; }
+    .btn-edit-address:hover { text-decoration: underline; }
 
     .cart-empty { text-align: center; padding: 80px 0; color: #aaa; }
     .cart-empty i { font-size: 60px; margin-bottom: 20px; }
@@ -237,6 +253,12 @@
         const selected = [...document.querySelectorAll('.cart-checkbox:checked')]
             .map(cb => cb.closest('.cart-item').dataset.itemId);
         if (!selected.length) return;
+        const address = document.getElementById('addressDisplay').textContent.trim();
+        if (!address || address === 'No address set') {
+            showToast('Please add a delivery address first.', 'error');
+            openAddressModal();
+            return;
+        }
         fetch('/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -248,6 +270,29 @@
                 setTimeout(() => window.location.href = '/orders', 1500);
             } else {
                 showToast(data.message, 'error');
+            }
+        });
+    }
+
+    function openAddressModal() {
+        document.getElementById('addressModal').classList.add('active');
+        document.getElementById('addressInput').value = document.getElementById('addressDisplay').textContent === 'No address set' ? '' : document.getElementById('addressDisplay').textContent;
+    }
+
+    function saveAddress() {
+        const address = document.getElementById('addressInput').value.trim();
+        if (!address) { showToast('Please enter an address.', 'error'); return; }
+        fetch('/save_address', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ address })
+        }).then(res => res.json()).then(data => {
+            if (data.success) {
+                document.getElementById('addressDisplay').textContent = address;
+                document.getElementById('addressDisplay').classList.remove('no-address');
+                document.querySelector('.btn-edit-address').textContent = 'Change';
+                document.getElementById('addressModal').classList.remove('active');
+                showToast('Address saved!');
             }
         });
     }
@@ -305,3 +350,17 @@
 </style>
 
 {% endblock %}
+
+<!-- Address Modal -->
+<div class="modal-overlay" id="addressModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="modal-box">
+        <div class="modal-icon"><i class="fas fa-map-marker-alt"></i></div>
+        <p class="modal-title">Delivery Address</p>
+        <p class="modal-desc">Enter your full delivery address including street, city, and province.</p>
+        <textarea id="addressInput" rows="3" style="width:100%;padding:12px;border:1px solid #e0e0e0;border-radius:8px;font-family:'Poppins',sans-serif;font-size:13px;outline:none;resize:vertical;margin-bottom:16px;box-sizing:border-box;"></textarea>
+        <div class="modal-actions">
+            <button class="modal-btn-cancel" onclick="document.getElementById('addressModal').classList.remove('active')">Cancel</button>
+            <button class="modal-btn-confirm" onclick="saveAddress()">Save</button>
+        </div>
+    </div>
+</div>

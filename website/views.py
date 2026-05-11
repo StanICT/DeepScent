@@ -190,6 +190,14 @@ def remove_from_cart(item_id):
     total = sum(i.quantity for i in current_user.cart_items)
     return jsonify({'success': True, 'cart_count': total})
 
+@views.route('/save_address', methods=['POST'])
+@login_required
+def save_address():
+    address = request.json.get('address', '').strip()
+    current_user.address = address
+    db.session.commit()
+    return jsonify({'success': True})
+
 @views.route('/checkout', methods=['POST'])
 @login_required
 def checkout():
@@ -210,7 +218,7 @@ def checkout():
             return jsonify({'success': False, 'message': f'{item.product.name} ({item.size}) only has {stock} left.'})
 
     total = sum((i.price_paid if i.price_paid else i.product.price) * i.quantity for i in items)
-    order = Order(user_id=current_user.id, total=total)
+    order = Order(user_id=current_user.id, total=total, address=current_user.address or '')
     db.session.add(order)
     db.session.flush()
 

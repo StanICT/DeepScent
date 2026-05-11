@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/all.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
     <!-- Navigation -->
@@ -202,7 +204,7 @@
             <div class="menu-list">
                 <div class="menu-item" onclick="openFavoritesPanel()"><i class="fas fa-heart"></i><span>Favorites</span></div>
                 <div class="menu-item" onclick="openCartPanel()"><i class="fas fa-shopping-cart"></i><span>Cart</span></div>
-                <div class="menu-item"><i class="fas fa-map-marker-alt"></i><span>Location</span></div>
+                <div class="menu-item" onclick="openLocationPanel()"><i class="fas fa-map-marker-alt"></i><span>Location</span></div>
                 <div class="menu-item" onclick="openOrdersPanel()"><i class="fas fa-box"></i><span>Orders</span></div>
                 <div class="menu-item" onclick="doLogout()"><i class="fas fa-door-open"></i><span>Logout</span></div>
             </div>
@@ -247,6 +249,18 @@
         <div id="ordersContent" class="panel-content"></div>
     </div>
 
+    <!-- Location Panel -->
+    <div class="side-panel" id="locationPanel" style="display:none;">
+        <button class="btn-close-custom" onclick="closeLocationPanel()" aria-label="Close"></button>
+        <h2 class="panel-title">Delivery Address</h2>
+        <div style="padding:10px 0;">
+            <p style="font-size:12px;color:#aaa;margin-bottom:12px;">Click on the map to set your delivery location.</p>
+            <div id="locationMap" style="width:100%;height:260px;border-radius:10px;overflow:hidden;margin-bottom:12px;"></div>
+            <div id="locationAddressDisplay" style="font-size:13px;color:#111;font-weight:600;background:#f5f5f5;padding:10px 12px;border-radius:8px;margin-bottom:12px;min-height:40px;">{{ current_user.address if current_user.is_authenticated and current_user.address else 'Click the map to pick a location' }}</div>
+            <button onclick="saveLocationAddress()" style="width:100%;padding:12px;background:#111;color:#fff;border:none;border-radius:8px;font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='#cc0000'" onmouseout="this.style.background='#111'">Save Address</button>
+        </div>
+    </div>
+
 
     <!-- Scripts -->
     <script>
@@ -268,10 +282,62 @@
             if (e.target === overlay) {
                 closeProfile();
                 closeFavoritesPanel();
-                closeCartPanel(); closeOrdersPanel();
+                closeCartPanel(); closeOrdersPanel(); closeLocationPanel();
             }
         });
     });
+
+    let _locationMap = null;
+    let _locationMarker = null;
+    let _selectedAddress = '{{ current_user.address if current_user.is_authenticated and current_user.address else "" }}';
+
+    function openLocationPanel() {
+      closeProfile();
+      const panel = document.getElementById('locationPanel');
+      panel.style.display = 'block';
+      panel.style.animation = 'slideIn 0.4s ease forwards';
+      document.querySelector('.overlay').style.display = 'block';
+      setTimeout(() => {
+        if (!_locationMap) {
+          _locationMap = L.map('locationMap').setView([14.5995, 120.9842], 12);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+          }).addTo(_locationMap);
+          _locationMap.on('click', function(e) {
+            const { lat, lng } = e.latlng;
+            if (_locationMarker) _locationMarker.setLatLng([lat, lng]);
+            else _locationMarker = L.marker([lat, lng]).addTo(_locationMap);
+            document.getElementById('locationAddressDisplay').textContent = 'Getting address...';
+            fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+              .then(r => r.json())
+              .then(data => {
+                _selectedAddress = data.display_name || `${lat}, ${lng}`;
+                document.getElementById('locationAddressDisplay').textContent = _selectedAddress;
+              });
+          });
+        } else {
+          _locationMap.invalidateSize();
+        }
+      }, 450);
+    }
+
+    function closeLocationPanel() {
+      const panel = document.getElementById('locationPanel');
+      panel.style.animation = 'slideOut 0.4s ease forwards';
+      setTimeout(() => { panel.style.display = 'none'; }, 400);
+      document.querySelector('.overlay').style.display = 'none';
+    }
+
+    function saveLocationAddress() {
+      if (!_selectedAddress) { showToast('Please pick a location on the map.', 'error'); return; }
+      fetch('/save_address', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: _selectedAddress })
+      }).then(res => res.json()).then(data => {
+        if (data.success) { showToast('Address saved!'); closeLocationPanel(); }
+      });
+    }
 
     function doOrders() {
       window.location.href = '{{ url_for("views.orders") }}';
@@ -459,7 +525,8 @@
         border-radius: 12px; font-family: 'Poppins', sans-serif;
         font-size: 15px; font-weight: 600; z-index: 99999;
         opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease;
-        pointer-events: none; white-space: nowrap;
+        pointer-events: none; white-space: normal;
+        max-width: 360px; text-align: center;
         box-shadow: 0 8px 30px rgba(0,0,0,0.3);
         border-left: 4px solid #cc0000;
     }

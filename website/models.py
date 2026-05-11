@@ -9,6 +9,7 @@ class User(db.Model, UserMixin):
     is_admin = db.Column(db.Boolean, default=False)
     avatar = db.Column(db.String(150), nullable=True)
     fullname = db.Column(db.String(150), default='')
+    address = db.Column(db.String(300), default='')
     cart_items = db.relationship('CartItem', backref='user', lazy=True)
     favorites = db.relationship('Favorite', backref='user', lazy=True)
     orders = db.relationship('Order', backref='user', lazy=True)
@@ -19,6 +20,7 @@ class Order(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(20), default='Pending')
     total = db.Column(db.Float, nullable=False)
+    address = db.Column(db.String(300), default='')
     items = db.relationship('OrderItem', backref='order', lazy=True)
 
 class OrderItem(db.Model):
