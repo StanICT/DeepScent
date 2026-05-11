@@ -37,9 +37,9 @@
                     <td><span class="tag tag-gender">{{ product.gender or 'UNISEX' }}</span></td>
                     <td>₱{{ "%.2f"|format(product.price) }}</td>
                     <td>
-                        <span class="{% if (product.stock_50ml or 0) < 5 %}low-stock{% endif %}">{{ product.stock_50ml or 0 }} 50ml</span>
+                        <span class="stock-badge {% if (product.stock_50ml or 0) == 0 %}stock-out{% elif (product.stock_50ml or 0) < 5 %}stock-low{% else %}stock-ok{% endif %}">{{ product.stock_50ml or 0 }} 50ml</span>
                         {% if product.price_100ml %}
-                        / <span class="{% if (product.stock_100ml or 0) < 5 %}low-stock{% endif %}">{{ product.stock_100ml or 0 }} 100ml</span>
+                        <span class="stock-badge {% if (product.stock_100ml or 0) == 0 %}stock-out{% elif (product.stock_100ml or 0) < 5 %}stock-low{% else %}stock-ok{% endif %}">{{ product.stock_100ml or 0 }} 100ml</span>
                         {% endif %}
                     </td>
                     <td class="actions-cell">
@@ -184,7 +184,10 @@
     .btn-delete:hover { background: #cc0000; color: #fff; }
 
     .empty-row { text-align: center; color: #aaa; padding: 40px; }
-    .low-stock { color: #cc0000; font-weight: 700; background: #fff0f0; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    .stock-badge { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; margin-right: 4px; display: inline-block; vertical-align: middle; }
+    .stock-ok { background: #e8f5e9; color: #2e7d32; }
+    .stock-low { background: #fff8e1; color: #f59e0b; }
+    .stock-out { background: #fce8e8; color: #cc0000; }
 
     /* Delete Modal */
     .modal-overlay {
