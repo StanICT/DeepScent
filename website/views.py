@@ -143,17 +143,21 @@ def add_to_cart(product_id):
     quantity = int(request.args.get('quantity', 1))
     product = Product.query.get_or_404(product_id)
 
+    stock = (product.stock_50ml or 0) if size == '50ml' else (product.stock_100ml or 0)
+
+    if stock == 0:
+        return jsonify({'success': False, 'message': f'{product.name} ({size}) is currently out of stock.'})
+
     # Count already in cart for this product+size
     in_cart = db.session.query(db.func.sum(CartItem.quantity)).filter_by(
         user_id=current_user.id, product_id=product_id, size=size
     ).scalar() or 0
 
-    stock = (product.stock_50ml or 0) if size == '50ml' else (product.stock_100ml or 0)
-    if stock == 0:
-        return jsonify({'success': False, 'message': f'{product.name} ({size}) is currently out of stock.'})
     if in_cart + quantity > stock:
-        msg = f'{product.name} ({size}) only has {stock} left.' if in_cart == 0 else f'{product.name} ({size}) only has {stock} left ({in_cart} already in cart).'
-        return jsonify({'success': False, 'message': msg})
+        available = stock - in_cart
+        if available <= 0:
+            return jsonify({'success': False, 'message': f'You already have all available stock of {product.name} ({size}) in your cart.'})
+        return jsonify({'success': False, 'message': f'{product.name} ({size}) only has {available} more available to add.'})
 
     base_price = product.price_100ml if size == '100ml' and product.price_100ml else product.price
     price_paid = round(base_price * (1 - (product.discount or 0) / 100), 2)
