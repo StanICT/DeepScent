@@ -37,7 +37,7 @@
                     {% set r = (ratings[product.id].avg|int) if ratings and product.id in ratings else 0 %}
                     {% set c = ratings[product.id].count if ratings and product.id in ratings else 0 %}
                     <span class="stars">{% for i in range(1,6) %}{% if i <= r %}★{% else %}☆{% endif %}{% endfor %}</span>
-                    <span class="review-count">({{ c }})</span>
+                    <span class="review-count">({{ ratings[product.id].avg if ratings and product.id in ratings else 0 }})</span>
                 </div>
                 <div class="product-footer">
                     <div class="product-price-wrap">
