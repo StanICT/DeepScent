@@ -230,7 +230,8 @@ def orders_panel():
 @login_required
 def orders():
     user_orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.created_at.desc()).all()
-    return render_template('orders.html', orders=user_orders)
+    reviewed_ids = [r.product_id for r in Review.query.filter_by(user_id=current_user.id).all()]
+    return render_template('orders.html', orders=user_orders, reviewed_ids=reviewed_ids)
 
 @views.route('/cart')
 @login_required

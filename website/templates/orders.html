@@ -31,7 +31,22 @@
                         <p class="order-item-name">{{ item.product.name }}</p>
                         <p class="order-item-meta">{{ item.size }} × {{ item.quantity }}</p>
                     </div>
-                    <p class="order-item-price">₱{{ "%.2f"|format(item.price_paid * item.quantity) }}</p>
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+                        <p class="order-item-price">₱{{ "%.2f"|format(item.price_paid * item.quantity) }}</p>
+                        {% if order.status == 'Completed' and item.product_id not in reviewed_ids %}
+                        <div class="review-inline" id="review-{{ item.product_id }}">
+                            <div class="star-row" data-product="{{ item.product_id }}">
+                                {% for i in range(1,6) %}
+                                <i class="fas fa-star order-star" data-value="{{ i }}" onclick="setOrderRating({{ item.product_id }}, {{ i }})"></i>
+                                {% endfor %}
+                            </div>
+                            <input type="text" class="review-input" id="comment-{{ item.product_id }}" placeholder="Write a review...">
+                            <button class="review-submit-btn" onclick="submitOrderReview({{ item.product_id }})">Submit</button>
+                        </div>
+                        {% elif order.status == 'Completed' and item.product_id in reviewed_ids %}
+                        <span style="font-size:11px;color:#2e7d32;font-weight:600;">✓ Reviewed</span>
+                        {% endif %}
+                    </div>
                 </div>
                 {% endfor %}
             </div>
@@ -90,9 +105,44 @@
     .btn-shop { padding: 12px 30px; background: #111; color: #fff; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; }
     .btn-shop:hover { background: #cc0000; color: #fff; }
 
+    .review-inline { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+    .star-row { display: flex; gap: 4px; }
+    .order-star { font-size: 18px; color: #ddd; cursor: pointer; transition: color 0.15s; }
+    .order-star.active { color: #f5a623; }
+    .review-input { padding: 6px 10px; border: 1px solid #e0e0e0; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 12px; width: 180px; outline: none; }
+    .review-input:focus { border-color: #cc0000; }
+    .review-submit-btn { padding: 6px 16px; background: #111; color: #fff; border: none; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .review-submit-btn:hover { background: #cc0000; }
+
     @media (max-width: 768px) {
         .orders-page { padding: 40px 20px; }
     }
 </style>
+
+<script>
+    const _orderRatings = {};
+
+    function setOrderRating(productId, value) {
+        _orderRatings[productId] = value;
+        document.querySelectorAll(`.star-row[data-product="${productId}"] .order-star`).forEach((star, i) => {
+            star.classList.toggle('active', i < value);
+        });
+    }
+
+    function submitOrderReview(productId) {
+        const rating = _orderRatings[productId] || 5;
+        const comment = document.getElementById('comment-' + productId).value.trim();
+        fetch(`/review/${productId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ rating, comment })
+        }).then(res => res.json()).then(data => {
+            if (data.success) {
+                const el = document.getElementById('review-' + productId);
+                el.innerHTML = '<span style="font-size:11px;color:#2e7d32;font-weight:600;">✓ Reviewed</span>';
+            }
+        });
+    }
+</script>
 
 {% endblock %}
