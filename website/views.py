@@ -254,6 +254,22 @@ def orders_panel():
         'items': [{'name': i.product.name, 'image': i.product.image, 'size': i.size, 'quantity': i.quantity} for i in o.items]
     } for o in user_orders]})
 
+@views.route('/orders/cancel/<int:order_id>', methods=['POST'])
+@login_required
+def cancel_order(order_id):
+    order = Order.query.filter_by(id=order_id, user_id=current_user.id).first_or_404()
+    if order.status != 'Pending':
+        return jsonify({'success': False, 'message': 'Only pending orders can be cancelled.'})
+    # Restore stock
+    for item in order.items:
+        if item.size == '50ml':
+            item.product.stock_50ml = (item.product.stock_50ml or 0) + item.quantity
+        else:
+            item.product.stock_100ml = (item.product.stock_100ml or 0) + item.quantity
+    order.status = 'Cancelled'
+    db.session.commit()
+    return jsonify({'success': True})
+
 @views.route('/orders')
 @login_required
 def orders():
