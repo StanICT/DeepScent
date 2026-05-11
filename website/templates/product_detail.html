@@ -243,6 +243,7 @@
     .star-input { display: flex; gap: 6px; margin-bottom: 16px; }
     .star-input i { font-size: 24px; color: #ddd; cursor: pointer; transition: color 0.15s; }
     .star-input i.active { color: #f5a623; }
+    .star-input i.hover { color: #f5a623; }
     .review-form textarea {
         width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px;
         font-family: 'Poppins', sans-serif; font-size: 13px; resize: vertical;
@@ -302,9 +303,22 @@
         _selectedRating = value;
         document.querySelectorAll('#starInput i').forEach((star, i) => {
             star.classList.toggle('active', i < value);
+            star.classList.remove('hover');
         });
     }
     setRating(5);
+
+    // Star hover effects
+    document.querySelectorAll('#starInput i').forEach((star, idx) => {
+        star.addEventListener('mouseover', () => {
+            document.querySelectorAll('#starInput i').forEach((s, i) => {
+                s.classList.toggle('hover', i <= idx);
+            });
+        });
+        star.addEventListener('mouseout', () => {
+            document.querySelectorAll('#starInput i').forEach(s => s.classList.remove('hover'));
+        });
+    });
 
     function submitReview(productId) {
         const comment = document.getElementById('reviewComment').value.trim();

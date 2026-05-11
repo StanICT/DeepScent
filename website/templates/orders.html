@@ -109,6 +109,7 @@
     .star-row { display: flex; gap: 4px; }
     .order-star { font-size: 18px; color: #ddd; cursor: pointer; transition: color 0.15s; }
     .order-star.active { color: #f5a623; }
+    .order-star.hover { color: #f5a623; }
     .review-input { padding: 6px 10px; border: 1px solid #e0e0e0; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 12px; width: 180px; outline: none; }
     .review-input:focus { border-color: #cc0000; }
     .review-submit-btn { padding: 6px 16px; background: #111; color: #fff; border: none; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
@@ -126,8 +127,22 @@
         _orderRatings[productId] = value;
         document.querySelectorAll(`.star-row[data-product="${productId}"] .order-star`).forEach((star, i) => {
             star.classList.toggle('active', i < value);
+            star.classList.remove('hover');
         });
     }
+
+    // Hover effects for order stars
+    document.querySelectorAll('.star-row').forEach(row => {
+        const productId = row.dataset.product;
+        row.querySelectorAll('.order-star').forEach((star, idx) => {
+            star.addEventListener('mouseover', () => {
+                row.querySelectorAll('.order-star').forEach((s, i) => s.classList.toggle('hover', i <= idx));
+            });
+            star.addEventListener('mouseout', () => {
+                row.querySelectorAll('.order-star').forEach(s => s.classList.remove('hover'));
+            });
+        });
+    });
 
     function submitOrderReview(productId) {
         const rating = _orderRatings[productId] || 5;
