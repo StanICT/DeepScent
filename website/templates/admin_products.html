@@ -24,7 +24,7 @@
                     <th>Brand</th>
                     <th>Gender</th>
                     <th>Price</th>
-                    <th>Stock</th>
+                    <th>Stock (50ml / 100ml)</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -36,7 +36,12 @@
                     <td>{{ product.brand }}</td>
                     <td><span class="tag tag-gender">{{ product.gender or 'UNISEX' }}</span></td>
                     <td>₱{{ "%.2f"|format(product.price) }}</td>
-                    <td>{{ product.stock }}</td>
+                    <td>
+                        <span class="{% if (product.stock_50ml or 0) < 5 %}low-stock{% endif %}">{{ product.stock_50ml or 0 }} 50ml</span>
+                        {% if product.price_100ml %}
+                        / <span class="{% if (product.stock_100ml or 0) < 5 %}low-stock{% endif %}">{{ product.stock_100ml or 0 }} 100ml</span>
+                        {% endif %}
+                    </td>
                     <td class="actions-cell">
                         <a href="{{ url_for('admin.edit_product', id=product.id) }}" class="btn-edit">Edit</a>
                         <a href="#" class="btn-delete" onclick="showDeleteModal(this.dataset.name, this.dataset.url)" data-name="{{ product.name }}" data-url="{{ url_for('admin.delete_product', id=product.id) }}">Delete</a>
@@ -179,6 +184,7 @@
     .btn-delete:hover { background: #cc0000; color: #fff; }
 
     .empty-row { text-align: center; color: #aaa; padding: 40px; }
+    .low-stock { color: #cc0000; font-weight: 700; background: #fff0f0; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
 
     /* Delete Modal */
     .modal-overlay {
