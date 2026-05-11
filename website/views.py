@@ -34,10 +34,10 @@ def product_detail(product_id):
     can_review = False
     if current_user.is_authenticated:
         favorited = Favorite.query.filter_by(user_id=current_user.id, product_id=product_id).first() is not None
-        can_review = db.session.query(Order).join(OrderItem).filter(
+        can_review = db.session.query(Order).filter(
             Order.user_id == current_user.id,
             Order.status == 'Completed',
-            OrderItem.product_id == product_id
+            Order.items.any(OrderItem.product_id == product_id)
         ).first() is not None
     reviews = Review.query.filter_by(product_id=product_id).order_by(Review.created_at.desc()).all()
     avg_rating = round(sum(r.rating for r in reviews) / len(reviews), 1) if reviews else 0
