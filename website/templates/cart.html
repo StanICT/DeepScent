@@ -259,6 +259,19 @@
             openAddressModal();
             return;
         }
+        // Build confirmation modal content
+        const total = document.getElementById('cart-total').textContent;
+        const count = selected.length;
+        document.getElementById('checkoutAddress').textContent = address;
+        document.getElementById('checkoutCount').textContent = count + ' item' + (count !== 1 ? 's' : '');
+        document.getElementById('checkoutTotal').textContent = total;
+        document.getElementById('checkoutModal').classList.add('active');
+        document.getElementById('checkoutModal')._selectedIds = selected;
+    }
+
+    function confirmCheckout() {
+        const selected = document.getElementById('checkoutModal')._selectedIds;
+        document.getElementById('checkoutModal').classList.remove('active');
         fetch('/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -299,6 +312,29 @@
 
     document.querySelector('.btn-checkout').disabled = true;
 </script>
+
+<!-- Checkout Confirmation Modal -->
+<div class="modal-overlay" id="checkoutModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="modal-box">
+        <div class="modal-icon" style="background:#e8f5e9;"><i class="fas fa-shopping-bag" style="color:#2e7d32;"></i></div>
+        <p class="modal-title">Confirm Order</p>
+        <div style="text-align:left;background:#f5f5f5;border-radius:8px;padding:14px;margin-bottom:20px;">
+            <p style="font-size:10px;letter-spacing:2px;color:#aaa;font-weight:600;margin:0 0 6px;">DELIVERY ADDRESS</p>
+            <p style="font-size:13px;color:#111;font-weight:600;margin:0 0 14px;line-height:1.5;" id="checkoutAddress"></p>
+            <p style="font-size:10px;letter-spacing:2px;color:#aaa;font-weight:600;margin:0 0 6px;">ORDER SUMMARY</p>
+            <div style="display:flex;justify-content:space-between;font-size:13px;color:#333;margin-bottom:4px;">
+                <span>Items</span><span id="checkoutCount"></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;color:#111;border-top:1px solid #e0e0e0;padding-top:10px;margin-top:8px;">
+                <span>Total</span><span id="checkoutTotal"></span>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn-cancel" onclick="document.getElementById('checkoutModal').classList.remove('active')">Cancel</button>
+            <button class="modal-btn-confirm" onclick="confirmCheckout()" style="background:#2e7d32;">Place Order</button>
+        </div>
+    </div>
+</div>
 
 <!-- Confirm Modal -->
 <div class="modal-overlay" id="confirmModal" onclick="if(event.target===this)this.classList.remove('active')">
