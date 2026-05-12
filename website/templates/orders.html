@@ -65,35 +65,39 @@
     {% endif %}
 </section>
 
+<!-- Cancel Order Modal -->
+<div class="co-modal-overlay" id="cancelOrderModal" onclick="if(event.target===this)this.classList.remove('active')">
+    <div class="co-modal-box">
+        <div class="co-modal-icon"><i class="fas fa-times-circle"></i></div>
+        <p class="co-modal-title">Cancel Order</p>
+        <p class="co-modal-desc" id="cancelOrderMessage"></p>
+        <div class="co-modal-actions">
+            <button class="co-btn-cancel" onclick="document.getElementById('cancelOrderModal').classList.remove('active')">Keep Order</button>
+            <button class="co-btn-confirm" id="cancelOrderOkBtn">Yes, Cancel</button>
+        </div>
+    </div>
+</div>
+
 <style>
     .orders-page { padding: 60px 80px; background: #f5f5f5; min-height: 100vh; }
     .orders-header { text-align: center; margin-bottom: 40px; }
     .section-label { font-size: 11px; letter-spacing: 4px; color: #cc0000; font-weight: 600; margin-bottom: 12px; }
     .orders-title { font-family: 'Anton', sans-serif; font-style: italic; font-size: 48px; color: #111; margin: 0; }
-
     .orders-list { display: flex; flex-direction: column; gap: 20px; max-width: 800px; margin: 0 auto; }
-
     .order-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
-
-    .order-card-header {
-        display: flex; justify-content: space-between; align-items: center;
-        padding: 18px 24px; border-bottom: 1px solid #f0f0f0;
-    }
+    .order-card-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; border-bottom: 1px solid #f0f0f0; }
     .order-id { font-size: 14px; font-weight: 700; color: #111; margin: 0 0 4px; }
     .order-date { font-size: 12px; color: #aaa; margin: 0; }
     .order-right { display: flex; align-items: center; gap: 16px; }
-    .order-status {
-        font-size: 11px; font-weight: 700; letter-spacing: 1px;
-        padding: 4px 12px; border-radius: 20px; text-transform: uppercase;
-    }
+    .order-status { font-size: 11px; font-weight: 700; letter-spacing: 1px; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; }
     .status-pending { background: #fff8e1; color: #f59e0b; }
     .status-processing { background: #e8f0fe; color: #4a6fa5; }
     .status-completed { background: #e8f5e9; color: #2e7d32; }
     .status-cancelled { background: #fce8e8; color: #cc0000; }
     .order-total { font-size: 16px; font-weight: 700; color: #111; }
-
+    .btn-cancel-order { padding: 5px 14px; background: #fff; color: #cc0000; border: 1px solid #cc0000; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.2s; }
+    .btn-cancel-order:hover { background: #cc0000; color: #fff; }
     .order-items { padding: 16px 24px; display: flex; flex-direction: column; gap: 12px; }
-
     .order-item { display: flex; align-items: center; gap: 16px; }
     .order-item img { width: 60px; height: 60px; object-fit: contain; background: #fafafa; border-radius: 8px; padding: 4px; }
     .order-item-info { flex: 1; }
@@ -101,16 +105,11 @@
     .order-item-name { font-size: 14px; font-weight: 700; color: #111; margin: 0 0 2px; }
     .order-item-meta { font-size: 12px; color: #aaa; margin: 0; }
     .order-item-price { font-size: 14px; font-weight: 700; color: #111; }
-
     .orders-empty { text-align: center; padding: 80px 0; color: #aaa; }
     .orders-empty i { font-size: 60px; margin-bottom: 20px; display: block; color: #ddd; }
     .orders-empty p { font-size: 16px; margin-bottom: 20px; }
     .btn-shop { padding: 12px 30px; background: #111; color: #fff; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; }
     .btn-shop:hover { background: #cc0000; color: #fff; }
-
-    .btn-cancel-order { padding: 5px 14px; background: #fff; color: #cc0000; border: 1px solid #cc0000; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.2s; }
-    .btn-cancel-order:hover { background: #cc0000; color: #fff; }
-
     .review-inline { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
     .star-row { display: flex; gap: 4px; }
     .order-star { font-size: 18px; color: #ddd; cursor: pointer; transition: color 0.15s; }
@@ -121,9 +120,20 @@
     .review-submit-btn { padding: 6px 16px; background: #111; color: #fff; border: none; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
     .review-submit-btn:hover { background: #cc0000; }
 
-    @media (max-width: 768px) {
-        .orders-page { padding: 40px 20px; }
-    }
+    .co-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+    .co-modal-overlay.active { opacity: 1; pointer-events: all; }
+    .co-modal-box { background: #fff; border-radius: 12px; padding: 36px 40px; width: 380px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.2s ease; }
+    .co-modal-overlay.active .co-modal-box { transform: scale(1); }
+    .co-modal-icon { width: 52px; height: 52px; background: #fff0f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 22px; color: #cc0000; }
+    .co-modal-title { font-size: 17px; font-weight: 700; color: #111; margin-bottom: 8px; }
+    .co-modal-desc { font-size: 13px; color: #999; margin-bottom: 28px; line-height: 1.6; }
+    .co-modal-actions { display: flex; gap: 12px; justify-content: center; }
+    .co-btn-cancel { padding: 10px 28px; border: 1px solid #ddd; border-radius: 6px; background: #fff; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: border-color 0.2s; }
+    .co-btn-cancel:hover { border-color: #111; }
+    .co-btn-confirm { padding: 10px 28px; border: none; border-radius: 6px; background: #cc0000; color: #fff; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .co-btn-confirm:hover { background: #a00000; }
+
+    @media (max-width: 768px) { .orders-page { padding: 40px 20px; } }
 </style>
 
 <script>
@@ -158,9 +168,7 @@
         });
     }
 
-    // Hover effects for order stars
     document.querySelectorAll('.star-row').forEach(row => {
-        const productId = row.dataset.product;
         row.querySelectorAll('.order-star').forEach((star, idx) => {
             star.addEventListener('mouseover', () => {
                 row.querySelectorAll('.order-star').forEach((s, i) => s.classList.toggle('hover', i <= idx));
@@ -188,31 +196,3 @@
 </script>
 
 {% endblock %}
-
-<!-- Cancel Order Modal -->
-<div class="co-modal-overlay" id="cancelOrderModal" onclick="if(event.target===this)this.classList.remove('active')">
-    <div class="co-modal-box">
-        <div class="co-modal-icon"><i class="fas fa-times-circle"></i></div>
-        <p class="co-modal-title">Cancel Order</p>
-        <p class="co-modal-desc" id="cancelOrderMessage"></p>
-        <div class="co-modal-actions">
-            <button class="co-btn-cancel" onclick="document.getElementById('cancelOrderModal').classList.remove('active')">Keep Order</button>
-            <button class="co-btn-confirm" id="cancelOrderOkBtn">Yes, Cancel</button>
-        </div>
-    </div>
-</div>
-
-<style>
-    .co-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
-    .co-modal-overlay.active { opacity: 1; pointer-events: all; }
-    .co-modal-box { background: #fff; border-radius: 12px; padding: 36px 40px; width: 380px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.2s ease; }
-    .co-modal-overlay.active .co-modal-box { transform: scale(1); }
-    .co-modal-icon { width: 52px; height: 52px; background: #fff0f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 22px; color: #cc0000; }
-    .co-modal-title { font-size: 17px; font-weight: 700; color: #111; margin-bottom: 8px; }
-    .co-modal-desc { font-size: 13px; color: #999; margin-bottom: 28px; line-height: 1.6; }
-    .co-modal-actions { display: flex; gap: 12px; justify-content: center; }
-    .co-btn-cancel { padding: 10px 28px; border: 1px solid #ddd; border-radius: 6px; background: #fff; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: border-color 0.2s; }
-    .co-btn-cancel:hover { border-color: #111; }
-    .co-btn-confirm { padding: 10px 28px; border: none; border-radius: 6px; background: #cc0000; color: #fff; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-    .co-btn-confirm:hover { background: #a00000; }
-</style>

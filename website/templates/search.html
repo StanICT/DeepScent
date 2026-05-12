@@ -24,6 +24,12 @@
                 {% if product.discount %}
                 <div class="product-badge-sale">SAVE {{ product.discount }}%</div>
                 {% endif %}
+                {% set total_stock = (product.stock_50ml or 0) + (product.stock_100ml or 0) %}
+                {% if total_stock == 0 %}
+                <div class="product-badge-stock out">Out of Stock</div>
+                {% elif total_stock < 5 %}
+                <div class="product-badge-stock low">{{ total_stock }} left</div>
+                {% endif %}
                 <img src="{{ url_for('static', filename='uploads/' ~ product.image) }}" alt="{{ product.name }}">
             </div>
             <div class="product-info">
@@ -141,6 +147,9 @@
         font-size: 10px; font-weight: 700; letter-spacing: 1px;
         padding: 4px 10px; border-radius: 4px; z-index: 1;
     }
+    .product-badge-stock { position: absolute; bottom: 10px; left: 10px; font-size: 10px; font-weight: 700; letter-spacing: 1px; padding: 4px 10px; border-radius: 4px; z-index: 1; }
+    .product-badge-stock.out { background: #111; color: #fff; }
+    .product-badge-stock.low { background: #fff8e1; color: #f59e0b; }
 
     .product-info { padding: 16px 18px 18px; }
     .product-tags { display: flex; gap: 6px; margin-bottom: 10px; }
