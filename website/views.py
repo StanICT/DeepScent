@@ -42,7 +42,9 @@ def product_detail(product_id):
     reviews = Review.query.filter_by(product_id=product_id).order_by(Review.created_at.desc()).all()
     avg_rating = round(sum(r.rating for r in reviews) / len(reviews), 1) if reviews else 0
     user_reviewed = Review.query.filter_by(user_id=current_user.id, product_id=product_id).first() if current_user.is_authenticated else None
-    return render_template('product_detail.html', product=product, favorited=favorited, reviews=reviews, avg_rating=avg_rating, user_reviewed=user_reviewed, can_review=can_review)
+    related = Product.query.filter(Product.brand == product.brand, Product.id != product_id).limit(4).all()
+    favorited_ids = [f.product_id for f in current_user.favorites] if current_user.is_authenticated else []
+    return render_template('product_detail.html', product=product, favorited=favorited, reviews=reviews, avg_rating=avg_rating, user_reviewed=user_reviewed, can_review=can_review, related=related, favorited_ids=favorited_ids)
 
 @views.route('/review/<int:product_id>', methods=['POST'])
 @login_required
@@ -67,6 +69,16 @@ def product():
         reviews = Review.query.filter_by(product_id=p.id).all()
         ratings[p.id] = {'avg': round(sum(r.rating for r in reviews) / len(reviews), 1) if reviews else 0, 'count': len(reviews)}
     return render_template('product.html', products=products, favorited_ids=favorited_ids, ratings=ratings)
+
+@views.route('/search/suggest')
+def search_suggest():
+    q = request.args.get('q', '').strip()
+    if not q or len(q) < 2:
+        return jsonify([])
+    results = Product.query.filter(
+        Product.name.ilike(f'%{q}%') | Product.brand.ilike(f'%{q}%')
+    ).limit(6).all()
+    return jsonify([{'id': p.id, 'name': p.name, 'brand': p.brand, 'image': p.image} for p in results])
 
 @views.route('/search')
 def search():

@@ -101,6 +101,32 @@
         </div>
     </div>
 
+    {% if related %}
+    <!-- Related Products -->
+    <div class="related-section">
+        <p class="detail-label">MORE FROM {{ product.brand | upper }}</p>
+        <div class="related-grid">
+            {% for p in related %}
+            <a href="{{ url_for('views.product_detail', product_id=p.id) }}" class="related-card">
+                <div class="related-img">
+                    {% set ts = (p.stock_50ml or 0) + (p.stock_100ml or 0) %}
+                    {% if ts == 0 %}<div class="product-badge-stock out">Out of Stock</div>{% elif ts < 5 %}<div class="product-badge-stock low">{{ ts }} left</div>{% endif %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ p.image) }}" alt="{{ p.name }}">
+                </div>
+                <div class="related-info">
+                    <p class="related-name">{{ p.name }}</p>
+                    {% if p.discount %}
+                    <p class="related-price"><span style="text-decoration:line-through;color:#aaa;font-size:11px;">₱{{ "%.2f"|format(p.price) }}</span> ₱{{ "%.2f"|format(p.price * (1 - p.discount / 100)) }}</p>
+                    {% else %}
+                    <p class="related-price">₱{{ "%.2f"|format(p.price) }}</p>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Reviews -->
     <div class="reviews-section">
         <div class="reviews-header">
@@ -232,6 +258,17 @@
     .btn-detail-heart:hover, .btn-detail-heart.favorited { background: #cc0000; color: #fff; border-color: #cc0000; }
 
     .detail-desc { font-size: 14px; color: #666; line-height: 1.8; }
+
+    /* Related */
+    .related-section { margin: 48px 0 0; }
+    .related-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 16px; }
+    .related-card { text-decoration: none; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s; }
+    .related-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+    .related-img { height: 140px; background: #fafafa; display: flex; align-items: center; justify-content: center; padding: 12px; position: relative; }
+    .related-img img { max-height: 110px; max-width: 100%; object-fit: contain; }
+    .related-info { padding: 12px 14px; }
+    .related-name { font-size: 13px; font-weight: 700; color: #111; margin: 0 0 4px; }
+    .related-price { font-size: 14px; font-weight: 700; color: #cc0000; margin: 0; }
 
     /* Reviews */
     .reviews-section { max-width: 800px; margin: 40px auto 0; }

@@ -54,9 +54,10 @@
             <form action="{{ url_for('views.search') }}" method="GET" class="search-form">
                 <div class="search-input-wrap">
                     <i class="fas fa-search"></i>
-                    <input id="searchInput" name="q" type="text" placeholder="Search fragrances, brands..." autocomplete="off">
+                    <input id="searchInput" name="q" type="text" placeholder="Search fragrances, brands..." autocomplete="off" oninput="searchSuggest(this.value)">
                     <button type="button" onclick="toggleSearch(event)" class="search-close"><i class="fas fa-times"></i></button>
                 </div>
+                <div id="searchSuggestions" style="margin-top:12px;display:none;"></div>
                 <p class="search-hint">PRESS ENTER TO SEARCH</p>
             </form>
             <div class="search-suggestions">
@@ -446,11 +447,35 @@
       reader.readAsDataURL(file);
     }
 
+    function searchSuggest(q) {
+      const box = document.getElementById('searchSuggestions');
+      if (q.length < 2) { box.style.display = 'none'; box.innerHTML = ''; return; }
+      fetch(`/search/suggest?q=${encodeURIComponent(q)}`)
+        .then(r => r.json())
+        .then(data => {
+          if (!data.length) { box.style.display = 'none'; return; }
+          box.innerHTML = data.map(p => `
+            <a href="/product/${p.id}" class="suggest-item" onclick="document.getElementById('searchBar').classList.remove('open')">
+              <img src="/static/uploads/${p.image}" alt="${p.name}">
+              <div>
+                <p class="suggest-name">${p.name}</p>
+                <p class="suggest-brand">${p.brand}</p>
+              </div>
+            </a>`).join('');
+          box.style.display = 'block';
+        });
+    }
+
     function toggleSearch(e) {
       e.preventDefault();
       const bar = document.getElementById('searchBar');
       bar.classList.toggle('open');
-      if (bar.classList.contains('open')) document.getElementById('searchInput').focus();
+      if (bar.classList.contains('open')) {
+        document.getElementById('searchInput').focus();
+      } else {
+        document.getElementById('searchSuggestions').style.display = 'none';
+        document.getElementById('searchSuggestions').innerHTML = '';
+      }
     }
 
     function toggleDarkMode() {
