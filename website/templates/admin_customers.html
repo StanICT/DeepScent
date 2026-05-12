@@ -17,7 +17,6 @@
                 <tr>
                     <th>Avatar</th>
                     <th>Username</th>
-                    <th>Full Name</th>
                     <th>Address</th>
                     <th>Orders</th>
                     <th>Action</th>
@@ -31,7 +30,6 @@
                             style="width:36px;height:36px;border-radius:50%;object-fit:cover;">
                     </td>
                     <td class="product-name-cell">@{{ customer.username }}</td>
-                    <td>{{ customer.fullname or '—' }}</td>
                     <td style="font-size:12px;color:#666;max-width:200px;word-break:break-word;">{{ customer.address or '—' }}</td>
                     <td>{{ customer.orders | length }}</td>
                     <td>
