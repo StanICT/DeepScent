@@ -78,6 +78,25 @@ def update_order_status(order_id):
     db.session.commit()
     return redirect(url_for('admin.admin_orders'))
 
+@admin.route("/customers")
+@login_required
+def admin_customers():
+    if not current_user.is_admin:
+        abort(403)
+    customers = User.query.filter_by(is_admin=False).all()
+    return render_template('admin_customers.html', customers=customers)
+
+@admin.route("/customers/<int:user_id>")
+@login_required
+def customer_detail(user_id):
+    if not current_user.is_admin:
+        abort(403)
+    from .models import Order
+    customer = User.query.get_or_404(user_id)
+    orders = Order.query.filter_by(user_id=user_id).order_by(Order.created_at.desc()).all()
+    total_spent = sum(o.total for o in orders)
+    return render_template('admin_customer_detail.html', customer=customer, orders=orders, total_spent=total_spent)
+
 @admin.route("/products")
 @login_required
 def admin_products():

@@ -29,7 +29,7 @@
                 {% for order in orders %}
                 <tr>
                     <td><strong>#{{ order.id }}</strong></td>
-                    <td>{{ order.user.username }}</td>
+                    <td><a href="{{ url_for('admin.customer_detail', user_id=order.user.id) }}" style="color:#cc0000;font-weight:600;text-decoration:none;">{{ order.user.username }}</a></td>
                     <td>{{ order.created_at.strftime('%b %d, %Y') }}</td>
                     <td>{{ order.items|length }} item{{ 's' if order.items|length != 1 }}</td>
                     <td>₱{{ "%.2f"|format(order.total) }}</td>
