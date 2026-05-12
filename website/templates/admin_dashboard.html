@@ -48,6 +48,14 @@
     </div>
 
     <div class="dash-grid">
+        <!-- Revenue Chart -->
+        <div class="dash-card" style="grid-column: 1 / -1;">
+            <div class="dash-card-header">
+                <h3>Revenue — Last 7 Days</h3>
+            </div>
+            <canvas id="revenueChart" height="80"></canvas>
+        </div>
+
         <!-- Recent Orders -->
         <div class="dash-card">
             <div class="dash-card-header">
@@ -138,5 +146,51 @@
     @media (max-width: 1100px) { .dash-stats { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 768px) { .admin-page { padding: 40px 20px; } .dash-grid { grid-template-columns: 1fr; } }
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ revenue_labels | tojson }},
+            datasets: [{
+                label: 'Revenue (₱)',
+                data: {{ revenue_data | tojson }},
+                backgroundColor: 'rgba(204,0,0,0.15)',
+                borderColor: '#cc0000',
+                borderWidth: 2,
+                borderRadius: 6,
+                hoverBackgroundColor: 'rgba(204,0,0,0.3)',
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => '₱' + ctx.parsed.y.toFixed(2)
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: val => '₱' + val,
+                        font: { family: 'Poppins', size: 11 },
+                        color: '#aaa'
+                    },
+                    grid: { color: '#f0f0f0' }
+                },
+                x: {
+                    ticks: { font: { family: 'Poppins', size: 11 }, color: '#aaa' },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+</script>
 
 {% endblock %}

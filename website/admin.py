@@ -34,13 +34,30 @@ def dashboard():
     top_products = db.session.query(
         Product.name, db.func.sum(OrderItem.quantity).label('sold')
     ).join(OrderItem).group_by(Product.id).order_by(db_text('sold DESC')).limit(5).all()
+
+    # Revenue by day for last 7 days
+    from datetime import datetime, timedelta
+    today = datetime.utcnow().date()
+    revenue_labels = []
+    revenue_data = []
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        label = day.strftime('%b %d')
+        total = db.session.query(db.func.sum(Order.total)).filter(
+            db.func.date(Order.created_at) == day
+        ).scalar() or 0
+        revenue_labels.append(label)
+        revenue_data.append(round(float(total), 2))
+
     return render_template('admin_dashboard.html',
         total_orders=total_orders,
         total_revenue=total_revenue,
         total_products=total_products,
         total_users=total_users,
         recent_orders=recent_orders,
-        top_products=top_products
+        top_products=top_products,
+        revenue_labels=revenue_labels,
+        revenue_data=revenue_data
     )
 
 @admin.route("/orders")
