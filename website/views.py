@@ -266,6 +266,12 @@ def orders_panel():
         'items': [{'name': i.product.name, 'image': i.product.image, 'size': i.size, 'quantity': i.quantity} for i in o.items]
     } for o in user_orders]})
 
+@views.route('/order/confirmation/<int:order_id>')
+@login_required
+def order_confirmation(order_id):
+    order = Order.query.filter_by(id=order_id, user_id=current_user.id).first_or_404()
+    return render_template('order_confirmation.html', order=order)
+
 @views.route('/orders/cancel/<int:order_id>', methods=['POST'])
 @login_required
 def cancel_order(order_id):

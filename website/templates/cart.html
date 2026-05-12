@@ -280,7 +280,7 @@
             if (data.success) {
                 document.querySelectorAll('.cart-badge').forEach(b => b.textContent = data.cart_count);
                 showToast('Order placed successfully!');
-                setTimeout(() => window.location.href = '/orders', 1500);
+                setTimeout(() => window.location.href = '/order/confirmation/' + data.order_id, 300);
             } else {
                 showToast(data.message, 'error');
             }
