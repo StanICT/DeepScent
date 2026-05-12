@@ -1,5 +1,5 @@
 from flask import Flask, render_template, g
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from .extensions import db, migrate   # import from extensions
 
 def create_app():
@@ -18,8 +18,14 @@ def create_app():
 
     @app.before_request
     def load_globals():
-        from .models import Brand
+        from .models import Brand, Product
         g.brands = Brand.query.all()
+        if current_user.is_authenticated and current_user.is_admin:
+            g.low_stock_count = Product.query.filter(
+                db.or_(Product.stock_50ml < 5, Product.stock_100ml < 5)
+            ).count()
+        else:
+            g.low_stock_count = 0
 
     # login manager setup
     login_manager = LoginManager()

@@ -36,7 +36,12 @@
             {% if current_user.is_authenticated %}
                 <a href="javascript:void(0);" onclick="openProfile()"><i class="fa fa-user"></i></a>
                 {% if current_user.is_admin %}
-                <a href="{{ url_for('admin.dashboard') }}" title="Admin"><i class="fas fa-shield-alt"></i></a>
+                <a href="{{ url_for('admin.dashboard') }}" title="Admin" style="position:relative;">
+                    <i class="fas fa-shield-alt"></i>
+                    {% if g.low_stock_count > 0 %}
+                    <span class="badge">{{ g.low_stock_count }}</span>
+                    {% endif %}
+                </a>
                 {% endif %}
             {% else %}
                 <a href="{{ url_for('auth.login') }}"><i class="fa fa-user"></i></a>
