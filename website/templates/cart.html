@@ -65,6 +65,25 @@
                 {% endif %}
                 <button class="btn-edit-address" onclick="openAddressModal()">{{ 'Change' if current_user.address else 'Add Address' }}</button>
             </div>
+            <div class="summary-payment">
+                <p class="summary-payment-label">PAYMENT METHOD</p>
+                <div class="payment-options">
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="cod" checked onchange="updatePaymentMethod()">
+                        <span class="payment-text">
+                            <strong>Cash on Delivery</strong>
+                            <small>Pay when order arrives</small>
+                        </span>
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="online_payment" onchange="updatePaymentMethod()">
+                        <span class="payment-text">
+                            <strong>Online Payment</strong>
+                            <small>Debit/Credit Card</small>
+                        </span>
+                    </label>
+                </div>
+            </div>
             <button class="btn-checkout" onclick="checkout()">Checkout</button>
         </div>
     </div>
@@ -154,6 +173,23 @@
     .cart-empty p { font-size: 16px; margin-bottom: 20px; }
     .btn-shop { padding: 12px 30px; background: #111; color: #fff; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; }
     .btn-shop:hover { background: #cc0000; color: #fff; }
+
+    .summary-payment { margin-top: 20px; padding-top: 20px; border-top: 1px solid #f0f0f0; }
+    .summary-payment-label { font-size: 10px; letter-spacing: 2px; color: #aaa; text-transform: uppercase; margin-bottom: 12px; font-weight: 600; }
+    .payment-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+    .payment-option {
+        display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #ddd;
+        border-radius: 8px; cursor: pointer; transition: all 0.2s; background: #fff;
+    }
+    .payment-option:hover { border-color: #cc0000; background: #fff; }
+    .payment-option input[type="radio"] {
+        width: 16px; height: 16px; cursor: pointer; accent-color: #cc0000; flex-shrink: 0;
+    }
+    .payment-option input[type="radio"]:checked ~ .payment-text { color: #111; }
+    .payment-text { display: flex; flex-direction: column; gap: 2px; }
+    .payment-text strong { font-size: 13px; font-weight: 600; color: #555; }
+    .payment-text small { font-size: 11px; color: #aaa; }
+    .payment-option input[type="radio"]:checked { accent-color: #cc0000; }
 
     @media (max-width: 768px) {
         .cart-page { padding: 40px 20px; }
@@ -271,11 +307,12 @@
 
     function confirmCheckout() {
         const selected = document.getElementById('checkoutModal')._selectedIds;
+        const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
         document.getElementById('checkoutModal').classList.remove('active');
         fetch('/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ item_ids: selected.map(Number) })
+            body: JSON.stringify({ item_ids: selected.map(Number), payment_method: paymentMethod })
         }).then(res => res.json()).then(data => {
             if (data.success) {
                 document.querySelectorAll('.cart-badge').forEach(b => b.textContent = data.cart_count);
@@ -285,6 +322,11 @@
                 showToast(data.message, 'error');
             }
         });
+    }
+
+    function updatePaymentMethod() {
+        const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+        console.log('Payment method selected:', paymentMethod);
     }
 
     function openAddressModal() {

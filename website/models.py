@@ -21,6 +21,7 @@ class Order(db.Model):
     status = db.Column(db.String(20), default='Pending')
     total = db.Column(db.Float, nullable=False)
     address = db.Column(db.String(300), default='')
+    payment_method = db.Column(db.String(20), default='cod')  # cod, bank_transfer, online_payment
     items = db.relationship('OrderItem', backref='order', lazy=True)
 
 class OrderItem(db.Model):

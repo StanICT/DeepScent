@@ -27,6 +27,20 @@
                 <span class="confirm-address">{{ order.address }}</span>
             </div>
             {% endif %}
+            <div class="confirm-row">
+                <span>Payment Method</span>
+                <span class="payment-badge payment-{{ order.payment_method }}">
+                    {% if order.payment_method == 'cod' %}
+                    Cash on Delivery
+                    {% elif order.payment_method == 'bank_transfer' %}
+                    Bank Transfer
+                    {% elif order.payment_method == 'online_payment' %}
+                    Online Payment
+                    {% else %}
+                    {{ order.payment_method }}
+                    {% endif %}
+                </span>
+            </div>
             <div class="confirm-row total">
                 <span>Total</span>
                 <span>₱{{ "%.2f"|format(order.total) }}</span>
@@ -134,6 +148,11 @@
     .btn-view-orders:hover { background: #cc0000; }
     .btn-continue { padding: 12px 28px; background: #fff; color: #111; border: 1px solid #ddd; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; transition: border-color 0.2s; }
     .btn-continue:hover { border-color: #111; }
+
+    .payment-badge { font-size: 11px; font-weight: 700; letter-spacing: 1px; padding: 4px 12px; border-radius: 6px; text-transform: uppercase; }
+    .payment-cod { background: #e8f5e9; color: #2e7d32; }
+    .payment-bank_transfer { background: #e8f0fe; color: #4a6fa5; }
+    .payment-online_payment { background: #fce8e8; color: #cc0000; }
 </style>
 
 {% endblock %}

@@ -214,6 +214,8 @@ def save_address():
 @login_required
 def checkout():
     item_ids = request.json.get('item_ids', [])
+    payment_method = request.json.get('payment_method', 'cod')
+    
     if not item_ids:
         return jsonify({'success': False, 'message': 'No items selected.'})
 
@@ -230,7 +232,7 @@ def checkout():
             return jsonify({'success': False, 'message': f'{item.product.name} ({item.size}) only has {stock} left.'})
 
     total = sum((i.price_paid if i.price_paid else i.product.price) * i.quantity for i in items)
-    order = Order(user_id=current_user.id, total=total, address=current_user.address or '')
+    order = Order(user_id=current_user.id, total=total, address=current_user.address or '', payment_method=payment_method)
     db.session.add(order)
     db.session.flush()
 

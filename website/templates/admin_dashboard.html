@@ -54,7 +54,7 @@
             <div class="dash-card-header">
                 <h3>Revenue — Last 7 Days</h3>
             </div>
-            <canvas id="revenueChart" height="80" data-revenue-labels="{{ revenue_labels|default([])|tojson }}" data-revenue-data="{{ revenue_data|default([])|tojson }}"></canvas>
+            <canvas id="revenueChart" height="80"></canvas>
         </div>
 
         <!-- Recent Orders -->
@@ -150,54 +150,60 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const canvas = document.getElementById('revenueChart');
-    const revenueLabels = JSON.parse(canvas.dataset.revenueLabels);
-    const revenueData = JSON.parse(canvas.dataset.revenueData);
-    const ctx = canvas.getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: revenueLabels,
-            datasets: [{
-                label: 'Revenue (₱)',
-                data: revenueData,
-                fill: false,
-                borderColor: '#cc0000',
-                borderWidth: 2,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                pointBackgroundColor: '#cc0000',
-                pointBorderColor: '#cc0000',
-                tension: 0.35,
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: ctx => '₱' + ctx.parsed.y.toFixed(2)
+    const chartCanvas = document.getElementById('revenueChart');
+    if (chartCanvas) {
+        let revenueLabels = {{ revenue_labels|default([])|tojson }};
+        let revenueData = {{ revenue_data|default([])|tojson }};
+        if (!Array.isArray(revenueLabels)) revenueLabels = [];
+        if (!Array.isArray(revenueData)) revenueData = [];
+
+        const ctx = chartCanvas.getContext('2d');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: revenueLabels,
+                datasets: [{
+                    label: 'Revenue (₱)',
+                    data: revenueData,
+                    fill: false,
+                    borderColor: '#cc0000',
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#cc0000',
+                    pointBorderColor: '#cc0000',
+                    tension: 0.35,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => '₱' + ctx.parsed.y.toFixed(2)
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: val => '₱' + val,
+                            font: { family: 'Poppins', size: 11 },
+                            color: '#aaa'
+                        },
+                        grid: { color: '#f0f0f0' }
+                    },
+                    x: {
+                        ticks: { font: { family: 'Poppins', size: 11 }, color: '#aaa' },
+                        grid: { display: false }
                     }
                 }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: val => '₱' + val,
-                        font: { family: 'Poppins', size: 11 },
-                        color: '#aaa'
-                    },
-                    grid: { color: '#f0f0f0' }
-                },
-                x: {
-                    ticks: { font: { family: 'Poppins', size: 11 }, color: '#aaa' },
-                    grid: { display: false }
-                }
             }
-        }
-    });
+        });
+    }
 </script>
 
 {% endblock %}
