@@ -30,6 +30,7 @@ def dashboard():
     total_revenue = db.session.query(db.func.sum(Order.total)).filter(Order.status == 'Completed').scalar() or 0
     total_products = Product.query.count()
     total_users = User.query.filter_by(is_admin=False).count()
+    total_notes = Note.query.count()
     recent_orders = Order.query.order_by(Order.created_at.desc()).limit(5).all()
     top_products = db.session.query(
         Product.name, db.func.sum(OrderItem.quantity).label('sold')

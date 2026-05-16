@@ -21,7 +21,7 @@
             <div>
                 <p class="section-label">NOTES</p>
                 <h1 class="note-title">Browse by note</h1>
-                <p class="note-description">Select a fragrance note to see matching perfumes and products.</p>
+                <p class="empty-row-text" style="color:#aaa;margin-top:0;">Select a fragrance note to see matching perfumes and products.</p>
             </div>
         {% endif %}
     </div>
@@ -47,19 +47,23 @@
     </div>
     {% else %}
     <div class="notes-grid">
-        {% for note in notes %}
-        <a href="{{ url_for('views.note_products', note_id=note.id) }}" class="note-card">
-            {% if note.image %}
-            <div class="note-card-image"><img src="{{ url_for('static', filename='uploads/' ~ note.image) }}" alt="{{ note.name }}"></div>
-            {% endif %}
-            <div class="note-card-body">
-                <h3>{{ note.name }}</h3>
-                <p>{{ note.products | length }} product{{ 's' if note.products | length != 1 }}</p>
-            </div>
-        </a>
+        {% if notes %}
+            {% for note in notes %}
+            <a href="{{ url_for('views.note_products', note_id=note.id) }}" class="note-card">
+                {% if note.image %}
+                <div class="note-card-image"><img src="{{ url_for('static', filename='uploads/' ~ note.image) }}" alt="{{ note.name }}"></div>
+                {% endif %}
+                <div class="note-card-body">
+                    <h3>{{ note.name }}</h3>
+                    <p>{{ note.products | length }} product{{ 's' if note.products | length != 1 }}</p>
+                </div>
+            </a>
+            {% endfor %}
         {% else %}
-        <p class="empty-row">No notes added yet.</p>
-        {% endfor %}
+            <div class="empty-row" style="grid-column: 1 / -1;">
+                <p class="empty-row-text">No notes added yet.</p>
+            </div>
+        {% endif %}
     </div>
     {% endif %}
 </section>
@@ -92,7 +96,9 @@
     .product-card-name { margin: 0 0 8px; font-size: 18px; }
     .product-card-price { margin: 0; color: #cc0000; font-size: 16px; font-weight: 700; }
     .empty-row { text-align: center; color: #aaa; font-size: 14px; padding: 40px 0; }
+    .empty-row-text { margin: 0; }
     @media (max-width: 1024px) { .notes-grid, .products-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 768px) { .notes-page { padding: 40px 20px; } .notes-grid, .products-grid { grid-template-columns: 1fr; } }
 </style>
 {% endblock %}
+
