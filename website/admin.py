@@ -56,6 +56,7 @@ def dashboard():
         total_revenue=total_revenue,
         total_products=total_products,
         total_users=total_users,
+        total_notes=total_notes,
         recent_orders=recent_orders,
         top_products=top_products,
         revenue_labels=revenue_labels,
