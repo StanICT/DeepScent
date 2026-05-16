@@ -27,7 +27,7 @@ def dashboard():
     if not current_user.is_admin:
         abort(403)
     total_orders = Order.query.count()
-    total_revenue = db.session.query(db.func.sum(Order.total)).scalar() or 0
+    total_revenue = db.session.query(db.func.sum(Order.total)).filter(Order.status == 'Completed').scalar() or 0
     total_products = Product.query.count()
     total_users = User.query.filter_by(is_admin=False).count()
     recent_orders = Order.query.order_by(Order.created_at.desc()).limit(5).all()
@@ -35,7 +35,7 @@ def dashboard():
         Product.name, db.func.sum(OrderItem.quantity).label('sold')
     ).join(OrderItem).group_by(Product.id).order_by(db_text('sold DESC')).limit(5).all()
 
-    # Revenue by day for last 7 days
+    # Revenue by day for last 7 days (only completed orders)
     from datetime import datetime, timedelta
     today = datetime.utcnow().date()
     revenue_labels = []
@@ -44,7 +44,8 @@ def dashboard():
         day = today - timedelta(days=i)
         label = day.strftime('%b %d')
         total = db.session.query(db.func.sum(Order.total)).filter(
-            db.func.date(Order.created_at) == day
+            db.func.date(Order.created_at) == day,
+            Order.status == 'Completed'
         ).scalar() or 0
         revenue_labels.append(label)
         revenue_data.append(round(float(total), 2))
