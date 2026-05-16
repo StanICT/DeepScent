@@ -29,7 +29,7 @@
                 </ul>
             </li>
             <li><a href="{{ url_for('views.product') }}" class="{% if request.endpoint == 'views.product' %}active{% endif %}">PRODUCT</a></li>
-            <li><a href="{{ url_for('views.featured') }}" class="{% if request.endpoint == 'views.featured' %}active{% endif %}">NOTES</a></li>
+            <li><a href="{{ url_for('views.notes') }}" class="{% if request.endpoint == 'views.notes' %}active{% endif %}">NOTES</a></li>
         </ul>
         <div class="icons">
             <a href="#" onclick="toggleSearch(event)"><i class="fas fa-search"></i></a>
@@ -90,7 +90,7 @@
                 <ul>
                     <li><a href="{{ url_for('views.home') }}">Home</a></li>
                     <li><a href="{{ url_for('views.product') }}">Products</a></li>
-                    <li><a href="{{ url_for('views.featured') }}">Notes</a></li>
+                    <li><a href="{{ url_for('views.notes') }}">Notes</a></li>
                 </ul>
             </div>
             <div class="footer-links">

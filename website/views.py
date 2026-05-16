@@ -93,11 +93,10 @@ def search():
         ratings[p.id] = {'avg': round(sum(r.rating for r in reviews) / len(reviews), 1) if reviews else 0, 'count': len(reviews)}
     return render_template('search.html', results=results, query=q, favorited_ids=favorited_ids, ratings=ratings)
 
-@views.route('/featured')
 @views.route('/notes')
-def featured():
+def notes():
     notes = Note.query.order_by(Note.name).all()
-    return render_template('featured.html', notes=notes)
+    return render_template('notes.html', notes=notes)
 
 @views.route('/notes/<int:note_id>')
 def note_products(note_id):
@@ -108,7 +107,7 @@ def note_products(note_id):
     for p in products:
         reviews = Review.query.filter_by(product_id=p.id).all()
         ratings[p.id] = {'avg': round(sum(r.rating for r in reviews) / len(reviews), 1) if reviews else 0, 'count': len(reviews)}
-    return render_template('featured.html', note=note, products=products, favorited_ids=favorited_ids, ratings=ratings)
+    return render_template('notes.html', note=note, products=products, favorited_ids=favorited_ids, ratings=ratings)
 
 @views.route('/favorites/panel')
 @login_required
