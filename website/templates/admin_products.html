@@ -11,6 +11,7 @@
         <div style="display:flex;gap:12px;">
             <a href="{{ url_for('admin.dashboard') }}" class="admin-btn-secondary">Dashboard</a>
             <a href="{{ url_for('admin.admin_brands') }}" class="admin-btn-secondary">Brands</a>
+            <a href="{{ url_for('admin.admin_notes') }}" class="admin-btn-secondary">Notes</a>
             <a href="{{ url_for('admin.add_product') }}" class="admin-btn-add">+ Add Product</a>
         </div>
     </div>
@@ -22,6 +23,7 @@
                     <th>Image</th>
                     <th>Name</th>
                     <th>Brand</th>
+                    <th>Note</th>
                     <th>Gender</th>
                     <th>Price</th>
                     <th>Stock</th>
@@ -34,6 +36,7 @@
                     <td><img src="{{ url_for('static', filename='uploads/' ~ product.image) }}" alt="{{ product.name }}" class="admin-thumb"></td>
                     <td class="product-name-cell">{{ product.name }}</td>
                     <td>{{ product.brand }}</td>
+                    <td>{{ product.note.name if product.note else '—' }}</td>
                     <td><span class="tag tag-gender">{{ product.gender or 'UNISEX' }}</span></td>
                     <td>₱{{ "%.2f"|format(product.price) }}</td>
                     <td>

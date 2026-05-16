@@ -1,6 +1,98 @@
 {% extends "base.html" %}
-{% block title %}Featured{% endblock %}
+{% block title %}Notes{% endblock %}
 {% block content %}
-    <h1>Featured Page</h1>
-    <p>This is the featured products page. Add your content here.</p>
+<section class="notes-page">
+    <div class="notes-header">
+        {% if note %}
+            <a href="{{ url_for('views.featured') }}" class="notes-back">← Back to notes</a>
+            <div class="note-detail-top">
+                <div>
+                    <p class="section-label">NOTE</p>
+                    <h1 class="note-title">{{ note.name }}</h1>
+                </div>
+                {% if note.image %}
+                <div class="note-image-card">
+                    <img src="{{ url_for('static', filename='uploads/' ~ note.image) }}" alt="{{ note.name }}">
+                </div>
+                {% endif %}
+            </div>
+            <p class="note-description">Products tagged with this note.</p>
+        {% else %}
+            <div>
+                <p class="section-label">NOTES</p>
+                <h1 class="note-title">Browse by note</h1>
+                <p class="note-description">Select a fragrance note to see matching perfumes and products.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if note %}
+    <div class="products-grid">
+        {% if products %}
+            {% for product in products %}
+            <a href="{{ url_for('views.product_detail', product_id=product.id) }}" class="product-card">
+                <div class="product-card-img">
+                    <img src="{{ url_for('static', filename='uploads/' ~ product.image) }}" alt="{{ product.name }}">
+                </div>
+                <div class="product-card-body">
+                    <p class="product-card-brand">{{ product.brand }}</p>
+                    <h3 class="product-card-name">{{ product.name }}</h3>
+                    <p class="product-card-price">₱{{ "%.2f"|format(product.price * (1 - (product.discount or 0) / 100)) }}</p>
+                </div>
+            </a>
+            {% endfor %}
+        {% else %}
+            <p class="empty-row">No products found for this note yet.</p>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="notes-grid">
+        {% for note in notes %}
+        <a href="{{ url_for('views.note_products', note_id=note.id) }}" class="note-card">
+            {% if note.image %}
+            <div class="note-card-image"><img src="{{ url_for('static', filename='uploads/' ~ note.image) }}" alt="{{ note.name }}"></div>
+            {% endif %}
+            <div class="note-card-body">
+                <h3>{{ note.name }}</h3>
+                <p>{{ note.products | length }} product{{ 's' if note.products | length != 1 }}</p>
+            </div>
+        </a>
+        {% else %}
+        <p class="empty-row">No notes added yet.</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+</section>
+
+<style>
+    .notes-page { padding: 60px 80px; background: #f5f5f5; min-height: 100vh; }
+    .notes-header { margin-bottom: 32px; }
+    .notes-back { display: inline-block; margin-bottom: 18px; color: #111; text-decoration: none; font-weight: 600; }
+    .section-label { font-size: 11px; letter-spacing: 4px; color: #cc0000; font-weight: 600; margin-bottom: 6px; }
+    .note-title { font-family: 'Anton', sans-serif; font-size: 42px; color: #111; margin: 0 0 12px; }
+    .note-description { font-size: 14px; color: #666; max-width: 680px; margin: 0; }
+    .note-detail-top { display: flex; align-items: center; gap: 30px; flex-wrap: wrap; margin-bottom: 20px; }
+    .note-image-card { width: 220px; height: 220px; background: #fff; border-radius: 18px; overflow: hidden; box-shadow: 0 12px 30px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center; }
+    .note-image-card img { width: 100%; height: 100%; object-fit: cover; }
+    .notes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    .note-card { display: block; background: #fff; border-radius: 18px; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 5px 20px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s; }
+    .note-card:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(0,0,0,0.12); }
+    .note-card-image { height: 180px; overflow: hidden; }
+    .note-card-image img { width: 100%; height: 100%; object-fit: cover; }
+    .note-card-body { padding: 18px; }
+    .note-card-body h3 { margin: 0 0 8px; font-size: 20px; }
+    .note-card-body p { margin: 0; color: #666; font-size: 13px; }
+    .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .product-card { background: #fff; border-radius: 18px; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 6px 30px rgba(0,0,0,0.08); transition: transform 0.2s; }
+    .product-card:hover { transform: translateY(-3px); }
+    .product-card-img { background: #fafafa; display: flex; align-items: center; justify-content: center; min-height: 240px; }
+    .product-card-img img { width: 100%; height: 100%; object-fit: contain; }
+    .product-card-body { padding: 18px; }
+    .product-card-brand { margin: 0 0 6px; color: #999; font-size: 12px; letter-spacing: 1px; }
+    .product-card-name { margin: 0 0 8px; font-size: 18px; }
+    .product-card-price { margin: 0; color: #cc0000; font-size: 16px; font-weight: 700; }
+    .empty-row { text-align: center; color: #aaa; font-size: 14px; padding: 40px 0; }
+    @media (max-width: 1024px) { .notes-grid, .products-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 768px) { .notes-page { padding: 40px 20px; } .notes-grid, .products-grid { grid-template-columns: 1fr; } }
+</style>
 {% endblock %}

@@ -52,6 +52,9 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
+    note_name = db.Column(db.String(100), nullable=True)
+    note_image = db.Column(db.String(100), nullable=True)
+    note_id = db.Column(db.Integer, db.ForeignKey('note.id'), nullable=True)
     price = db.Column(db.Float, nullable=False)
     stock_50ml = db.Column(db.Integer, default=0)
     stock_100ml = db.Column(db.Integer, default=0)
@@ -60,6 +63,12 @@ class Product(db.Model):
     image = db.Column(db.String(100), nullable=False)
     brand = db.Column(db.String(50), nullable=False)
     gender = db.Column(db.String(20), default='UNISEX')
+
+class Note(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    image = db.Column(db.String(100), nullable=True)
+    products = db.relationship('Product', backref='note', lazy=True)
 
 class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True)

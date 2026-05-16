@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Edit Note{% endblock %}
+{% block content %}
+
+<section class="admin-form-page">
+    <div class="admin-form-layout">
+        <div class="admin-form-side">
+            <p class="side-label">ADMIN PANEL</p>
+            <h2 class="side-title">Edit<br>Note</h2>
+            <div class="side-line"></div>
+            <p class="side-desc">Update the note name or image. Products assigned to this note will stay associated automatically.</p>
+        </div>
+
+        <div class="admin-form-card">
+            <form method="POST" enctype="multipart/form-data">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label>Note Name</label>
+                        <input type="text" name="name" value="{{ note.name }}" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Change Note Image</label>
+                        <input type="file" name="image_file" accept="image/*">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <a href="{{ url_for('admin.admin_notes') }}" class="btn-cancel-form">Cancel</a>
+                    <button type="submit" class="btn-save">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<style>
+    .admin-form-page { padding: 60px 80px; background: #f5f5f5; min-height: 100vh; }
+    .admin-form-layout { display: grid; grid-template-columns: 300px 1fr; gap: 32px; }
+    .admin-form-side { background: #111; border-radius: 12px; padding: 40px 32px; }
+    .side-label { font-size: 10px; letter-spacing: 4px; color: #cc0000; font-weight: 600; margin-bottom: 16px; }
+    .side-title { font-family: 'Anton', sans-serif; font-style: italic; font-size: 48px; color: #fff; line-height: 1; margin: 0 0 20px; }
+    .side-line { width: 30px; height: 2px; background: #cc0000; margin-bottom: 20px; }
+    .side-desc { font-size: 12px; color: rgba(255,255,255,0.35); line-height: 1.8; margin-bottom: 32px; }
+    .admin-form-card { background: #fff; border-radius: 12px; padding: 40px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .form-grid { display: grid; grid-template-columns: 1fr; gap: 24px; margin-bottom: 30px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-group label { font-size: 11px; letter-spacing: 2px; font-weight: 600; color: #888; text-transform: uppercase; }
+    .form-group input { padding: 12px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; }
+    .form-actions { display: flex; justify-content: flex-end; gap: 12px; }
+    .btn-cancel-form, .btn-save { padding: 12px 28px; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; text-decoration: none; border: none; cursor: pointer; }
+    .btn-cancel-form { background: #f5f5f5; color: #111; }
+    .btn-save { background: #111; color: #fff; }
+</style>
+{% endblock %}

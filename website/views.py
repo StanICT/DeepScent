@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
 from flask_login import current_user, login_required
-from website.models import Product, Brand, CartItem, Favorite, Order, OrderItem, Review
+from website.models import Product, Brand, CartItem, Favorite, Order, OrderItem, Review, Note
 from website.extensions import db
 
 views = Blueprint('views', __name__)
@@ -94,8 +94,21 @@ def search():
     return render_template('search.html', results=results, query=q, favorited_ids=favorited_ids, ratings=ratings)
 
 @views.route('/featured')
+@views.route('/notes')
 def featured():
-    return render_template('featured.html')
+    notes = Note.query.order_by(Note.name).all()
+    return render_template('featured.html', notes=notes)
+
+@views.route('/notes/<int:note_id>')
+def note_products(note_id):
+    note = Note.query.get_or_404(note_id)
+    products = Product.query.filter_by(note_id=note.id).all()
+    favorited_ids = [f.product_id for f in current_user.favorites] if current_user.is_authenticated else []
+    ratings = {}
+    for p in products:
+        reviews = Review.query.filter_by(product_id=p.id).all()
+        ratings[p.id] = {'avg': round(sum(r.rating for r in reviews) / len(reviews), 1) if reviews else 0, 'count': len(reviews)}
+    return render_template('featured.html', note=note, products=products, favorited_ids=favorited_ids, ratings=ratings)
 
 @views.route('/favorites/panel')
 @login_required

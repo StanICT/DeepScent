@@ -63,6 +63,15 @@
                         </div>
                         <input type="file" id="imgInput" name="image_file" accept="image/*" style="display:none;" onchange="previewImage(this)">
                     </div>
+                    <div class="form-group">
+                        <label>Note</label>
+                        <select name="note_id" required>
+                            <option value="">Select a note</option>
+                            {% for note in notes %}
+                            <option value="{{ note.id }}">{{ note.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                     <div class="form-group full-width">
                         <label>Notes</label>
                         <textarea name="description" placeholder="Add notes about the fragrance..." rows="4" required></textarea>

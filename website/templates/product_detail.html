@@ -95,7 +95,21 @@
             <!-- Notes -->
             <div class="detail-section">
                 <p class="detail-label">NOTES</p>
+                {% if product.note %}
+                <p class="detail-note-name">{{ product.note.name }}</p>
+                {% elif product.note_name %}
+                <p class="detail-note-name">{{ product.note_name }}</p>
+                {% endif %}
                 <p class="detail-desc">{{ product.description }}</p>
+                {% if product.note and product.note.image %}
+                <div class="note-image-wrap">
+                    <img src="{{ url_for('static', filename='uploads/' ~ product.note.image) }}" alt="{{ product.note.name }}">
+                </div>
+                {% elif product.note_image %}
+                <div class="note-image-wrap">
+                    <img src="{{ url_for('static', filename='uploads/' ~ product.note_image) }}" alt="{{ product.note_name or product.name }}">
+                </div>
+                {% endif %}
             </div>
 
         </div>
@@ -258,6 +272,9 @@
     .btn-detail-heart:hover, .btn-detail-heart.favorited { background: #cc0000; color: #fff; border-color: #cc0000; }
 
     .detail-desc { font-size: 14px; color: #666; line-height: 1.8; }
+    .detail-note-name { font-size: 16px; font-weight: 700; color: #111; margin-bottom: 10px; }
+    .note-image-wrap { margin-top: 16px; }
+    .note-image-wrap img { width: 100%; max-width: 480px; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
 
     /* Related */
     .related-section { margin: 48px 0 0; }

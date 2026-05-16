@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, abort
 from flask_login import login_required, current_user
-from .models import Product, Brand, Order, OrderItem, User, db
+from .models import Product, Brand, Order, OrderItem, User, Note, db
 from sqlalchemy import text as db_text
 from werkzeug.utils import secure_filename
 import os
@@ -118,14 +118,71 @@ def admin_products():
     products = Product.query.all()
     return render_template("admin_products.html", products=products)
 
+@admin.route("/notes")
+@login_required
+def admin_notes():
+    if not current_user.is_admin:
+        abort(403)
+    notes = Note.query.order_by(Note.name).all()
+    return render_template("admin_notes.html", notes=notes)
+
+@admin.route("/notes/add", methods=["GET","POST"])
+@login_required
+def add_note():
+    if not current_user.is_admin:
+        abort(403)
+    if request.method == "POST":
+        name = request.form["name"].strip()
+        image_file = request.files.get("image_file")
+        image = save_image(image_file)
+        note = Note(name=name, image=image)
+        db.session.add(note)
+        db.session.commit()
+        return redirect(url_for("admin.admin_notes"))
+    return render_template("add_note.html")
+
+@admin.route("/notes/edit/<int:id>", methods=["GET","POST"])
+@login_required
+def edit_note(id):
+    if not current_user.is_admin:
+        abort(403)
+    note = Note.query.get_or_404(id)
+    if request.method == "POST":
+        note.name = request.form["name"].strip()
+        image_file = request.files.get("image_file")
+        new_image = save_image(image_file)
+        if new_image:
+            note.image = new_image
+        db.session.commit()
+        return redirect(url_for("admin.admin_notes"))
+    return render_template("edit_note.html", note=note)
+
+@admin.route("/notes/delete/<int:id>", methods=["POST"])
+@login_required
+def delete_note(id):
+    if not current_user.is_admin:
+        abort(403)
+    note = Note.query.get_or_404(id)
+    for product in note.products:
+        product.note_id = None
+    if note.image:
+        file_path = os.path.join(UPLOAD_PATH, note.image)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+    db.session.delete(note)
+    db.session.commit()
+    return redirect(url_for("admin.admin_notes"))
+
 @admin.route("/products/add", methods=["GET","POST"])
 @login_required
 def add_product():
     if not current_user.is_admin:
         abort(403)
+    notes = Note.query.order_by(Note.name).all()
     if request.method == "POST":
         name = request.form["name"]
         description = request.form["description"]
+        note_id = int(request.form["note_id"]) if request.form.get("note_id") else None
         price = float(request.form["price"])
         stock_50ml = int(request.form.get("stock_50ml", 0))
         stock_100ml = int(request.form.get("stock_100ml", 0))
@@ -137,15 +194,16 @@ def add_product():
         image = save_image(image_file) or "default.png"
 
         new_product = Product(
-            name=name, description=description, price=price,
+            name=name, description=description, note_id=note_id, price=price,
             stock_50ml=stock_50ml, stock_100ml=stock_100ml,
-            price_100ml=price_100ml, discount=discount, image=image, brand=brand, gender=gender
+            price_100ml=price_100ml, discount=discount, image=image,
+            brand=brand, gender=gender
         )
         db.session.add(new_product)
         db.session.commit()
         return redirect(url_for("admin.admin_products"))
 
-    return render_template("add_product.html")
+    return render_template("add_product.html", notes=notes)
 
 @admin.route("/products/edit/<int:id>", methods=["GET","POST"])
 @login_required
@@ -153,9 +211,11 @@ def edit_product(id):
     if not current_user.is_admin:
         abort(403)
     product = Product.query.get_or_404(id)
+    notes = Note.query.order_by(Note.name).all()
     if request.method == "POST":
         product.name = request.form["name"]
         product.description = request.form["description"]
+        product.note_id = int(request.form["note_id"]) if request.form.get("note_id") else None
         product.price = float(request.form["price"])
         product.stock_50ml = int(request.form.get("stock_50ml", 0))
         product.stock_100ml = int(request.form.get("stock_100ml", 0))
@@ -167,9 +227,10 @@ def edit_product(id):
         new_image = save_image(image_file)
         if new_image:
             product.image = new_image
+
         db.session.commit()
         return redirect(url_for("admin.admin_products"))
-    return render_template("edit_product.html", product=product)
+    return render_template("edit_product.html", product=product, notes=notes)
 
 @admin.route("/products/delete/<int:id>")
 @login_required
