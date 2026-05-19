@@ -15,7 +15,6 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar">
         <div class="logo">DEEPSCENT</div>
         <ul class="nav-links">
@@ -52,7 +51,6 @@
         </div>
     </nav>
 
-    <!-- Search Bar -->
     <div id="searchBar">
         <div class="search-overlay-inner">
             <p class="search-label">SEARCH</p>
@@ -73,12 +71,10 @@
         </div>
     </div>
 
-    <!-- Page Content -->
     <main>
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
     <footer>
         <div class="footer-inner">
             <div class="footer-brand">
@@ -124,7 +120,6 @@
         </div>
     </footer>
 
-    <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;text-align:center;">
@@ -156,10 +151,8 @@
         {% endif %}
     {% endwith %}
 
-    <!-- Toast -->
     <div id="toast" class="toast"></div>
 
-    <!-- Cart Modal -->
     <div id="cartModal" class="cart-modal-overlay" onclick="closeCartModal(event)">
         <div class="cart-modal-box">
             <button class="cart-modal-close" onclick="closeCartModal()"><i class="fas fa-times"></i></button>
@@ -193,13 +186,11 @@
         </div>
     </div>
 
-    <!-- Overlay + Profile Panel -->
     <div class="overlay" style="display:none;"></div>
     <div class="profile-panel" style="display:none;">
         <i class="fas fa-cog settings-icon" onclick="toggleDarkMode()" title="Toggle Dark Mode"></i>
         <button class="btn-close-custom" onclick="closeProfile()" aria-label="Close"></button>
 
-        <!-- My Profile Screen -->
         <div class="my-profile">
             <div class="profile-header">
                 <img id="avatarPreview" src="{{ url_for('static', filename='uploads/' ~ current_user.avatar) if current_user.avatar else url_for('static', filename='images/default-avatar.png') }}" alt="Profile Picture">
@@ -216,7 +207,6 @@
             </div>
         </div>
 
-        <!-- Edit Profile Screen -->
         <div class="edit-profile">
             <div class="profile-header" style="cursor:pointer;" onclick="document.getElementById('avatarInput').click()" title="Click to change photo">
                 <img id="editAvatarPreview" src="{{ url_for('static', filename='uploads/' ~ current_user.avatar) if current_user.avatar else url_for('static', filename='images/default-avatar.png') }}" alt="Profile Picture">
@@ -231,30 +221,24 @@
             </form>
             <div class="btn-cancel" onclick="showMyProfile()">Cancel</div>
         </div>
-    </div><!-- end profile-panel -->
-
-    <!-- Favorites Panel -->
-    <div class="side-panel" id="favoritesPanel" style="display:none;">
+    </div><div class="side-panel" id="favoritesPanel" style="display:none;">
         <button class="btn-close-custom" onclick="closeFavoritesPanel()" aria-label="Close"></button>
         <h2 class="panel-title">Favorites</h2>
         <div id="favoritesContent" class="panel-content"></div>
     </div>
 
-    <!-- Cart Panel -->
     <div class="side-panel" id="cartPanel" style="display:none;">
         <button class="btn-close-custom" onclick="closeCartPanel()" aria-label="Close"></button>
         <h2 class="panel-title">Cart</h2>
         <div id="cartContent" class="panel-content"></div>
     </div>
 
-    <!-- Orders Panel -->
     <div class="side-panel" id="ordersPanel" style="display:none;">
         <button class="btn-close-custom" onclick="closeOrdersPanel()" aria-label="Close"></button>
         <h2 class="panel-title">My Orders</h2>
         <div id="ordersContent" class="panel-content"></div>
     </div>
 
-    <!-- Location Panel -->
     <div class="side-panel" id="locationPanel" style="display:none;">
         <button class="btn-close-custom" onclick="closeLocationPanel()" aria-label="Close"></button>
         <h2 class="panel-title">Delivery Address</h2>
@@ -271,7 +255,6 @@
     </div>
 
 
-    <!-- Scripts -->
     <script>
     // Dropdown toggle
     document.addEventListener("DOMContentLoaded", function() {
@@ -296,88 +279,111 @@
         });
     });
 
-    function searchLocation() {
-      const q = document.getElementById('locationSearch').value.trim();
-      if (!q) return;
-      fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1`)
-        .then(r => r.json())
-        .then(data => {
-          if (!data.length) { showToast('Location not found.', 'error'); return; }
-          const { lat, lon, display_name } = data[0];
-          _locationMap.setView([lat, lon], 16);
-          if (_locationMarker) _locationMarker.setLatLng([lat, lon]);
-          else _locationMarker = L.marker([lat, lon]).addTo(_locationMap);
-          _selectedAddress = display_name;
-          document.getElementById('locationAddressDisplay').textContent = display_name;
-        });
-    }
-
     let _locationMap = null;
     let _locationMarker = null;
     let _selectedAddress = '{{ current_user.address if current_user.is_authenticated and current_user.address else "" }}';
 
-    function openLocationPanel() {
-      closeProfile();
-      const panel = document.getElementById('locationPanel');
-      panel.style.display = 'block';
-      panel.style.animation = 'slideIn 0.4s ease forwards';
-      document.querySelector('.overlay').style.display = 'block';
-      setTimeout(() => {
-        if (!_locationMap) {
-          const defaultCoords = [14.5995, 120.9842];
-          _locationMap = L.map('locationMap').setView(defaultCoords, 12);
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '\u00a9 OpenStreetMap'
-          }).addTo(_locationMap);
-
-          // If saved address exists, geocode it and center map there
-          if (_selectedAddress) {
-            fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(_selectedAddress)}&format=json&limit=1`)
-              .then(r => r.json())
-              .then(data => {
-                if (data.length) {
-                  const lat = parseFloat(data[0].lat);
-                  const lon = parseFloat(data[0].lon);
-                  _locationMap.setView([lat, lon], 16);
-                  _locationMarker = L.marker([lat, lon]).addTo(_locationMap);
+    function searchLocation() {
+        const q = document.getElementById('locationSearch').value.trim();
+        if (!q) return;
+        fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1`)
+            .then(r => r.json())
+            .then(data => {
+                if (!data.length) { showToast('Location not found.', 'error'); return; }
+                const { lat, lon, display_name } = data[0];
+                const newCoords = [parseFloat(lat), parseFloat(lon)];
+                
+                if (_locationMap) {
+                    _locationMap.setView(newCoords, 16);
+                    if (_locationMarker) {
+                        _locationMarker.setLatLng(newCoords);
+                    } else {
+                        _locationMarker = L.marker(newCoords).addTo(_locationMap);
+                    }
+                    _selectedAddress = display_name;
+                    document.getElementById('locationAddressDisplay').textContent = display_name;
                 }
-              });
-          }
+            })
+            .catch(err => console.error("Geocoding error: ", err));
+    }
 
-          _locationMap.on('click', function(e) {
-            const { lat, lng } = e.latlng;
-            if (_locationMarker) _locationMarker.setLatLng([lat, lng]);
-            else _locationMarker = L.marker([lat, lng]).addTo(_locationMap);
-            document.getElementById('locationAddressDisplay').textContent = 'Getting address...';
-            fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
-              .then(r => r.json())
-              .then(data => {
-                _selectedAddress = data.display_name || `${lat}, ${lng}`;
-                document.getElementById('locationAddressDisplay').textContent = _selectedAddress;
-              });
-          });
-        } else {
-          _locationMap.invalidateSize();
-        }
-      }, 450);
+    function openLocationPanel() {
+        closeProfile();
+        const panel = document.getElementById('locationPanel');
+        panel.style.display = 'block';
+        panel.style.animation = 'slideIn 0.4s ease forwards';
+        document.querySelector('.overlay').style.display = 'block';
+
+        setTimeout(() => {
+            if (!_locationMap) {
+                const defaultCoords = [14.5995, 120.9842]; // Manila default
+                _locationMap = L.map('locationMap', {
+                    attributionControl: false
+                }).setView(defaultCoords, 12);
+
+                // ✅ Beautiful Carto Voyager basemap configuration
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                    subdomains: 'abcd',
+                    maxZoom: 20
+                }).addTo(_locationMap);
+
+                // If saved address exists, fetch its coordinates to place map + marker correctly
+                if (_selectedAddress) {
+                    fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(_selectedAddress)}&format=json&limit=1`)
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.length) {
+                                const lat = parseFloat(data[0].lat);
+                                const lon = parseFloat(data[0].lon);
+                                _locationMap.setView([lat, lon], 16);
+                                _locationMarker = L.marker([lat, lon]).addTo(_locationMap);
+                            }
+                        });
+                }
+
+                // Click event configuration for pinning coordinates and pulling reversed names
+                _locationMap.on('click', function(e) {
+                    const { lat, lng } = e.latlng;
+                    if (_locationMarker) {
+                        _locationMarker.setLatLng([lat, lng]);
+                    } else {
+                        _locationMarker = L.marker([lat, lng]).addTo(_locationMap);
+                    }
+
+                    document.getElementById('locationAddressDisplay').textContent = 'Getting address...';
+                    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+                        .then(r => r.json())
+                        .then(data => {
+                            _selectedAddress = data.display_name || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                            document.getElementById('locationAddressDisplay').textContent = _selectedAddress;
+                        })
+                        .catch(() => {
+                            _selectedAddress = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                            document.getElementById('locationAddressDisplay').textContent = _selectedAddress;
+                        });
+                });
+            } else {
+                _locationMap.invalidateSize();
+            }
+        }, 450);
     }
 
     function closeLocationPanel() {
-      const panel = document.getElementById('locationPanel');
-      panel.style.animation = 'slideOut 0.4s ease forwards';
-      setTimeout(() => { panel.style.display = 'none'; }, 400);
-      document.querySelector('.overlay').style.display = 'none';
+        const panel = document.getElementById('locationPanel');
+        panel.style.animation = 'slideOut 0.4s ease forwards';
+        setTimeout(() => { panel.style.display = 'none'; }, 400);
+        document.querySelector('.overlay').style.display = 'none';
     }
 
     function saveLocationAddress() {
-      if (!_selectedAddress) { showToast('Please pick a location on the map.', 'error'); return; }
-      fetch('/save_address', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address: _selectedAddress })
-      }).then(res => res.json()).then(data => {
-        if (data.success) { showToast('Address saved!'); closeLocationPanel(); }
-      });
+        if (!_selectedAddress) { showToast('Please pick a location on the map.', 'error'); return; }
+        fetch('/save_address', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ address: _selectedAddress })
+        }).then(res => res.json()).then(data => {
+            if (data.success) { showToast('Address saved!'); closeLocationPanel(); }
+        });
     }
 
     function doOrders() {
@@ -482,6 +488,7 @@
       }
     }
 
+    // Settings Profile Toggles
     function toggleDarkMode() {
       document.body.classList.toggle('dark-mode');
       const icon = document.querySelector('.settings-icon');
