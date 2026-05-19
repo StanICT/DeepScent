@@ -180,11 +180,15 @@ def delete_note(id):
 def add_product():
     if not current_user.is_admin:
         abort(403)
-    notes = Note.query.order_by(Note.name).all()
     if request.method == "POST":
         name = request.form["name"]
         description = request.form["description"]
-        note_id = int(request.form["note_id"]) if request.form.get("note_id") else None
+        note_id = None
+        all_notes = Note.query.all()
+        for note in all_notes:
+            if note.name.lower() in description.lower():
+                note_id = note.id
+                break
         price = float(request.form["price"])
         stock_50ml = int(request.form.get("stock_50ml", 0))
         stock_100ml = int(request.form.get("stock_100ml", 0))
@@ -205,7 +209,7 @@ def add_product():
         db.session.commit()
         return redirect(url_for("admin.admin_products"))
 
-    return render_template("add_product.html", notes=notes)
+    return render_template("add_product.html")
 
 @admin.route("/products/edit/<int:id>", methods=["GET","POST"])
 @login_required
@@ -213,11 +217,15 @@ def edit_product(id):
     if not current_user.is_admin:
         abort(403)
     product = Product.query.get_or_404(id)
-    notes = Note.query.order_by(Note.name).all()
     if request.method == "POST":
         product.name = request.form["name"]
         product.description = request.form["description"]
-        product.note_id = int(request.form["note_id"]) if request.form.get("note_id") else None
+        product.note_id = None
+        all_notes = Note.query.all()
+        for note in all_notes:
+            if note.name.lower() in product.description.lower():
+                product.note_id = note.id
+                break
         product.price = float(request.form["price"])
         product.stock_50ml = int(request.form.get("stock_50ml", 0))
         product.stock_100ml = int(request.form.get("stock_100ml", 0))
@@ -229,10 +237,9 @@ def edit_product(id):
         new_image = save_image(image_file)
         if new_image:
             product.image = new_image
-
         db.session.commit()
         return redirect(url_for("admin.admin_products"))
-    return render_template("edit_product.html", product=product, notes=notes)
+    return render_template("edit_product.html", product=product)
 
 @admin.route("/products/delete/<int:id>")
 @login_required
