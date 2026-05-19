@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, abort
 from flask_login import login_required, current_user
-from .models import Product, Brand, Order, OrderItem, User, Note, db
+from .models import Product, Brand, Order, OrderItem, User, Note, Review, db
 from sqlalchemy import text as db_text
 from werkzeug.utils import secure_filename
 import os
@@ -31,12 +31,12 @@ def dashboard():
     total_products = Product.query.count()
     total_users = User.query.filter_by(is_admin=False).count()
     total_notes = Note.query.count()
+    total_reviews = Review.query.count()
     recent_orders = Order.query.order_by(Order.created_at.desc()).limit(5).all()
     top_products = db.session.query(
         Product.name, db.func.sum(OrderItem.quantity).label('sold')
     ).join(OrderItem).group_by(Product.id).order_by(db_text('sold DESC')).limit(5).all()
 
-    # Revenue by day for last 7 days (only completed orders)
     from datetime import datetime, timedelta
     today = datetime.utcnow().date()
     revenue_labels = []
@@ -57,6 +57,7 @@ def dashboard():
         total_products=total_products,
         total_users=total_users,
         total_notes=total_notes,
+        total_reviews=total_reviews,
         recent_orders=recent_orders,
         top_products=top_products,
         revenue_labels=revenue_labels,
@@ -116,7 +117,7 @@ def customer_detail(user_id):
 @login_required
 def admin_products():
     if not current_user.is_admin:
-        abort(403)  # block non-admins
+        abort(403)
     products = Product.query.all()
     return render_template("admin_products.html", products=products)
 
@@ -254,6 +255,24 @@ def delete_product(id):
     db.session.delete(product)
     db.session.commit()
     return redirect(url_for("admin.admin_products"))
+
+@admin.route("/reviews")
+@login_required
+def admin_reviews():
+    if not current_user.is_admin:
+        abort(403)
+    reviews = Review.query.order_by(Review.created_at.desc()).all()
+    return render_template("admin_reviews.html", reviews=reviews)
+
+@admin.route("/reviews/delete/<int:id>", methods=["POST"])
+@login_required
+def delete_review(id):
+    if not current_user.is_admin:
+        abort(403)
+    review = Review.query.get_or_404(id)
+    db.session.delete(review)
+    db.session.commit()
+    return redirect(url_for("admin.admin_reviews"))
 
 # --- Brand CRUD ---
 
