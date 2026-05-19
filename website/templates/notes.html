@@ -32,16 +32,54 @@
     <div class="products-grid">
         {% if products %}
             {% for product in products %}
-            <a href="{{ url_for('views.product_detail', product_id=product.id) }}" class="product-card">
-                <div class="product-card-img">
-                    <img src="{{ url_for('static', filename='uploads/' ~ product.image) }}" alt="{{ product.name }}">
+            <div class="product-card">
+                <div class="product-img-wrap">
+                    {% if product.discount %}
+                    <div class="product-badge-sale">SAVE {{ product.discount }}%</div>
+                    {% endif %}
+                    {% set total_stock = (product.stock_50ml or 0) + (product.stock_100ml or 0) %}
+                    {% if total_stock == 0 %}
+                    <div class="product-badge-stock out">Out of Stock</div>
+                    {% elif total_stock < 5 %}
+                    <div class="product-badge-stock low">{{ total_stock }} left</div>
+                    {% endif %}
+                    <a href="{{ url_for('views.product_detail', product_id=product.id) }}">
+                        <img src="{{ url_for('static', filename='uploads/' ~ product.image) }}" alt="{{ product.name }}">
+                    </a>
                 </div>
-                <div class="product-card-body">
-                    <p class="product-card-brand">{{ product.brand }}</p>
-                    <h3 class="product-card-name">{{ product.name }}</h3>
-                    <p class="product-card-price">₱{{ "%.2f"|format(product.price * (1 - (product.discount or 0) / 100)) }}</p>
+                <div class="product-info">
+                    <div class="product-tags">
+                        <span class="tag tag-gender">{{ product.gender or 'UNISEX' }}</span>
+                        <span class="tag tag-type">EDP</span>
+                    </div>
+                    <p class="product-brand">{{ product.brand }}</p>
+                    <a href="{{ url_for('views.product_detail', product_id=product.id) }}" style="text-decoration:none;">
+                        <h3 class="product-name">{{ product.name }}</h3>
+                    </a>
+                    <div class="product-footer">
+                        <div class="product-price-wrap">
+                            {% if product.discount %}
+                            <span class="product-price-old">₱{{ "%.2f"|format(product.price) }}</span>
+                            <span class="product-price">₱{{ "%.2f"|format(product.price * (1 - product.discount / 100)) }}</span>
+                            {% else %}
+                            <span class="product-price">₱{{ "%.2f"|format(product.price) }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="product-actions">
+                            <button class="product-action-btn heart-btn {% if current_user.is_authenticated and product.id in favorited_ids %}favorited{% endif %}"
+                                data-id="{{ product.id }}"
+                                data-auth="{% if current_user.is_authenticated %}yes{% else %}no{% endif %}"
+                                onclick="toggleFavorite(this)" title="Favorites">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                            <button class="product-action-btn cart-btn" title="Add to Cart"
+                                onclick="openCartModal('{{ product.id }}', '{{ product.name }}', {{ product.price * (1 - product.discount / 100) if product.discount else product.price }}, '{% if current_user.is_authenticated %}yes{% else %}no{% endif %}', '{{ url_for('static', filename='uploads/' ~ product.image) }}', '{{ product.brand }}', '{{ product.gender if product.gender else 'UNISEX' }}', {{ (product.price_100ml * (1 - product.discount / 100)) if product.price_100ml and product.discount else (product.price_100ml if product.price_100ml else product.price) }})">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </a>
+            </div>
             {% endfor %}
         {% else %}
             <p class="empty-row">No products found for this note yet.</p>
@@ -83,6 +121,8 @@
     .note-detail-top { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 40px; }
     .note-image-card { width: 160px; height: 160px; background: #fff; border-radius: 50%; overflow: hidden; box-shadow: 0 12px 30px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; margin-top: 20px; }
     .note-image-card img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Notes grid */
     .notes-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
     .note-card { display: block; background: #fff; border-radius: 12px; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 2px 12px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s; }
     .note-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
@@ -91,17 +131,36 @@
     .note-card-body { padding: 12px; text-align: center; }
     .note-card-body h3 { margin: 0 0 4px; font-size: 14px; font-weight: 600; }
     .note-card-body p { margin: 0; color: #888; font-size: 11px; }
-    .products-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-    .product-card { background: #fff; border-radius: 12px; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 2px 12px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s; }
-    .product-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
-    .product-card-img { background: #fafafa; display: flex; align-items: center; justify-content: center; height: 160px; }
-    .product-card-img img { width: 100%; height: 100%; object-fit: contain; }
-    .product-card-body { padding: 14px; text-align: center; }
-    .product-card-brand { margin: 0 0 4px; color: #999; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
-    .product-card-name { margin: 0 0 6px; font-size: 13px; font-weight: 600; }
-    .product-card-price { margin: 0; color: #cc0000; font-size: 14px; font-weight: 700; }
+
+    /* Product cards - matching products page */
+    .products-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+    .product-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); position: relative; transition: box-shadow 0.2s ease, transform 0.2s ease; }
+    .product-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.1); transform: translateY(-4px); }
+    .product-img-wrap { background: #fafafa; height: 220px; display: flex; align-items: center; justify-content: center; padding: 20px; position: relative; }
+    .product-img-wrap img { max-height: 180px; max-width: 100%; object-fit: contain; }
+    .product-badge-sale { position: absolute; top: 14px; left: 14px; background: #cc0000; color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 1px; padding: 4px 10px; border-radius: 4px; z-index: 1; }
+    .product-badge-stock { position: absolute; bottom: 10px; left: 10px; font-size: 10px; font-weight: 700; letter-spacing: 1px; padding: 4px 10px; border-radius: 4px; z-index: 1; }
+    .product-badge-stock.out { background: #111; color: #fff; }
+    .product-badge-stock.low { background: #fff8e1; color: #f59e0b; }
+    .product-info { padding: 16px 18px 18px; }
+    .product-tags { display: flex; gap: 6px; margin-bottom: 10px; }
+    .tag { font-size: 10px; font-weight: 600; letter-spacing: 1px; padding: 3px 10px; border-radius: 3px; }
+    .tag-gender { background: #e8f0fe; color: #4a6fa5; }
+    .tag-type { background: #f0f0f0; color: #888; }
+    .product-brand { font-size: 10px; letter-spacing: 2px; color: #aaa; text-transform: uppercase; margin-bottom: 4px; }
+    .product-name { font-size: 15px; font-weight: 700; color: #111; margin: 0 0 12px; line-height: 1.3; }
+    .product-footer { display: flex; justify-content: space-between; align-items: center; }
+    .product-price-wrap { display: flex; flex-direction: column; gap: 2px; }
+    .product-price { font-size: 17px; font-weight: 700; color: #cc0000; }
+    .product-price-old { font-size: 12px; font-weight: 500; color: #aaa; text-decoration: line-through; }
+    .product-actions { display: flex; gap: 8px; }
+    .product-action-btn { width: 36px; height: 36px; background: #111; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; transition: background 0.2s ease; }
+    .product-action-btn:hover { background: #cc0000; color: #fff; }
+    .heart-btn.favorited { background: #cc0000; }
+
     .empty-row { text-align: center; color: #aaa; font-size: 14px; padding: 40px 0; grid-column: 1 / -1; }
     .empty-row-text { margin: 0; }
+
     @media (max-width: 1100px) { .products-grid { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 900px) { .notes-grid { grid-template-columns: repeat(4, 1fr); } }
     @media (max-width: 768px) { .notes-page { padding: 40px 20px; } .notes-grid { grid-template-columns: repeat(3, 1fr); } .products-grid { grid-template-columns: repeat(2, 1fr); } }
