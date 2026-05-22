@@ -459,21 +459,43 @@
     function searchSuggest(q) {
       const box = document.getElementById('searchSuggestions');
       if (q.length < 2) { box.style.display = 'none'; box.innerHTML = ''; return; }
-      fetch(`/search/suggest?q=${encodeURIComponent(q)}`)
-        .then(r => r.json())
-        .then(data => {
-          if (!data.length) { box.style.display = 'none'; return; }
-          box.innerHTML = data.map(p => `
+
+      Promise.all([
+        fetch(`/search/suggest?q=${encodeURIComponent(q)}`).then(r => r.json()),
+        fetch(`/search/suggest_notes?q=${encodeURIComponent(q)}`).then(r => r.json())
+      ]).then(([products, notes]) => {
+        const items = [];
+
+        (products || []).forEach(p => {
+          items.push(`
             <a href="/product/${p.id}" class="suggest-item" onclick="document.getElementById('searchBar').classList.remove('open')">
               <img src="/static/uploads/${p.image}" alt="${p.name}">
               <div>
                 <p class="suggest-name">${p.name}</p>
                 <p class="suggest-brand">${p.brand}</p>
               </div>
-            </a>`).join('');
-          box.style.display = 'block';
+            </a>
+          `);
         });
+
+        (notes || []).forEach(n => {
+          items.push(`
+            <a href="/notes/${n.id}" class="suggest-item" onclick="document.getElementById('searchBar').classList.remove('open')">
+              <img src="${n.image ? '/static/uploads/' + n.image : '/static/images/favicon.png'}" alt="${n.name}">
+              <div>
+                <p class="suggest-name">${n.name}</p>
+                <p class="suggest-brand">${n.count} products</p>
+              </div>
+            </a>
+          `);
+        });
+
+        if (!items.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+        box.innerHTML = items.join('');
+        box.style.display = 'block';
+      });
     }
+
 
     function toggleSearch(e) {
       e.preventDefault();
