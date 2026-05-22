@@ -437,33 +437,51 @@
 
 <!-- Address Modal -->
 <div class="modal-overlay" id="addressModal" onclick="if(event.target===this)this.classList.remove('active')">
-    <div class="modal-box" style="width: 620px; max-width: calc(100vw - 32px); text-align: left;">
-        <div class="modal-icon"><i class="fas fa-map-marker-alt"></i></div>
-        <p class="modal-title" style="margin-left: 0;">Delivery Address</p>
-        <p class="modal-desc" style="margin-left: 0;">Pick a location from the map or type your delivery address. Drag the marker to fine-tune.</p>
-
-        <div style="display:flex; gap:16px; align-items: stretch;">
-            <div style="flex: 1.1; display:flex; flex-direction:column; gap:12px;">
-                <div>
-                    <label style="font-size:10px;letter-spacing:2px;color:#aaa;font-weight:600;display:block;margin:0 0 6px;">ADDRESS</label>
-                    <textarea id="addressInput" rows="4" style="width:100%;padding:12px;border:1px solid #e0e0e0;border-radius:8px;font-family:'Poppins',sans-serif;font-size:13px;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
-                    <div id="addressValidation" style="margin-top:6px;font-size:12px;color:#cc0000;display:none;">Please provide a valid address.</div>
-                </div>
-
-                <div class="modal-actions" style="justify-content:flex-start; margin-top:auto;">
-                    <button class="modal-btn-cancel" onclick="document.getElementById('addressModal').classList.remove('active')">Cancel</button>
-                    <button class="modal-btn-confirm" style="background:#cc0000;" onclick="saveAddress()">Save</button>
-                </div>
+    <div class="modal-box" style="max-width: 420px; width: calc(100vw - 32px); text-align: left; padding: 22px 20px;">
+        <!-- Header / Close -->
+        <div style="display:flex; align-items:flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px;">
+            <div>
+                <p class="modal-title" style="margin:0; font-size: 18px; font-weight: 800; color:#111; text-align:left;">Delivery Address</p>
+                <p class="modal-desc" style="margin:6px 0 0; font-size: 13px; color:#999; line-height:1.4; text-align:left;">Search for your location or click on the map.</p>
             </div>
-
-            <div style="flex: 1;">
-                <label style="font-size:10px;letter-spacing:2px;color:#aaa;font-weight:600;display:block;margin:0 0 6px;">MAP</label>
-                <div id="addressMap" style="width:100%; height: 380px; background:#eee; border-radius:10px; overflow:hidden; border: 1px solid #f0f0f0;"></div>
-                <p id="mapHint" style="margin:8px 0 0; font-size:12px;color:#666;">Click the map to move the pin. Drag the pin to adjust.</p>
+            <div style="width:34px; height:34px; border:1px solid #e6e6e6; display:flex; align-items:center; justify-content:center; border-radius: 8px; background:#fff;">
+                <button type="button" aria-label="Close" onclick="document.getElementById('addressModal').classList.remove('active')" style="border:none; background:transparent; cursor:pointer; font-size: 18px; line-height: 1; color:#111;">&times;</button>
             </div>
         </div>
+
+        <!-- Search -->
+        <div style="margin: 12px 0 12px;">
+            <div style="display:flex; gap: 8px; align-items: stretch;">
+                <input id="addressSearchInput" type="text" placeholder="Search address..." style="flex:1; padding: 12px 12px; border: 1px solid #e5e5e5; border-radius: 12px; outline: none; font-family:'Poppins',sans-serif; font-size: 13px;" />
+                <button type="button" onclick="searchAddressFromModal()" style="width: 44px; height: 44px; background:#111; color:#fff; border:none; border-radius: 12px; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                    <i class="fas fa-search" style="color:#fff;"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Map -->
+        <div style="margin: 0 0 12px;">
+            <div id="addressMap" style="width:100%; height: 260px; background:#eee; border-radius: 16px; overflow:hidden; border: 1px solid #f0f0f0;"></div>
+        </div>
+
+        <!-- Selected Address -->
+        <div style="margin: 0 0 14px;">
+            <div style="width:100%; background:#f5f5f5; padding: 12px 12px; border-radius: 14px; font-size: 13px; color:#111; font-weight: 700; min-height: 46px; display:flex; align-items:center;">
+                <span id="addressSelectedPill">{{ current_user.address if current_user.address else 'Click the map to pick a location' }}</span>
+            </div>
+        </div>
+
+        <!-- Hidden textarea input kept for existing JS hooks -->
+        <textarea id="addressInput" rows="2" style="display:none;"></textarea>
+        <div id="addressValidation" style="margin-top:6px;font-size:12px;color:#cc0000;display:none;">Please provide a valid address.</div>
+
+        <!-- Primary Action -->
+        <button class="modal-btn-confirm" style="width:100%; padding: 13px; background:#111; color:#fff; border:none; border-radius: 12px; font-family:'Poppins',sans-serif; font-size: 14px; font-weight: 800; cursor:pointer; transition: background 0.2s;" onclick="saveAddress()" onmouseover="this.style.background='#cc0000'" onmouseout="this.style.background='#111'">
+            Save Address
+        </button>
     </div>
 </div>
+
 
 <!-- Leaflet + CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
@@ -491,8 +509,8 @@
         _cartSelectedAddress = displayNameFallback || (lat.toFixed(4) + ', ' + lng.toFixed(4));
         document.getElementById('addressInput').value = _cartSelectedAddress;
 
-
         showAddressValidation(false);
+
 
         if (_cartLocationMarker) {
             _cartLocationMarker.setLatLng([lat, lng]);
@@ -546,7 +564,33 @@
         });
     }
 
+    function searchAddressFromModal() {
+        // Hook for the search UI (keeps existing map + selection behavior).
+        const q = (document.getElementById('addressSearchInput')?.value || '').trim();
+        if (!q) return;
+        // Reuse existing geocode pipeline by calling openAddressModal seed logic via geocode.
+        // We intentionally do not navigate away; we just move the pin once geocoding succeeds.
+        geocodeAddress(q).then(geo => {
+            if (!geo) {
+                showAddressValidation(true);
+                return;
+            }
+            _cartSelectedAddress = geo.display_name || q;
+            document.getElementById('addressInput').value = _cartSelectedAddress;
+            const pill = document.getElementById('addressSelectedPill');
+            if (pill) pill.textContent = _cartSelectedAddress;
+            initCartAddressMap([geo.lat, geo.lng]);
+            if (_cartLocationMap) {
+                _cartLocationMap.setView([geo.lat, geo.lng], 16);
+                if (_cartLocationMarker) _cartLocationMarker.setLatLng([geo.lat, geo.lng]);
+                else _cartLocationMarker = L.marker([geo.lat, geo.lng]).addTo(_cartLocationMap);
+            }
+            showAddressValidation(false);
+        }).catch(() => showAddressValidation(true));
+    }
+
     async function openAddressModal() {
+
         const modal = document.getElementById('addressModal');
         modal.classList.add('active');
 
@@ -610,8 +654,12 @@
         }
 
         const displayText = geo.display_name || txt;
+        // Update both the cart summary and the modal pill.
         document.getElementById('addressDisplay').textContent = displayText;
         document.getElementById('addressDisplay').classList.remove('no-address');
+        const pill = document.getElementById('addressSelectedPill');
+        if (pill) pill.textContent = displayText;
+
         document.querySelectorAll('.btn-edit-address').forEach(btn => btn.textContent = 'Change');
 
         document.getElementById('addressModal').classList.remove('active');
