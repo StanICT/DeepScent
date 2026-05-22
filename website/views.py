@@ -76,9 +76,25 @@ def search_suggest():
     if not q or len(q) < 2:
         return jsonify([])
     results = Product.query.filter(
-        Product.name.ilike(f'%{q}%') | Product.brand.ilike(f'%{q}%')
+        Product.name.ilike(f'%{q}%') |
+        Product.brand.ilike(f'%{q}%') |
+        Product.gender.ilike(f'%{q}%')
     ).limit(6).all()
+
     return jsonify([{'id': p.id, 'name': p.name, 'brand': p.brand, 'image': p.image} for p in results])
+
+@views.route('/search/suggest_notes')
+def search_suggest_notes():
+    q = request.args.get('q', '').strip()
+    if not q or len(q) < 2:
+        return jsonify([])
+
+    results = Note.query.filter(
+        Note.name.ilike(f'%{q}%')
+    ).limit(6).all()
+
+    return jsonify([{'id': n.id, 'name': n.name, 'count': len(n.products), 'image': n.image} for n in results])
+
 
 @views.route('/search')
 def search():
