@@ -87,11 +87,54 @@
             <button class="btn-checkout" onclick="checkout()">Checkout</button>
         </div>
     </div>
+
     {% else %}
-    <div class="cart-empty">
-        <i class="fas fa-shopping-cart"></i>
-        <p>Your cart is empty.</p>
-        <a href="{{ url_for('views.product') }}" class="btn-shop">Shop Now</a>
+    <div class="cart-container">
+        <div style="flex:1;">
+            <div class="cart-select-all">
+                <label><input type="checkbox" id="selectAll" disabled> Select All</label>
+            </div>
+        </div>
+        <div class="cart-summary">
+            <h3>Order Summary</h3>
+            <div class="summary-row">
+                <span>Selected Items</span>
+                <span id="selected-count">0</span>
+            </div>
+            <div class="summary-row">
+                <span>Total</span>
+                <span id="cart-total">₱0.00</span>
+            </div>
+            <div class="summary-address">
+                <p class="summary-address-label">DELIVERY ADDRESS</p>
+                {% if current_user.address %}
+                <p class="summary-address-text" id="addressDisplay">{{ current_user.address }}</p>
+                {% else %}
+                <p class="summary-address-text no-address" id="addressDisplay">No address set</p>
+                {% endif %}
+                <button class="btn-edit-address" onclick="openAddressModal()">{{ 'Change' if current_user.address else 'Add Address' }}</button>
+            </div>
+            <div class="summary-payment">
+                <p class="summary-payment-label">PAYMENT METHOD</p>
+                <div class="payment-options">
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="cod" checked onchange="updatePaymentMethod()">
+                        <span class="payment-text">
+                            <strong>Cash on Delivery</strong>
+                            <small>Pay when order arrives</small>
+                        </span>
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="online_payment" onchange="updatePaymentMethod()">
+                        <span class="payment-text">
+                            <strong>Online Payment</strong>
+                            <small>Debit/Credit Card</small>
+                        </span>
+                    </label>
+                </div>
+            </div>
+            <button class="btn-checkout" onclick="checkout()" disabled>Checkout</button>
+        </div>
     </div>
     {% endif %}
 </section>
@@ -125,18 +168,14 @@
         transition: box-shadow 0.2s;
     }
     .cart-item.selected { box-shadow: 0 2px 10px rgba(204,0,0,0.15); border: 1px solid #cc0000; }
-
     .cart-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: #cc0000; flex-shrink: 0; }
-
     .cart-img { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; background: #fafafa; border-radius: 8px; }
     .cart-img img { max-width: 70px; max-height: 70px; object-fit: contain; }
-
     .cart-info { flex: 1; }
     .cart-brand { font-size: 10px; letter-spacing: 2px; color: #aaa; text-transform: uppercase; margin: 0 0 4px; }
     .cart-name { font-size: 15px; font-weight: 700; color: #111; margin: 0 0 4px; }
     .cart-size { font-size: 11px; color: #aaa; margin: 0 0 4px; }
     .cart-price { font-size: 13px; color: #666; margin: 0; }
-
     .cart-qty { font-size: 13px; color: #555; min-width: 60px; text-align: center; }
     .cart-qty-control { display: flex; align-items: center; gap: 8px; min-width: 90px; justify-content: center; }
     .cart-qty-control button {
@@ -148,7 +187,6 @@
     .cart-qty-control button:hover { background: #111; color: #fff; border-color: #111; }
     .cart-qty-control span { font-size: 14px; font-weight: 700; min-width: 20px; text-align: center; }
     .cart-subtotal { font-size: 16px; font-weight: 700; color: #111; min-width: 90px; text-align: right; }
-
     .cart-remove { background: none; border: none; color: #ccc; cursor: pointer; font-size: 15px; transition: color 0.2s; }
     .cart-remove:hover { color: #cc0000; }
 
@@ -156,7 +194,6 @@
     .cart-summary h3 { font-size: 16px; font-weight: 700; margin: 0 0 20px; }
     .summary-row { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; margin-bottom: 14px; color: #555; }
     .summary-row:last-of-type { font-size: 16px; color: #111; border-top: 1px solid #eee; padding-top: 14px; margin-top: 6px; }
-
     .btn-checkout { width: 100%; padding: 13px; background: #111; color: #fff; border: none; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
     .btn-checkout:hover { background: #cc0000; }
     .btn-checkout:disabled { background: #ccc; cursor: not-allowed; }
@@ -168,9 +205,6 @@
     .btn-edit-address { background: none; border: none; color: #cc0000; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; padding: 0; }
     .btn-edit-address:hover { text-decoration: underline; }
 
-    .cart-empty { text-align: center; padding: 80px 0; color: #aaa; }
-    .cart-empty i { font-size: 60px; margin-bottom: 20px; }
-    .cart-empty p { font-size: 16px; margin-bottom: 20px; }
     .btn-shop { padding: 12px 30px; background: #111; color: #fff; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; }
     .btn-shop:hover { background: #cc0000; color: #fff; }
 
@@ -182,14 +216,11 @@
         border-radius: 8px; cursor: pointer; transition: all 0.2s; background: #fff;
     }
     .payment-option:hover { border-color: #cc0000; background: #fff; }
-    .payment-option input[type="radio"] {
-        width: 16px; height: 16px; cursor: pointer; accent-color: #cc0000; flex-shrink: 0;
-    }
+    .payment-option input[type="radio"] { width: 16px; height: 16px; cursor: pointer; accent-color: #cc0000; flex-shrink: 0; }
     .payment-option input[type="radio"]:checked ~ .payment-text { color: #111; }
     .payment-text { display: flex; flex-direction: column; gap: 2px; }
     .payment-text strong { font-size: 13px; font-weight: 600; color: #555; }
     .payment-text small { font-size: 11px; color: #aaa; }
-    .payment-option input[type="radio"]:checked { accent-color: #cc0000; }
 
     @media (max-width: 768px) {
         .cart-page { padding: 40px 20px; }
@@ -243,7 +274,6 @@
                 const last = results[results.length - 1];
                 document.querySelectorAll('.cart-badge').forEach(b => b.textContent = last.cart_count);
                 updateSummary();
-                if (last.cart_count === 0) location.reload();
             });
         });
     }
@@ -279,7 +309,6 @@
                         document.getElementById(`cart-item-${itemId}`).remove();
                         document.querySelectorAll('.cart-badge').forEach(b => b.textContent = data.cart_count);
                         updateSummary();
-                        if (data.cart_count === 0) location.reload();
                     }
                 });
         });
@@ -295,7 +324,6 @@
             openAddressModal();
             return;
         }
-        // Build confirmation modal content
         const total = document.getElementById('cart-total').textContent;
         const count = selected.length;
         document.getElementById('checkoutAddress').textContent = address;
@@ -427,8 +455,6 @@
     .modal-btn-confirm:hover { background: #a00000; }
 </style>
 
-{% endblock %}
-
 <!-- Address Modal -->
 <div class="modal-overlay" id="addressModal" onclick="if(event.target===this)this.classList.remove('active')">
     <div class="modal-box">
@@ -442,3 +468,4 @@
         </div>
     </div>
 </div>
+{% endblock %}

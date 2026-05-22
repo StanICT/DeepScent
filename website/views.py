@@ -194,10 +194,17 @@ def add_to_cart(product_id):
 @views.route('/cart/update/<int:item_id>', methods=['POST'])
 @login_required
 def update_cart_quantity(item_id):
+    # Ensure request is JSON
+    if not request.is_json:
+        return jsonify({'success': False, 'message': 'Invalid request format.'}), 400
     item = CartItem.query.filter_by(id=item_id, user_id=current_user.id).first_or_404()
     quantity = int(request.json.get('quantity', 1))
     if quantity < 1:
         quantity = 1
+    # Check available stock for the item's size
+    stock = (item.product.stock_50ml or 0) if item.size == '50ml' else (item.product.stock_100ml or 0)
+    if quantity > stock:
+        return jsonify({'success': False, 'message': f'Only {stock} items in stock for {item.product.name} ({item.size}).'}), 400
     item.quantity = quantity
     db.session.commit()
     subtotal = round((item.price_paid if item.price_paid else item.product.price) * quantity, 2)
@@ -217,10 +224,16 @@ def remove_from_cart(item_id):
 @views.route('/save_address', methods=['POST'])
 @login_required
 def save_address():
+    # Ensure we received JSON
+    if not request.is_json:
+        return jsonify({'success': False, 'message': 'Invalid request format.'}), 400
     address = request.json.get('address', '').strip()
+    if not address:
+        return jsonify({'success': False, 'message': 'Address cannot be empty.'}), 400
+    # Update the user's address
     current_user.address = address
     db.session.commit()
-    return jsonify({'success': True})
+    return jsonify({'success': True, 'address': address})
 
 @views.route('/checkout', methods=['POST'])
 @login_required
