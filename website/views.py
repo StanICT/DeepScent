@@ -100,7 +100,9 @@ def search_suggest_notes():
 def search():
     q = request.args.get('q', '').strip()
     results = Product.query.filter(
-        Product.name.ilike(f'%{q}%') | Product.brand.ilike(f'%{q}%')
+        Product.name.ilike(f'%{q}%') |
+        Product.brand.ilike(f'%{q}%') |
+        Product.description.ilike(f'%{q}%')
     ).all() if q else []
     favorited_ids = [f.product_id for f in current_user.favorites] if current_user.is_authenticated else []
     ratings = {}
