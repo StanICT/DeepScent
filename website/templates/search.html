@@ -45,29 +45,34 @@
                     <span class="stars">{% for i in range(1,6) %}{% if i <= r %}★{% else %}☆{% endif %}{% endfor %}</span>
                     <span class="review-count">({{ ratings[product.id].avg if ratings and product.id in ratings else 0 }})</span>
                 </div>
+
                 <div class="product-footer">
-                    <div class="product-price-wrap">
-                        {% if product.discount %}
-                        <span class="product-price-old">₱{{ "%.2f"|format(product.price) }}</span>
-                        <span class="product-price">₱{{ "%.2f"|format(product.price * (1 - product.discount / 100)) }}</span>
-                        {% else %}
-                        <span class="product-price">₱{{ "%.2f"|format(product.price) }}</span>
-                        {% endif %}
-                    </div>
-                    <div class="product-actions">
-                        <button class="product-action-btn heart-btn {% if current_user.is_authenticated and product.id in favorited_ids %}favorited{% endif %}"
-                            data-id="{{ product.id }}"
-                            data-auth="{% if current_user.is_authenticated %}yes{% else %}no{% endif %}"
-                            onclick="toggleFavorite(this)" title="Favorites">
-                            <i class="fas fa-heart"></i>
-                        </button>
-                        <button class="product-action-btn cart-btn" title="Add to Cart"
-                            onclick="openCartModal('{{ product.id }}', '{{ product.name }}', {{ product.price * (1 - product.discount / 100) if product.discount else product.price }}, '{% if current_user.is_authenticated %}yes{% else %}no{% endif %}', '{{ url_for('static', filename='uploads/' ~ product.image) }}', '{{ product.brand }}', '{{ product.gender or 'UNISEX' }}', {{ (product.price_100ml * (1 - product.discount / 100)) if product.price_100ml and product.discount else (product.price_100ml if product.price_100ml else product.price) }})">
-                            <i class="fas fa-shopping-cart"></i>
-                        </button>
+                    <div class="product-footer-row flex items-end justify-between w-full">
+                        <div class="product-price-wrap">
+                            {% if product.discount %}
+                            <span class="product-price-old">₱{{ "%.2f"|format(product.price) }}</span>
+                            <span class="product-price">₱{{ "%.2f"|format(product.price * (1 - product.discount / 100)) }}</span>
+                            {% else %}
+                            <span class="product-price">₱{{ "%.2f"|format(product.price) }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="product-actions flex gap-2">
+                                <button class="product-action-btn heart-btn {% if current_user.is_authenticated and product.id in favorited_ids %}favorited{% endif %}"
+                                data-id="{{ product.id }}"
+                                data-auth="{% if current_user.is_authenticated %}yes{% else %}no{% endif %}"
+                                onclick="toggleFavorite(this)" title="Favorites">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                            <button class="product-action-btn cart-btn" title="Add to Cart"
+                                onclick="openCartModal('{{ product.id }}', '{{ product.name }}', {{ (product.price * (1 - product.discount / 100)) if product.discount else product.price }}, '{% if current_user.is_authenticated %}yes{% else %}no{% endif %}', '{{ url_for('static', filename='uploads/' ~ product.image) }}', '{{ product.brand }}', '{{ product.gender or 'UNISEX' }}', {{ (product.price_100ml * (1 - product.discount / 100)) if product.price_100ml and product.discount else (product.price_100ml if product.price_100ml else product.price) }})">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
+
         </div>
         {% endfor %}
     </div>
@@ -166,6 +171,7 @@
     .product-price-wrap { display: flex; flex-direction: column; gap: 2px; }
     .product-price { font-size: 17px; font-weight: 700; color: #cc0000; }
     .product-price-old { font-size: 12px; font-weight: 500; color: #aaa; text-decoration: line-through; }
+.product-footer-row { width: 100%; }
     .product-actions { display: flex; gap: 8px; }
     .product-action-btn {
         width: 36px; height: 36px; background: #111; color: #fff;
