@@ -32,7 +32,7 @@
                     <td style="max-width:300px;font-size:12px;color:#666;">{{ review.comment or '—' }}</td>
                     <td>{{ review.created_at.strftime('%b %d, %Y') }}</td>
                     <td>
-                        <a href="{{ url_for('admin.delete_review', id=review.id) }}" class="btn-delete" onclick="showDeleteModalFromEl(this); return false;" data-name="{{ review.product.name }} by @{{ review.user.username }}" data-url="{{ url_for('admin.delete_review', id=review.id) }}">Delete</a>
+                        <a href="#" class="btn-delete" onclick="showDeleteModalFromEl(this); return false;" data-url="{{ url_for('admin.delete_review', id=review.id) }}" data-name="{{ review.product.name }} by @{{ review.user.username }}">Delete</a>
                     </td>
                 </tr>
                 {% else %}
@@ -101,7 +101,10 @@
         <p class="modal-desc">Are you sure you want to delete <span id="modalReviewName"></span>? This action cannot be undone.</p>
         <div class="modal-actions">
             <button class="modal-btn-cancel" onclick="closeDeleteModal()">Cancel</button>
-            <a id="modalConfirmBtn" href="#" class="modal-btn-confirm">Delete</a>
+            <form id="modalDeleteForm" method="POST" action="#" style="display:inline-block;">
+                <button type="submit" class="modal-btn-confirm" onclick="return true;">Delete</button>
+            </form>
+
         </div>
     </div>
 </div>
@@ -109,8 +112,26 @@
 <script>
     function showDeleteModal(name, url) {
         document.getElementById('modalReviewName').textContent = name;
-        document.getElementById('modalConfirmBtn').href = url;
+        const form = document.getElementById('modalDeleteForm');
+        form.action = url;
         document.getElementById('deleteModal').classList.add('active');
+    }
+
+    // Hide modal after submit + show confirmation toast
+    document.addEventListener('submit', function(e) {
+        const form = e.target;
+        if (form && form.id === 'modalDeleteForm') {
+            closeDeleteModal();
+            showToast('Deleted review!', 'success');
+        }
+    });
+
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        if (!toast) return;
+        toast.textContent = message;
+        toast.className = 'toast toast-' + type + ' show';
+        setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
     function escapeForJs(str) {
