@@ -64,7 +64,9 @@
                 <p class="summary-address-text no-address" id="addressDisplay">No address set</p>
                 <div class="summary-address-map" id="addressMap" aria-hidden="true"></div>
                 {% endif %}
-                <button class="btn-edit-address" onclick="openAddressModal()">{{ 'Change' if current_user.address else 'Add Address' }}</button>
+                <button class="btn-edit-address" onclick="openAddressModal()">
+                    {% if current_user.address %}Change{% else %}Add Address{% endif %}
+                </button>
             </div>
             <div class="summary-payment">
                 <p class="summary-payment-label">PAYMENT METHOD</p>

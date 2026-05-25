@@ -32,7 +32,7 @@
                     <td style="max-width:300px;font-size:12px;color:#666;">{{ review.comment or '—' }}</td>
                     <td>{{ review.created_at.strftime('%b %d, %Y') }}</td>
                     <td>
-                        <a href="#" class="btn-delete" onclick="showDeleteModalFromEl(this); return false;" data-name="{{ review.product.name }} by @{{ review.user.username }}" data-url="{{ url_for('admin.delete_review', id=review.id) }}">Delete</a>
+                        <a href="{{ url_for('admin.delete_review', id=review.id) }}" class="btn-delete" onclick="showDeleteModalFromEl(this); return false;" data-name="{{ review.product.name }} by @{{ review.user.username }}" data-url="{{ url_for('admin.delete_review', id=review.id) }}">Delete</a>
                     </td>
                 </tr>
                 {% else %}
