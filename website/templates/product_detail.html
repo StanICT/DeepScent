@@ -375,11 +375,19 @@
     });
 
     function submitReview(productId) {
+        // Determine rating based on selected stars; fallback to 5 if none selected
+        const stars = document.querySelectorAll('#starInput i');
+        let rating = 5;
+        stars.forEach((star, idx) => {
+            if (star.classList.contains('active')) {
+                rating = idx + 1; // stars are zero-indexed
+            }
+        });
         const comment = document.getElementById('reviewComment').value.trim();
         fetch(`/review/${productId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ rating: _selectedRating, comment })
+            body: JSON.stringify({ rating, comment })
         }).then(res => res.json()).then(data => {
             if (data.success) {
                 document.querySelector('.review-form').remove();

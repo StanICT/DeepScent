@@ -180,7 +180,14 @@
     });
 
     function submitOrderReview(productId) {
-        const rating = _orderRatings[productId] || 5;
+        // Determine rating based on selected stars; fallback to 5 if none selected
+        const stars = document.querySelectorAll(`.star-row[data-product="${productId}"] .order-star`);
+        let rating = 5; // default
+        stars.forEach((star, idx) => {
+            if (star.classList.contains('active')) {
+                rating = idx + 1; // stars are zero-indexed
+            }
+        });
         const comment = document.getElementById('comment-' + productId).value.trim();
         fetch(`/review/${productId}`, {
             method: 'POST',
