@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Flask/DB
+*.db
+*.sqlite3
+instance/
+
+# Logs
+*.log
+
+# Alembic / migrations
+alembic.ini
+alembic_version*
+
+# Node (if ever added)
+node_modules/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Environment secrets
+.env
+.env.*
+
+# Static/generated uploads (keep only files you intend to commit)
+website/static/uploads/
+
+# System/project files
+*.bak
+*.tmp
+
