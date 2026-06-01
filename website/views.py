@@ -99,6 +99,7 @@ def search_suggest_notes():
 @views.route('/search')
 def search():
     q = request.args.get('q', '').strip()
+    note_results = Note.query.filter(Note.name.ilike(f'%{q}%')).all() if q else []
     results = Product.query.filter(
         Product.name.ilike(f'%{q}%') |
         Product.brand.ilike(f'%{q}%') |
@@ -109,7 +110,7 @@ def search():
     for p in results:
         reviews = Review.query.filter_by(product_id=p.id).all()
         ratings[p.id] = {'avg': round(sum(r.rating for r in reviews) / len(reviews), 1) if reviews else 0, 'count': len(reviews)}
-    return render_template('search.html', results=results, query=q, favorited_ids=favorited_ids, ratings=ratings)
+    return render_template('search.html', results=results, query=q, favorited_ids=favorited_ids, ratings=ratings, note_results=note_results)
 
 @views.route('/notes')
 def notes():
