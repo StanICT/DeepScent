@@ -13,7 +13,18 @@
         {% for item in items %}
         <div class="product-card" id="fav-card-{{ item.product_id }}">
             <div class="product-img-wrap">
-                <img src="{{ url_for('static', filename='uploads/' ~ item.product.image) }}" alt="{{ item.product.name }}">
+                {% if item.product.discount %}
+                <div class="product-badge-sale">SAVE {{ item.product.discount }}%</div>
+                {% endif %}
+                {% set total_stock = (item.product.stock_50ml or 0) + (item.product.stock_100ml or 0) %}
+                {% if total_stock == 0 %}
+                <div class="product-badge-stock out">Out of Stock</div>
+                {% elif total_stock < 5 %}
+                <div class="product-badge-stock low">{{ total_stock }} left</div>
+                {% endif %}
+                <a href="{{ url_for('views.product_detail', product_id=item.product.id) }}">
+                    <img src="{{ url_for('static', filename='uploads/' ~ item.product.image) }}" alt="{{ item.product.name }}">
+                </a>
             </div>
             <div class="product-info">
                 <div class="product-tags">
@@ -21,9 +32,24 @@
                     <span class="tag tag-type">EDP</span>
                 </div>
                 <p class="product-brand">{{ item.product.brand }}</p>
-                <h3 class="product-name">{{ item.product.name }}</h3>
+                <a href="{{ url_for('views.product_detail', product_id=item.product.id) }}" style="text-decoration:none;">
+                    <h3 class="product-name">{{ item.product.name }}</h3>
+                </a>
+                <div class="product-rating">
+                    {% set r = (ratings[item.product.id].avg|int) if ratings and item.product.id in ratings else 0 %}
+                    {% set c = ratings[item.product.id].count if ratings and item.product.id in ratings else 0 %}
+                    <span class="stars">{% for i in range(1,6) %}{% if i <= r %}★{% else %}☆{% endif %}{% endfor %}</span>
+                    <span class="review-count">({{ ratings[item.product.id].avg if ratings and item.product.id in ratings else 0 }})</span>
+                </div>
                 <div class="product-footer">
-                    <span class="product-price">₱{{ "%.2f"|format(item.product.price) }}</span>
+                    <div class="product-price-wrap">
+                        {% if item.product.discount %}
+                        <span class="product-price-old">₱{{ "%.2f"|format(item.product.price) }}</span>
+                        <span class="product-price">₱{{ "%.2f"|format(item.product.price * (1 - item.product.discount / 100)) }}</span>
+                        {% else %}
+                        <span class="product-price">₱{{ "%.2f"|format(item.product.price) }}</span>
+                        {% endif %}
+                    </div>
                     <div class="product-actions">
                         <button class="product-action-btn heart-btn favorited"
                             data-id="{{ item.product_id }}"
@@ -32,7 +58,7 @@
                             <i class="fas fa-heart"></i>
                         </button>
                         <button class="product-action-btn cart-btn" title="Add to Cart"
-                            onclick="openCartModal('{{ item.product.id }}', '{{ item.product.name }}', {{ item.product.price }}, 'yes', '{{ url_for('static', filename='uploads/' ~ item.product.image) }}', '{{ item.product.brand }}', '{{ item.product.gender or 'UNISEX' }}', {{ item.product.price_100ml if item.product.price_100ml else item.product.price }})">
+                            onclick="openCartModal('{{ item.product.id }}', '{{ item.product.name }}', {{ item.product.price * (1 - item.product.discount / 100) if item.product.discount else item.product.price }}, 'yes', '{{ url_for('static', filename='uploads/' ~ item.product.image) }}', '{{ item.product.brand }}', '{{ item.product.gender or 'UNISEX' }}', {{ (item.product.price_100ml * (1 - item.product.discount / 100)) if item.product.price_100ml and item.product.discount else (item.product.price_100ml if item.product.price_100ml else item.product.price) }})">
                             <i class="fas fa-shopping-cart"></i>
                         </button>
                     </div>
@@ -64,17 +90,26 @@
 
     .product-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); position: relative; transition: box-shadow 0.2s ease, transform 0.2s ease; }
     .product-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.1); transform: translateY(-4px); }
-    .product-img-wrap { background: #fafafa; height: 220px; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .product-img-wrap img { max-height: 180px; max-width: 100%; object-fit: contain; }
+    .product-img-wrap { background: #fafafa; height: 200px; display: flex; align-items: center; justify-content: center; padding: 20px; position: relative; }
+    .product-img-wrap img { max-height: 160px; max-width: 100%; object-fit: contain; }
+    .product-badge-sale { position: absolute; top: 14px; left: 14px; background: #cc0000; color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 1px; padding: 4px 10px; border-radius: 4px; z-index: 1; }
+    .product-badge-stock { position: absolute; bottom: 10px; left: 10px; font-size: 10px; font-weight: 700; letter-spacing: 1px; padding: 4px 10px; border-radius: 4px; z-index: 1; }
+    .product-badge-stock.out { background: #111; color: #fff; }
+    .product-badge-stock.low { background: #fff8e1; color: #f59e0b; }
     .product-info { padding: 16px 18px 18px; }
     .product-tags { display: flex; gap: 6px; margin-bottom: 10px; }
     .tag { font-size: 10px; font-weight: 600; letter-spacing: 1px; padding: 3px 10px; border-radius: 3px; }
     .tag-gender { background: #e8f0fe; color: #4a6fa5; }
     .tag-type { background: #f0f0f0; color: #888; }
     .product-brand { font-size: 10px; letter-spacing: 2px; color: #aaa; text-transform: uppercase; margin-bottom: 4px; }
-    .product-name { font-size: 15px; font-weight: 700; color: #111; margin: 0 0 14px; }
+    .product-name { font-size: 15px; font-weight: 700; color: #111; margin: 0 0 8px; }
+    .product-rating { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+    .stars { color: #f5a623; font-size: 13px; }
+    .review-count { font-size: 11px; color: #aaa; }
     .product-footer { display: flex; justify-content: space-between; align-items: center; }
-    .product-price { font-size: 17px; font-weight: 700; color: #111; }
+    .product-price-wrap { display: flex; flex-direction: column; gap: 2px; }
+    .product-price { font-size: 17px; font-weight: 700; color: #cc0000; }
+    .product-price-old { font-size: 12px; font-weight: 500; color: #aaa; text-decoration: line-through; }
     .product-actions { display: flex; gap: 8px; }
     .product-action-btn { width: 36px; height: 36px; background: #111; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: background 0.2s ease; }
     .product-action-btn:hover { background: #cc0000; color: #fff; }

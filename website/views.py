@@ -168,7 +168,11 @@ def cart_panel():
 @login_required
 def favorites():
     items = Favorite.query.filter_by(user_id=current_user.id).all()
-    return render_template('favorites.html', items=items)
+    ratings = {}
+    for i in items:
+        reviews = Review.query.filter_by(product_id=i.product_id).all()
+        ratings[i.product_id] = {'avg': round(sum(r.rating for r in reviews) / len(reviews), 1) if reviews else 0, 'count': len(reviews)}
+    return render_template('favorites.html', items=items, ratings=ratings)
 
 @views.route('/cart/login-required')
 def cart_login_required():
