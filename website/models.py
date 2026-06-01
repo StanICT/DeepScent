@@ -48,6 +48,12 @@ class CartItem(db.Model):
     price_paid = db.Column(db.Float, nullable=True)
     product = db.relationship('Product')
 
+# Many-to-many: Product <-> Note
+product_notes = db.Table('product_notes',
+    db.Column('product_id', db.Integer, db.ForeignKey('product.id'), primary_key=True),
+    db.Column('note_id', db.Integer, db.ForeignKey('note.id'), primary_key=True)
+)
+
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -63,6 +69,7 @@ class Product(db.Model):
     image = db.Column(db.String(100), nullable=False)
     brand = db.Column(db.String(50), nullable=False)
     gender = db.Column(db.String(20), default='UNISEX')
+    notes = db.relationship('Note', secondary=product_notes, backref='tagged_products', lazy=True)
 
 class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)

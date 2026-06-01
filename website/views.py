@@ -1,7 +1,17 @@
 from flask import Blueprint, render_template, request, jsonify, flash, redirect, url_for
 from flask_login import current_user, login_required
-from website.models import Product, Brand, CartItem, Favorite, Order, OrderItem, Review, Note
+from website.models import Product, Brand, CartItem, Favorite, Order, OrderItem, Review, Note, product_notes
 from website.extensions import db
+
+def auto_tag_notes(product):
+    """Automatically link notes to a product based on its description."""
+    all_notes = Note.query.all()
+    product.notes = []
+    desc = (product.description or '').lower()
+    for note in all_notes:
+        if note.name.lower() in desc:
+            product.notes.append(note)
+    db.session.commit()
 
 views = Blueprint('views', __name__)
 

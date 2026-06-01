@@ -69,7 +69,11 @@
         <!-- Revenue Chart -->
         <div class="dash-card" style="grid-column: 1 / -1;">
             <div class="dash-card-header">
-                <h3>Revenue — Last 7 Days</h3>
+                <h3>Revenue — <span id="chartRangeLabel"></span></h3>
+                <div style="display:flex;gap:8px;">
+                    <button id="chartPrev" class="chart-nav-btn"><i class="fas fa-chevron-left"></i></button>
+                    <button id="chartNext" class="chart-nav-btn"><i class="fas fa-chevron-right"></i></button>
+                </div>
             </div>
             <canvas id="revenueChart" height="80"></canvas>
         </div>
@@ -156,6 +160,9 @@
     .status-cancelled { background: #fce8e8; color: #cc0000; }
 
     .dash-empty { text-align: center; color: #aaa; font-size: 13px; padding: 30px 0; }
+    .chart-nav-btn { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 6px 12px; cursor: pointer; color: #111; transition: border-color 0.2s; }
+    .chart-nav-btn:hover:not(:disabled) { border-color: #111; }
+    .chart-nav-btn:disabled { opacity: 0.3; cursor: default; }
 
     @media (max-width: 1100px) { .dash-stats { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 768px) { .admin-page { padding: 40px 20px; } .dash-grid { grid-template-columns: 1fr; } .dash-stats { grid-template-columns: repeat(2, 1fr); } }
@@ -165,19 +172,22 @@
 <script>
     const chartCanvas = document.getElementById('revenueChart');
     if (chartCanvas) {
-        let revenueLabels = {{ revenue_labels|default([])|tojson }};
-        let revenueData = {{ revenue_data|default([])|tojson }};
-        if (!Array.isArray(revenueLabels)) revenueLabels = [];
-        if (!Array.isArray(revenueData)) revenueData = [];
+        let allLabels = {{ revenue_labels|default([])|tojson }};
+        let allData = {{ revenue_data|default([])|tojson }};
+        if (!Array.isArray(allLabels)) allLabels = [];
+        if (!Array.isArray(allData)) allData = [];
+
+        const PAGE = 7;
+        let offset = Math.max(0, allLabels.length - PAGE);
 
         const ctx = chartCanvas.getContext('2d');
-        new Chart(ctx, {
+        const chart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: revenueLabels,
+                labels: [],
                 datasets: [{
                     label: 'Revenue (₱)',
-                    data: revenueData,
+                    data: [],
                     fill: false,
                     borderColor: '#cc0000',
                     borderWidth: 2,
@@ -192,7 +202,7 @@
                 responsive: true,
                 plugins: {
                     legend: { display: false },
-                    tooltip: { callbacks: { label: ctx => '₱' + ctx.parsed.y.toFixed(2) } }
+                    tooltip: { callbacks: { label: c => '₱' + c.parsed.y.toFixed(2) } }
                 },
                 scales: {
                     y: {
@@ -207,6 +217,29 @@
                 }
             }
         });
+
+        function updateChart() {
+            const start = offset;
+            const end = Math.min(offset + PAGE, allLabels.length);
+            chart.data.labels = allLabels.slice(start, end);
+            chart.data.datasets[0].data = allData.slice(start, end);
+            chart.update();
+            document.getElementById('chartRangeLabel').textContent =
+                allLabels.length ? allLabels[start] + ' – ' + allLabels[end - 1] : 'No Data';
+            document.getElementById('chartPrev').disabled = offset === 0;
+            document.getElementById('chartNext').disabled = offset + PAGE >= allLabels.length;
+        }
+
+        document.getElementById('chartPrev').addEventListener('click', () => {
+            offset = Math.max(0, offset - PAGE);
+            updateChart();
+        });
+        document.getElementById('chartNext').addEventListener('click', () => {
+            offset = Math.min(allLabels.length - PAGE, offset + PAGE);
+            updateChart();
+        });
+
+        updateChart();
     }
 </script>
 

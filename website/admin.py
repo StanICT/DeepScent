@@ -39,17 +39,19 @@ def dashboard():
 
     from datetime import datetime, timedelta
     today = datetime.utcnow().date()
+    earliest_order = db.session.query(db.func.min(Order.created_at)).scalar()
+    start_date = earliest_order.date() if earliest_order else today
     revenue_labels = []
     revenue_data = []
-    for i in range(6, -1, -1):
-        day = today - timedelta(days=i)
-        label = day.strftime('%b %d')
+    day = start_date
+    while day <= today:
         total = db.session.query(db.func.sum(Order.total)).filter(
             db.func.date(Order.created_at) == day,
             Order.status == 'Completed'
         ).scalar() or 0
-        revenue_labels.append(label)
+        revenue_labels.append(day.strftime('%b %d'))
         revenue_data.append(round(float(total), 2))
+        day += timedelta(days=1)
 
     return render_template('admin_dashboard.html',
         total_orders=total_orders,
@@ -93,6 +95,20 @@ def delete_order(order_id):
     db.session.delete(order)
     db.session.commit()
     return redirect(url_for('admin.admin_orders'))
+
+@admin.route("/customers/delete/<int:user_id>", methods=['POST'])
+@login_required
+def delete_customer(user_id):
+    if not current_user.is_admin:
+        abort(403)
+    customer = User.query.get_or_404(user_id)
+    for order in customer.orders:
+        for item in order.items:
+            db.session.delete(item)
+        db.session.delete(order)
+    db.session.delete(customer)
+    db.session.commit()
+    return redirect(url_for('admin.admin_customers'))
 
 @admin.route("/customers")
 @login_required
@@ -201,12 +217,16 @@ def add_product():
         image = save_image(image_file) or "default.png"
 
         new_product = Product(
-            name=name, description=description, note_id=note_id, price=price,
+            name=name, description=description, price=price,
             stock_50ml=stock_50ml, stock_100ml=stock_100ml,
             price_100ml=price_100ml, discount=discount, image=image,
             brand=brand, gender=gender
         )
         db.session.add(new_product)
+        db.session.flush()
+        # Auto-tag all matching notes
+        all_notes = Note.query.all()
+        new_product.notes = [n for n in all_notes if n.name.lower() in description.lower()]
         db.session.commit()
         return redirect(url_for("admin.admin_products"))
 
@@ -234,6 +254,9 @@ def edit_product(id):
         product.discount = int(request.form.get("discount") or 0)
         product.brand = request.form["brand"]
         product.gender = request.form.get("gender", "UNISEX")
+        # Auto-tag all matching notes
+        all_notes = Note.query.all()
+        product.notes = [n for n in all_notes if n.name.lower() in product.description.lower()]
         image_file = request.files.get("image_file")
         new_image = save_image(image_file)
         if new_image:
