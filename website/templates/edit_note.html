@@ -20,13 +20,16 @@
                     </div>
                     <div class="form-group full-width">
                         <label>Note Image</label>
-                        {% if note.image %}
-                        <img src="{{ url_for('static', filename='uploads/' ~ note.image) }}" id="noteImgPreview" style="width:80px;height:80px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block;">
-                        {% else %}
-                        <img id="noteImgPreview" style="width:80px;height:80px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:none;">
-                        {% endif %}
-                        <input type="file" name="image_file" accept="image/*" onchange="previewImg(this)">
-                        <p style="font-size:11px;color:#aaa;margin:4px 0 0;">Leave empty to keep current image.</p>
+                        <div class="img-upload-box" onclick="document.getElementById('imgInput').click()">
+                            {% if note.image %}
+                            <img id="imgPreview" src="{{ url_for('static', filename='uploads/' ~ note.image) }}" style="max-height:120px;object-fit:contain;border-radius:6px;">
+                            <div id="imgPlaceholder" style="display:none;"><i class="fas fa-cloud-upload-alt"></i><span>Click to change</span></div>
+                            {% else %}
+                            <img id="imgPreview" style="max-height:120px;object-fit:contain;border-radius:6px;display:none;">
+                            <div id="imgPlaceholder"><i class="fas fa-cloud-upload-alt"></i><span>Click to upload</span></div>
+                            {% endif %}
+                        </div>
+                        <input type="file" id="imgInput" name="image_file" accept="image/*" style="display:none;" onchange="previewImage(this)">
                     </div>
                 </div>
                 <div class="form-actions">
@@ -52,16 +55,27 @@
     .form-group label { font-size: 11px; letter-spacing: 2px; font-weight: 600; color: #888; text-transform: uppercase; }
     .form-group input { padding: 12px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; }
     .form-actions { display: flex; justify-content: flex-end; gap: 12px; }
+    .img-upload-box { border: 2px dashed #e0e0e0; border-radius: 6px; height: 120px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color 0.2s ease; overflow: hidden; }
+    .img-upload-box:hover { border-color: #cc0000; }
+    #imgPlaceholder { display: flex; flex-direction: column; align-items: center; gap: 8px; color: #ccc; }
+    #imgPlaceholder i { font-size: 24px; }
+    #imgPlaceholder span { font-size: 11px; letter-spacing: 1px; }
     .btn-cancel-form, .btn-save { padding: 12px 28px; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600; text-decoration: none; border: none; cursor: pointer; }
     .btn-cancel-form { background: #f5f5f5; color: #111; }
     .btn-save { background: #111; color: #fff; }
 </style>
 <script>
-    function previewImg(input) {
-        const img = document.getElementById('noteImgPreview');
+    function previewImage(input) {
+        const preview = document.getElementById('imgPreview');
+        const placeholder = document.getElementById('imgPlaceholder');
         if (input.files && input.files[0]) {
-            img.src = URL.createObjectURL(input.files[0]);
-            img.style.display = 'block';
+            const reader = new FileReader();
+            reader.onload = e => {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                placeholder.style.display = 'none';
+            };
+            reader.readAsDataURL(input.files[0]);
         }
     }
 </script>
